@@ -1,0 +1,751 @@
+definitions:
+  dto.DeleteIds:
+    properties:
+      ids:
+        items:
+          type: integer
+        type: array
+    type: object
+  dto.List-array_model_Dict:
+    properties:
+      items:
+        items:
+          items:
+            $ref: '#/definitions/model.Dict'
+          type: array
+        type: array
+      pageNum:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  dto.List-dto_UserWithRole:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/dto.UserWithRole'
+        type: array
+      pageNum:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  dto.List-model_Permission:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/model.Permission'
+        type: array
+      pageNum:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  dto.List-model_Role:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/model.Role'
+        type: array
+      pageNum:
+        type: integer
+      pageSize:
+        type: integer
+      total:
+        type: integer
+    type: object
+  dto.LoginBody:
+    properties:
+      account:
+        type: string
+      password:
+        type: string
+    type: object
+  dto.RegBody:
+    properties:
+      account:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+    type: object
+  dto.Response-any:
+    properties:
+      code:
+        type: integer
+      data: {}
+      err: {}
+      message:
+        type: string
+    type: object
+  dto.Response-array_model_DictItem:
+    properties:
+      code:
+        type: integer
+      data:
+        items:
+          $ref: '#/definitions/model.DictItem'
+        type: array
+      err: {}
+      message:
+        type: string
+    type: object
+  dto.Response-dto_List-array_model_Dict:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/dto.List-array_model_Dict'
+      err: {}
+      message:
+        type: string
+    type: object
+  dto.Response-dto_List-dto_UserWithRole:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/dto.List-dto_UserWithRole'
+      err: {}
+      message:
+        type: string
+    type: object
+  dto.Response-dto_List-model_Permission:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/dto.List-model_Permission'
+      err: {}
+      message:
+        type: string
+    type: object
+  dto.Response-dto_List-model_Role:
+    properties:
+      code:
+        type: integer
+      data:
+        $ref: '#/definitions/dto.List-model_Role'
+      err: {}
+      message:
+        type: string
+    type: object
+  dto.Role:
+    properties:
+      description:
+        type: string
+      name:
+        type: string
+      permissions:
+        items:
+          type: integer
+        type: array
+      users:
+        items:
+          type: integer
+        type: array
+    type: object
+  dto.User:
+    properties:
+      roles:
+        items:
+          type: integer
+        type: array
+    type: object
+  dto.UserWithRole:
+    properties:
+      account:
+        type: string
+      createTime:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      roleId:
+        items:
+          type: integer
+        type: array
+      roleName:
+        items:
+          type: string
+        type: array
+      updateTime:
+        type: string
+    type: object
+  model.Department:
+    properties:
+      children:
+        description: 构造树结构用
+        items:
+          $ref: '#/definitions/model.Department'
+        type: array
+      created_time:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      parent_id:
+        description: 上级部门 ID，0 表示根节点
+        type: integer
+      sort:
+        description: 排序
+        type: integer
+      status:
+        description: 1=启用，0=禁用
+        type: integer
+      updated_time:
+        type: string
+      users:
+        description: 多对多关联
+        items:
+          $ref: '#/definitions/model.User'
+        type: array
+    type: object
+  model.Dict:
+    properties:
+      code:
+        type: string
+      createTime:
+        type: string
+      description:
+        type: string
+      en:
+        type: string
+      id:
+        type: integer
+      items:
+        items:
+          $ref: '#/definitions/model.DictItem'
+        type: array
+      name:
+        type: string
+      updateTime:
+        type: string
+    type: object
+  model.DictItem:
+    properties:
+      dictCode:
+        description: 外键，关联 Dict
+        type: string
+      id:
+        type: integer
+      labelEn:
+        description: 英文名称
+        type: string
+      labelZh:
+        description: 中文名称
+        type: string
+      sort:
+        type: integer
+      status:
+        description: 启用状态
+        type: string
+      value:
+        description: 数据值，系统用的
+        type: string
+    type: object
+  model.Permission:
+    properties:
+      createTime:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      roles:
+        items:
+          $ref: '#/definitions/model.Role'
+        type: array
+      updateTime:
+        type: string
+    type: object
+  model.Role:
+    properties:
+      createTime:
+        type: string
+      description:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      permissions:
+        items:
+          $ref: '#/definitions/model.Permission'
+        type: array
+      updateTime:
+        type: string
+      users:
+        items:
+          $ref: '#/definitions/model.User'
+        type: array
+    type: object
+  model.User:
+    properties:
+      account:
+        type: string
+      createTime:
+        type: string
+      departments:
+        items:
+          $ref: '#/definitions/model.Department'
+        type: array
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      password:
+        type: string
+      phone:
+        type: string
+      roles:
+        items:
+          $ref: '#/definitions/model.Role'
+        type: array
+      updateTime:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /api/department:
+    delete:
+      consumes:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-any'
+      summary: 删除
+      tags:
+      - 部门
+    get:
+      consumes:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-dto_List-model_Permission'
+      summary: 查询
+      tags:
+      - 部门
+    post:
+      consumes:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-any'
+      summary: 创建
+      tags:
+      - 部门
+    put:
+      consumes:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-any'
+      summary: 更新
+      tags:
+      - 部门
+  /api/department/{id}/users:
+    post:
+      consumes:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-any'
+      summary: 绑定用户到部门
+      tags:
+      - 部门
+  /api/dicts:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: 删除ids
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.DeleteIds'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-any'
+      summary: 删除
+      tags:
+      - 字典管理
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 页码
+        in: query
+        name: pageNum
+        type: integer
+      - description: 每页数量
+        in: query
+        name: pageSize
+        type: integer
+      - description: 字典名称
+        in: query
+        name: name
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-dto_List-array_model_Dict'
+      summary: 查询字典列表
+      tags:
+      - 字典管理
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.Dict'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-any'
+      summary: 创建
+      tags:
+      - 字典管理
+  /api/dicts/{code}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 字典编码
+        in: query
+        name: code
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-array_model_DictItem'
+      summary: 根据Code获取options
+      tags:
+      - 字典管理
+  /api/dicts/{id}:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: body
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/model.Dict'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-any'
+      summary: 更新
+      tags:
+      - 字典管理
+  /api/permissions:
+    delete:
+      consumes:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-any'
+      summary: 删除
+      tags:
+      - 权限码模块
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 页码
+        in: query
+        name: pageNum
+        type: integer
+      - description: 每页数量
+        in: query
+        name: pageSize
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-dto_List-model_Permission'
+      summary: 查询
+      tags:
+      - 权限码模块
+    post:
+      consumes:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-any'
+      summary: 创建
+      tags:
+      - 权限码模块
+    put:
+      consumes:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-any'
+      summary: 更新
+      tags:
+      - 权限码模块
+  /api/roles:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 页码
+        in: query
+        name: pageNum
+        type: integer
+      - description: 每页数量
+        in: query
+        name: pageSize
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-dto_List-model_Role'
+      summary: 角色列表
+      tags:
+      - 角色模块
+    post:
+      consumes:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-any'
+      summary: 创建角色
+      tags:
+      - 角色模块
+  /api/roles/{id}:
+    put:
+      consumes:
+      - application/json
+      description: 修改角色信息，支持name,description,和关联用户和关联权限表
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 角色Id
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Role'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-any'
+      summary: 修改角色信息，支持name,description,和关联用户和关联权限表
+      tags:
+      - 角色模块
+  /api/rpc/test:
+    get:
+      consumes:
+      - application/json
+      responses: {}
+      summary: 测试GRPC
+      tags:
+      - GRPC
+  /api/users:
+    delete:
+      consumes:
+      - application/json
+      description: 删除用户
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.DeleteIds'
+      summary: 删除用户
+      tags:
+      - 用户模块
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: 页码
+        in: query
+        name: pageNum
+        type: integer
+      - description: 每页数量
+        in: query
+        name: pageSize
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-dto_List-dto_UserWithRole'
+      summary: 用户列表
+      tags:
+      - 用户模块
+  /api/users/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: 删除角色
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 要删除的角色
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.DeleteIds'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-any'
+      summary: 删除角色
+      tags:
+      - 角色模块
+    put:
+      consumes:
+      - application/json
+      description: 修改角色，设置角色
+      parameters:
+      - description: 用户ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.User'
+      summary: 设置角色
+      tags:
+      - 用户模块
+  /api/users/login:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 用户信息
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginBody'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-any'
+      summary: 登录接口
+      tags:
+      - 用户模块
+  /api/users/permissions/{id}:
+    put:
+      consumes:
+      - application/json
+      description: 只修改角色权限
+      parameters:
+      - description: 角色ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: 角色Id
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Role'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-any'
+      summary: 只修改角色权限
+      tags:
+      - 角色模块
+  /api/users/register:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: 注册用户
+        in: body
+        name: data
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegBody'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response-any'
+      summary: 注册
+      tags:
+      - 用户模块
+swagger: "2.0"
