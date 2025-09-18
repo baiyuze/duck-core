@@ -2,10 +2,17 @@
 // import type { Position } from "../Widgets/Position";
 // import type { Size } from "../Widgets/Size";
 
-import { Position } from "../Widgets/Position";
-import { Size } from "../Widgets/Size";
-import { Color } from "../Widgets/Color";
+import { Position } from "../Components/Position";
+import { Size } from "../Components/Size";
+import { Color } from "../Components/Color";
+import { Entity } from "../Entity/Entity";
 
+interface DSLParams {
+  position: { x: number; y: number };
+  size: { width: number; height: number };
+  color: { filelColor?: string; strokeColor?: string };
+  id: string;
+}
 export class DSL {
   position: Position;
 
@@ -13,9 +20,12 @@ export class DSL {
 
   color: Color;
 
-  constructor(position: Position, size: Size, color: Color) {
+  id: string;
+
+  constructor({ position, size, color, id }: DSLParams) {
     this.position = new Position(position.x, position.y);
     this.size = new Size(size.width, size.height);
-    this.color = new Color(color.value);
+    this.color = new Color(color.filelColor, color.strokeColor);
+    this.id = id;
   }
 }

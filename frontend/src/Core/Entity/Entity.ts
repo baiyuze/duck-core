@@ -10,6 +10,11 @@ export class Entity {
     this.id++;
     return colorId;
   }
+
+  createEntity() {
+    const colorId = this.generateId();
+    return colorId.join("");
+  }
   /**
    * 通过ID获取颜色
    * @param id 实体ID
