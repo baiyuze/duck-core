@@ -1,0 +1,7 @@
+import type { Color, Position, Size } from "../Components";
+
+export type ComponentStore = {
+  position: Map<string, Position>;
+  size: Map<string, Size>;
+  color: Map<string, Color>;
+};
