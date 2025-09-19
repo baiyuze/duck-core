@@ -12,6 +12,7 @@ interface DSLParams {
   size: { width: number; height: number };
   color: { filelColor?: string; strokeColor?: string };
   id: string;
+  selected: { value: boolean };
 }
 export class DSL {
   position: Position;
@@ -22,10 +23,13 @@ export class DSL {
 
   id: string;
 
-  constructor({ position, size, color, id }: DSLParams) {
+  selected: { value: boolean } = { value: false };
+
+  constructor({ position, size, color, id, selected }: DSLParams) {
     this.position = new Position(position.x, position.y);
     this.size = new Size(size.width, size.height);
     this.color = new Color(color.filelColor, color.strokeColor);
     this.id = id;
+    this.selected = selected;
   }
 }

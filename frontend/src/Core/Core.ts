@@ -14,6 +14,7 @@ export class Core {
     position: new Map<string, Position>(),
     size: new Map<string, Size>(),
     color: new Map<string, Color>(),
+    selected: new Map<string, { value: boolean }>(),
   };
 
   system: System[] = [];
@@ -28,10 +29,11 @@ export class Core {
   }
 
   initComponents() {
-    this.dsls.forEach((dsl) => {
+    this.dsls.forEach((dsl: DSL) => {
       this.components.position.set(dsl.id, dsl.position);
       this.components.size.set(dsl.id, dsl.size);
       this.components.color.set(dsl.id, dsl.color);
+      this.components.selected.set(dsl.id, dsl.selected);
     });
   }
 
