@@ -10,6 +10,16 @@ export class Entity {
     this.id++;
     return colorId;
   }
+  /**
+   * 通过实体ID获取颜色值
+   * @returns
+   */
+  getColorById(id: string) {
+    const colorId = this.idToRGBA(parseInt(id));
+    return `rgba(${colorId[0]}, ${colorId[1]}, ${colorId[2]}, ${
+      colorId[3] / 255
+    })`;
+  }
 
   createEntity() {
     const colorId = this.generateId();

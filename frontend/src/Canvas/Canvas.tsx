@@ -3,6 +3,8 @@ import type { CanvasProps } from "./Canvas.d";
 import { Core } from "../Core/Core";
 import type { DSL } from "../Core/DSL/DSL";
 import { RenderSystem } from "../Core/System/RenderSystem";
+import { SelectionSystem } from "../Core/System/SelectionSystem";
+import { PickingSystem } from "../Core/System/PickingSystem";
 
 function Canvas(props: CanvasProps) {
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -60,19 +62,23 @@ function Canvas(props: CanvasProps) {
       {
         position: { x: 10, y: 10 },
         size: { width: 290, height: 290 },
-        color: { filelColor: "rgb(0,0,255,255)" },
-        id: "00255",
+        color: { filelColor: "#f1f1f1" },
+        id: "1",
+        selected: { value: true },
       },
       {
         position: { x: 50, y: 50 },
         size: { width: 290, height: 290 },
-        color: { filelColor: "rgb(255,0,0,255)" },
-        id: "00254",
+        color: { filelColor: "#f2f2f2" },
+        id: "2",
+        selected: { value: true },
       },
     ];
     if (ctxRef.current) {
       const core = new Core(dsls, ctxRef.current);
       core.addSystem(new RenderSystem(ctxRef.current));
+      core.addSystem(new SelectionSystem(ctxRef.current));
+      core.addSystem(new PickingSystem(ctxRef.current));
       core.update();
       console.log(core, "core");
     }
