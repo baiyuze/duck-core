@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>ECS Rect Demo</title>
+  <style>
+    canvas { border: 1px solid black; }
+  </style>
+</head>
+<body>
+  <canvas id="game" width="400" height="300"></canvas>
+  <script>
+    // ========== ECS 基础 ==========
+    let nextEntityId = 1;
+    function createEntity() {
+      return nextEntityId++;
+    }
+
+    const positions = new Map(); // Map<entity, {x,y}>
+    const velocities = new Map(); // Map<entity, {dx,dy}>
+    const renders   = new Map(); // Map<entity, {w,h,color}>
+
+    // ========== 系统 ==========
+    function movementSystem() {
+      for (let [e, pos] of positions) {
+        if (velocities.has(e)) {
+          const vel = velocities.get(e);
+          pos.x += vel.dx;
+          pos.y += vel.dy;
+        }
+      }
+    }
+
+    function renderSystem(ctx) {
+      ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+      for (let [e, pos] of positions) {
+        if (renders.has(e)) {
+          const r = renders.get(e);
+          ctx.fillStyle = r.color;
+          ctx.fillRect(pos.x, pos.y, r.w, r.h);
+        }
+      }
+    }
+
+    // ========== 初始化 ==========
+    const e1 = createEntity();
+    positions.set(e1, {x: 50, y: 50});
+    velocities.set(e1, {dx: 1, dy: 1});
+    renders.set(e1, {w: 40, h: 40, color: "red"});
+
+    const e2 = createEntity();
+    positions.set(e2, {x: 200, y: 100});
+    velocities.set(e2, {dx: -0.5, dy: 1});
+    renders.set(e2, {w: 30, h: 30, color: "blue"});
+
+    // ========== 游戏循环 ==========
+    const ctx = document.getElementById("game").getContext("2d");
+
+    function gameLoop() {
+      movementSystem();
+      renderSystem(ctx);
+      requestAnimationFrame(gameLoop);
+    }
+
+    gameLoop();
+  </script>
+</body>
+</html>
