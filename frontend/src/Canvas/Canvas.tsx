@@ -5,6 +5,9 @@ import type { DSL } from "../Core/DSL/DSL";
 import { RenderSystem } from "../Core/System/RenderSystem";
 import { SelectionSystem } from "../Core/System/SelectionSystem";
 import { PickingSystem } from "../Core/System/PickingSystem";
+import styles from "./Canvas.module.scss";
+import { EventSystem } from "../Core/System/EventSystem";
+import { InputSystem } from "../Core/System/InputSytem";
 
 function Canvas(props: CanvasProps) {
   const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
@@ -64,27 +67,29 @@ function Canvas(props: CanvasProps) {
         size: { width: 290, height: 290 },
         color: { filelColor: "#f1f1f1" },
         id: "1",
-        selected: { value: true },
+        selected: { value: false },
       },
       {
         position: { x: 50, y: 50 },
         size: { width: 290, height: 290 },
         color: { filelColor: "#f2f2f2" },
-        id: "2",
-        selected: { value: true },
+        id: "255",
+        selected: { value: false },
       },
     ];
     if (ctxRef.current) {
       const core = new Core(dsls, ctxRef.current);
-      core.addSystem(new RenderSystem(ctxRef.current));
-      core.addSystem(new SelectionSystem(ctxRef.current));
-      core.addSystem(new PickingSystem(ctxRef.current));
+      core.addSystem(new RenderSystem(ctxRef.current, core));
+      core.addSystem(new PickingSystem(ctxRef.current, core));
+      core.addSystem(new SelectionSystem(ctxRef.current, core));
+      core.addSystem(new EventSystem(ctxRef.current, core));
+      core.addSystem(new InputSystem(ctxRef.current, core));
       core.update();
       console.log(core, "core");
     }
   }, []);
   return (
-    <div className="canvas">
+    <div className={styles.canvas}>
       <canvas id="canvas" width={props.width} height={props.height}></canvas>
     </div>
   );

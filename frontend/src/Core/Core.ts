@@ -6,15 +6,20 @@ import { System } from "./System/System";
 import type { ComponentStore } from "./types";
 
 export class Core {
+  /**
+   * 是否多选
+   */
+  multiple: boolean = false;
   dsls: DSL[] = [];
 
-  // renderSystem: RenderSystem;
+  SystemMap: Map<string, System> = new Map();
 
   components: ComponentStore = {
     position: new Map<string, Position>(),
     size: new Map<string, Size>(),
     color: new Map<string, Color>(),
-    selected: new Map<string, { value: boolean }>(),
+    selected: new Map<string, { value: boolean; hovered: boolean }>(),
+    eventQueue: [],
   };
 
   system: System[] = [];
@@ -33,12 +38,24 @@ export class Core {
       this.components.position.set(dsl.id, dsl.position);
       this.components.size.set(dsl.id, dsl.size);
       this.components.color.set(dsl.id, dsl.color);
-      this.components.selected.set(dsl.id, dsl.selected);
+      this.components.selected.set(dsl.id, {
+        value: dsl.selected.value,
+        hovered: false,
+      });
     });
   }
 
   addSystem(system: System) {
     this.system.push(system);
+    this.SystemMap.set(system.constructor.name, system);
+  }
+  /**
+   * 获取系统
+   * @param name 系统名称
+   * @returns
+   */
+  getSystemByName(name: string) {
+    return this.SystemMap.get(name);
   }
 
   update() {

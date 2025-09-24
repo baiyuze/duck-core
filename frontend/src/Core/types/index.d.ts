@@ -4,5 +4,6 @@ export type ComponentStore = {
   position: Map<string, Position>;
   size: Map<string, Size>;
   color: Map<string, Color>;
-  selected: Map<string, { value: boolean }>;
+  selected: Map<string, { value: boolean; hovered: boolean }>;
+  eventQueue: { type: string; event: MouseEvent }[];
 };

@@ -13,6 +13,8 @@ interface DSLParams {
   color: { filelColor?: string; strokeColor?: string };
   id: string;
   selected: { value: boolean };
+  eventQueue?: { type: string; event: MouseEvent }[];
+  hovered?: boolean;
 }
 export class DSL {
   position: Position;
@@ -25,11 +27,27 @@ export class DSL {
 
   selected: { value: boolean } = { value: false };
 
-  constructor({ position, size, color, id, selected }: DSLParams) {
+  eventQueue: { type: string; event: MouseEvent }[] = [];
+
+  hovered: boolean = false;
+
+  // event: Event
+
+  constructor({
+    position,
+    size,
+    color,
+    id,
+    selected,
+    eventQueue,
+    hovered,
+  }: DSLParams) {
     this.position = new Position(position.x, position.y);
     this.size = new Size(size.width, size.height);
     this.color = new Color(color.filelColor, color.strokeColor);
     this.id = id;
     this.selected = selected;
+    this.eventQueue = eventQueue || [];
+    this.hovered = hovered || false;
   }
 }

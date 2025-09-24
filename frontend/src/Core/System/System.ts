@@ -1,3 +1,4 @@
+import type { Core } from "../Core";
 import type { ComponentStore } from "../types";
 
 export class System {

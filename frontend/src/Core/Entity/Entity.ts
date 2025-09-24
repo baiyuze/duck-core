@@ -21,6 +21,17 @@ export class Entity {
     })`;
   }
 
+  /**
+   * 通过RGBA获取实体ID
+   * @param rgba [r, g, b, a]
+   * @returns entityId
+   */
+  rgbaToId([r, g, b, a]: number[]): string {
+    if (a !== 255) throw new Error("Alpha 通道无效，必须为 255");
+    const id = (r << 16) | (g << 8) | b;
+    return String(id);
+  }
+
   createEntity() {
     const colorId = this.generateId();
     return colorId.join("");
