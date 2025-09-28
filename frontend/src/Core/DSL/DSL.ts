@@ -6,6 +6,7 @@ import { Position } from "../Components/Position";
 import { Size } from "../Components/Size";
 import { Color } from "../Components/Color";
 import { Entity } from "../Entity/Entity";
+import { Rotation } from "../Components/Rotation";
 
 interface DSLParams {
   position: { x: number; y: number };
@@ -15,8 +16,12 @@ interface DSLParams {
   selected: { value: boolean };
   eventQueue?: { type: string; event: MouseEvent }[];
   hovered?: boolean;
+  type: string;
+  rotation: Rotation;
 }
 export class DSL {
+  type: string;
+
   position: Position;
 
   size: Size;
@@ -31,6 +36,10 @@ export class DSL {
 
   hovered: boolean = false;
 
+  rotation: Rotation = new Rotation(0);
+
+  // ctx.ellipse(x, y, rx, ry, rotation, 0, 2*Math.PI);
+
   // event: Event
 
   constructor({
@@ -41,13 +50,17 @@ export class DSL {
     selected,
     eventQueue,
     hovered,
+    type,
+    rotation,
   }: DSLParams) {
     this.position = new Position(position.x, position.y);
     this.size = new Size(size.width, size.height);
     this.color = new Color(color.filelColor, color.strokeColor);
+    this.rotation = new Rotation(rotation?.value || 0);
     this.id = id;
     this.selected = selected;
     this.eventQueue = eventQueue || [];
     this.hovered = hovered || false;
+    this.type = type;
   }
 }

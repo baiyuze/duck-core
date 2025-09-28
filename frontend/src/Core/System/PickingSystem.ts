@@ -1,20 +1,22 @@
 import type { Core } from "../Core";
 import { Entity } from "../Entity/Entity";
+import { EventType } from "../enum";
 import type { ComponentStore } from "../types";
 import { System } from "./System";
 export class PickingSystem extends System {
   core: Core;
   ctx: CanvasRenderingContext2D;
-  offCtx: CanvasRenderingContext2D | null = null;
+  offCtx: CanvasRenderingContext2D;
   entityManager: Entity = new Entity();
   components: ComponentStore | null = null;
   isClearHover: boolean = false;
+  isRendered: boolean = false;
   constructor(ctx: CanvasRenderingContext2D, core: Core) {
     super();
     this.ctx = ctx;
     this.core = core;
-    this.initOffscreenCanvas();
-    ctx.canvas.addEventListener("click", this.onClick.bind(this));
+    this.offCtx = this.initOffscreenCanvas() as CanvasRenderingContext2D;
+    // ctx.canvas.addEventListener("click", this.onClick.bind(this));
   }
 
   initOffscreenCanvas() {
@@ -22,11 +24,16 @@ export class PickingSystem extends System {
     const offscreenCanvas = document.createElement("canvas");
     offscreenCanvas.width = width;
     offscreenCanvas.height = height;
-    this.offCtx = offscreenCanvas.getContext("2d");
-    return offscreenCanvas;
+
+    return offscreenCanvas.getContext("2d");
   }
 
-  render(components: ComponentStore, ctx: CanvasRenderingContext2D) {
+  render(components: ComponentStore) {
+    console.log("picking render");
+    if (!this.offCtx) return;
+    const ctx = this.offCtx;
+
+    console.log("picking render");
     // 每帧先清空画布
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
@@ -45,20 +52,66 @@ export class PickingSystem extends System {
 
   update(components: ComponentStore) {
     this.components = components;
+    // render只执行一次
+    if (!this.isRendered) {
+      this.isRendered = true;
+      this.render(components);
+    }
     this.onClick();
     this.onHover();
   }
+  /**
+   * 根据ID获取选中状态
+   * @param id
+   * @returns
+   */
   onSelectedById(id: string) {
     if (!this.components) return;
     return this.components.selected.get(id);
   }
+  /**
+   * 根据颜色获取选中实体
+   * @param colorId
+   * @returns
+   */
+  getSelectedByColorId(colorId: number[]) {
+    const entityId = this.entityManager.rgbaToId(colorId);
+    const selected = this.components!.selected.get(entityId);
+    return { selected, entityId };
+  }
 
+  /**
+   * 根据坐标获取ColorId
+   * @param x
+   * @param y
+   * @returns
+   */
   getColorId(x: number, y: number) {
     if (!this.offCtx) return;
 
     const pixel: ImageData = this.offCtx.getImageData(x, y, 1, 1);
     const [r, g, b, a] = pixel.data;
     return [r, g, b, a];
+  }
+  /**
+   * 获取鼠标位置
+   */
+  getPosition(
+    eventType: EventType[keyof EventType]
+  ): { x: number; y: number } | undefined {
+    if (!this.components) return;
+    const coreEvent =
+      this.components.eventQueue[this.components.eventQueue.length - 1];
+
+    if (!coreEvent) return;
+    const { type, event } = coreEvent;
+    if (!event) return;
+    if (type !== eventType) return;
+    this.components.eventQueue.pop();
+    const rect = this.ctx.canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    return { x, y };
   }
   /**
    * 隐藏画布选择
@@ -68,9 +121,7 @@ export class PickingSystem extends System {
   setSelected(colorId?: number[]) {
     if (!colorId) return;
     if (!this.components) return;
-    // 根据颜色获取实体id
-    const entityId = this.entityManager.rgbaToId(colorId);
-    const selected = this.components.selected.get(entityId);
+    const { selected, entityId } = this.getSelectedByColorId(colorId);
 
     if (selected) selected.value = true;
     // 单选
@@ -85,6 +136,34 @@ export class PickingSystem extends System {
     // 直接清空所有，重新渲染状态
     this.core.update();
   }
+
+  /**
+   * 清空选中状态与hover状态
+   * @returns
+   */
+  clearNodeState() {
+    if (!this.components) return;
+    this.components.selected.forEach((sel) => {
+      sel.value = false;
+      sel.hovered = false;
+    });
+  }
+
+  onClick() {
+    if (!this.components) return;
+    const position = this.getPosition(EventType.Click);
+    if (!position) return;
+    const { x, y } = position;
+    const colorId = this.getColorId(x, y);
+
+    if (colorId && colorId[3] === 0) {
+      // 清空选择
+      this.clearNodeState();
+      this.core.update();
+      return;
+    }
+    this.setSelected(colorId);
+  }
   /**
    * 修改hover状态
    * @param event
@@ -95,9 +174,7 @@ export class PickingSystem extends System {
     if (!this.components) return;
     // 根据颜色获取实体id
     if (hovered) {
-      const entityId = this.entityManager.rgbaToId(colorId);
-      const selected = this.components.selected.get(entityId);
-
+      const { selected, entityId } = this.getSelectedByColorId(colorId);
       if (selected) selected.hovered = true;
       // 单选
       this.components.selected.forEach((sel, id) => {
@@ -107,62 +184,19 @@ export class PickingSystem extends System {
       });
     } else {
       //清空hover状态
-      this.components.selected.forEach((sel) => {
-        sel.hovered = false;
-      });
+      this.clearNodeState();
     }
     // 直接清空所有，重新渲染状态
     this.core.update();
   }
-  onClick() {
-    if (!this.components) return;
-    if (!this.offCtx) return;
-    const coreEvent =
-      this.components.eventQueue[this.components.eventQueue.length - 1];
-
-    if (!coreEvent) return;
-    const { type, event } = coreEvent;
-    if (type !== "click") return;
-    this.components.eventQueue.pop();
-    // 先用离屏canvas渲染当前帧
-    this.render(this.components, this.offCtx);
-    // const renderSystem = this.core.getSystemByName("RenderSystem");
-    // if (renderSystem) {
-    // renderSystem.update(this.components);
-    // }
-    const rect = this.ctx.canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    const colorId = this.getColorId(x, y);
-
-    if (colorId && colorId[3] === 0) {
-      console.log("点击到了空白区域");
-      return;
-    }
-    this.setSelected(colorId);
-  }
-
   onHover() {
-    if (!this.components) return;
-    if (!this.offCtx) return;
-    const coreEvent =
-      this.components.eventQueue[this.components.eventQueue.length - 1];
-    if (!coreEvent) return;
-    const { type, event } = coreEvent;
-    if (type !== "mousemove") return;
-    this.components.eventQueue.pop();
-    // 先用离屏canvas渲染当前帧
-    this.render(this.components, this.offCtx);
-    const rect = this.ctx.canvas.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
+    const position = this.getPosition(EventType.MouseMove);
+    if (!position) return;
+    const { x, y } = position;
     const colorId = this.getColorId(x, y);
     const isNull = !colorId || colorId[3] === 0;
     if (this.isClearHover && isNull) return;
     if (colorId && isNull) {
-      // console.log("hover到了空白区域");
       this.isClearHover = true;
       return this.setHoverState(colorId, false);
     }

@@ -68,6 +68,7 @@ function Canvas(props: CanvasProps) {
         color: { filelColor: "#f1f1f1" },
         id: "1",
         selected: { value: false },
+        type: "rect",
       },
       {
         position: { x: 50, y: 50 },
@@ -75,6 +76,16 @@ function Canvas(props: CanvasProps) {
         color: { filelColor: "#f2f2f2" },
         id: "255",
         selected: { value: false },
+        type: "rect",
+      },
+      {
+        position: { x: 100, y: 100 },
+        size: { width: 290, height: 290 },
+        color: { filelColor: "#f2f2f2" },
+        id: "253",
+        selected: { value: false },
+        type: "ellipse",
+        rotation: { value: 0 },
       },
     ];
     if (ctxRef.current) {

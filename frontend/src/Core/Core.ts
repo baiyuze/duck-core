@@ -20,6 +20,8 @@ export class Core {
     color: new Map<string, Color>(),
     selected: new Map<string, { value: boolean; hovered: boolean }>(),
     eventQueue: [],
+    rotation: new Map<string, { value: number }>(),
+    type: new Map<string, string>(),
   };
 
   system: System[] = [];
@@ -42,6 +44,8 @@ export class Core {
         value: dsl.selected.value,
         hovered: false,
       });
+      this.components.type.set(dsl.id, dsl.type);
+      this.components.rotation.set(dsl.id, dsl.rotation);
     });
   }
 
