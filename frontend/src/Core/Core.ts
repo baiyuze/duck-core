@@ -28,11 +28,28 @@ export class Core {
 
   entityManager = new Entity();
 
-  ctx: CanvasRenderingContext2D | null;
-  constructor(dsls: any[], ctx: CanvasRenderingContext2D | null) {
-    this.ctx = ctx;
+  // ctx: CanvasRenderingContext2D | null;
+  constructor(dsls: any[]) {
+    // this.ctx = ctx;
     this.dsls = dsls.map((dsl) => new DSL(dsl));
     this.initComponents();
+  }
+
+  initCanvas(canvas: HTMLCanvasElement) {
+    const dpr = window.devicePixelRatio || 1;
+
+    // 设置 CSS 尺寸：保持在逻辑尺寸（用户看到的大小）
+    canvas.style.width = canvas.width + "px";
+    canvas.style.height = canvas.height + "px";
+
+    // 设置实际像素尺寸：乘以 dpr，保证清晰
+    canvas.width = canvas.width * dpr;
+    canvas.height = canvas.height * dpr;
+
+    const ctx = canvas.getContext("2d")!;
+    ctx.scale(dpr, dpr); // 缩放回逻辑大小
+
+    return ctx;
   }
 
   initComponents() {
@@ -41,7 +58,7 @@ export class Core {
       this.components.size.set(dsl.id, dsl.size);
       this.components.color.set(dsl.id, dsl.color);
       this.components.selected.set(dsl.id, {
-        value: dsl.selected.value,
+        value: dsl?.selected?.value,
         hovered: false,
       });
       this.components.type.set(dsl.id, dsl.type);
