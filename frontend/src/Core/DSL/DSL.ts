@@ -7,18 +7,10 @@ import { Size } from "../Components/Size";
 import { Color } from "../Components/Color";
 import { Entity } from "../Entity/Entity";
 import { Rotation } from "../Components/Rotation";
+import { Font } from "../Components/Font";
+import { Name } from "../Components/Name";
+import type { DSLParams } from "../types/dsl";
 
-interface DSLParams {
-  position: { x: number; y: number };
-  size: { width: number; height: number };
-  color: { filelColor?: string; strokeColor?: string };
-  id: string;
-  selected: { value: boolean };
-  eventQueue?: { type: string; event: MouseEvent }[];
-  hovered?: boolean;
-  type: string;
-  rotation: Rotation;
-}
 export class DSL {
   type: string;
 
@@ -38,6 +30,10 @@ export class DSL {
 
   rotation: Rotation = new Rotation(0);
 
+  font: Font;
+
+  name: Name;
+
   // ctx.ellipse(x, y, rx, ry, rotation, 0, 2*Math.PI);
 
   // event: Event
@@ -52,6 +48,8 @@ export class DSL {
     hovered,
     type,
     rotation,
+    font,
+    name,
   }: DSLParams) {
     this.position = new Position(position.x, position.y);
     this.size = new Size(size.width, size.height);
@@ -62,5 +60,7 @@ export class DSL {
     this.eventQueue = eventQueue || [];
     this.hovered = hovered || false;
     this.type = type;
+    this.font = new Font(font);
+    this.name = new Name(name);
   }
 }

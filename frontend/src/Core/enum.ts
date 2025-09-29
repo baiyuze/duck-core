@@ -19,6 +19,20 @@ export const ShapeType = {
   Ellipse: "ellipse",
   // 三角形
   Triangle: "triangle",
+  // 文字
+  Text: "text",
+  // 图片
+  Image: "image",
+  // 线段
+  Line: "line",
+  // 折线
+  Polyline: "polyline",
+  // 多边形
+  Polygon: "polygon",
+  // 贝塞尔曲线
+  BezierCurve: "beziercurve",
+  // 路径
+  Path: "path",
 } as const;
 
 export type ShapeType = (typeof ShapeType)[keyof typeof ShapeType];

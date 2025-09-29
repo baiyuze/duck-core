@@ -1,7 +1,8 @@
 import type { Color, Position, Size } from "./Components";
+import type { Font } from "./Components/Font";
 import { DSL } from "./DSL/DSL";
 import { Entity } from "./Entity/Entity";
-import { RenderSystem } from "./System/RenderSystem";
+import { RenderSystem } from "./System/RenderSystem/RenderSystem";
 import { System } from "./System/System";
 import type { ComponentStore } from "./types";
 
@@ -22,6 +23,7 @@ export class Core {
     eventQueue: [],
     rotation: new Map<string, { value: number }>(),
     type: new Map<string, string>(),
+    font: new Map<string, Font>(),
   };
 
   system: System[] = [];
@@ -63,6 +65,7 @@ export class Core {
       });
       this.components.type.set(dsl.id, dsl.type);
       this.components.rotation.set(dsl.id, dsl.rotation);
+      this.components.font.set(dsl.id, dsl.font);
     });
   }
 

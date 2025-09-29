@@ -1,11 +1,11 @@
 import { throttle } from "lodash";
-import type { Color, Position, Size } from "../Components";
-import type { Core } from "../Core";
-import type { DSL } from "../DSL/DSL";
-import { Entity } from "../Entity/Entity";
-import { ShapeType } from "../enum";
-import type { ComponentStore } from "../types";
-import { System } from "./System";
+import type { Color, Position, Size } from "../../Components";
+import type { Core } from "../../Core";
+import type { DSL } from "../../DSL/DSL";
+import { Entity } from "../../Entity/Entity";
+import { ShapeType } from "../../enum";
+import type { ComponentStore } from "../../types";
+import { System } from "../System";
 
 export class RenderSystem extends System {
   core: Core;
@@ -64,6 +64,32 @@ export class RenderSystem extends System {
       this.ctx.lineWidth = 2;
       this.ctx.stroke();
       this.ctx.closePath();
+    }
+
+    if (type === ShapeType.Text) {
+      const { x, y } = position;
+      // const { width, height } = size;
+      // const { fillColor } = color;
+      const font = components.font.get(entityId);
+      // this.ctx.font = `${font.style} ${font.weight} ${font.size}px/${font.lineHeight} ${font.family}`;
+      // this.ctx.fillStyle = font.fillColor;
+      // this.ctx.strokeStyle = font.strokeColor;
+      // this.ctx.strokeText(font.text, x, y);
+      // this.ctx.fillText(font.text, x, y);
+      const parts = [
+        font.style || "",
+        font.variant || "",
+        font.weight || "",
+        `${font.size || 16}px`,
+        font.family || "Arial",
+      ];
+      this.ctx.font = parts.filter((v) => v).join(" ");
+      this.ctx.fillStyle = font.fillColor || "#000";
+      this.ctx.strokeStyle = font.strokeColor || "transparent";
+
+      // 2️⃣ 文字渲染（fill + stroke）
+      if (font.strokeColor) this.ctx.strokeText(font.text, x, y + font.size);
+      this.ctx.fillText(font.text, x, y + font.size);
     }
   }
 

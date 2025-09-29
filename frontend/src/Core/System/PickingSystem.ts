@@ -122,6 +122,7 @@ export class PickingSystem extends System {
     if (!colorId) return;
     if (!this.components) return;
     const { selected, entityId } = this.getSelectedByColorId(colorId);
+    console.log(entityId, "entityId");
 
     if (selected) selected.value = true;
     // 单选
@@ -155,7 +156,6 @@ export class PickingSystem extends System {
     if (!position) return;
     const { x, y } = position;
     const colorId = this.getColorId(x, y);
-
     if (colorId && colorId[3] === 0) {
       // 清空选择
       this.clearNodeState();

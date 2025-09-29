@@ -8,4 +8,5 @@ export type ComponentStore = {
   eventQueue: { type: string; event: MouseEvent }[];
   rotation: Map<string, { value: number }>;
   type: Map<string, string>;
+  font: Map<string, Font>;
 };
