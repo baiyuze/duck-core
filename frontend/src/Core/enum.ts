@@ -22,7 +22,7 @@ export const ShapeType = {
   // 文字
   Text: "text",
   // 图片
-  Image: "image",
+  Img: "img",
   // 线段
   Line: "line",
   // 折线

@@ -1,13 +1,20 @@
+import type { Color, Position, Size } from "../Components";
+import type { Img } from "../Components/Img";
+import type { LineWidth } from "../Components/LineWidth";
+import type { ZIndex } from "../Components/ZIndex";
+
 export interface DSLParams {
-  position: { x: number; y: number };
-  size: { width: number; height: number };
-  color: { filelColor?: string; strokeColor?: string };
+  position: Position;
+  size: Size;
+  color: Color;
+  lineWidth?: LineWidth;
   id: string;
-  selected: { value: boolean };
+  selected?: { value: boolean; hovered?: boolean };
   eventQueue?: { type: string; event: MouseEvent }[];
-  hovered?: boolean;
   type: string;
   rotation: Rotation;
   font: Font;
   name?: string;
+  img?: Img;
+  zIndex: ZIndex;
 }

@@ -1,8 +1,7 @@
-import type { Color, Position, Size } from "../Components";
 import type { Core } from "../Core";
 import type { DSL } from "../DSL/DSL";
 import { Entity } from "../Entity/Entity";
-import type { ComponentStore } from "../types";
+import type { StateStore } from "../types";
 import { System } from "./System";
 
 export class RenderSystem extends System {
@@ -16,14 +15,14 @@ export class RenderSystem extends System {
     this.ctx = ctx;
   }
 
-  render(components: ComponentStore, ctx: CanvasRenderingContext2D) {
+  render(stateStore: StateStore, ctx: CanvasRenderingContext2D) {
     // 每帧先清空画布
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     // 遍历所有 position 组件的实体
-    components.position.forEach((pos, entityId) => {
-      const size = components.size.get(entityId);
-      const color = components.color.get(entityId);
+    stateStore.position.forEach((pos, entityId) => {
+      const size = stateStore.size.get(entityId);
+      const color = stateStore.color.get(entityId);
       if (size && color) {
         // 只有 position + size + color 都存在的实体才渲染
         ctx.fillStyle = color.fillColor || "transparent";
@@ -32,7 +31,7 @@ export class RenderSystem extends System {
     });
   }
 
-  update(components: ComponentStore) {
-    this.render(components, this.ctx);
+  update(stateStore: StateStore) {
+    this.render(stateStore, this.ctx);
   }
 }

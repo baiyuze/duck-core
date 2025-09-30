@@ -10,6 +10,9 @@ import { Rotation } from "../Components/Rotation";
 import { Font } from "../Components/Font";
 import { Name } from "../Components/Name";
 import type { DSLParams } from "../types/dsl";
+import { LineWidth } from "../Components/LineWidth";
+import { Img } from "../Components/Img";
+import { ZIndex } from "../Components/ZIndex";
 
 export class DSL {
   type: string;
@@ -22,7 +25,7 @@ export class DSL {
 
   id: string;
 
-  selected: { value: boolean } = { value: false };
+  selected?: { value: boolean; hovered?: boolean } = { value: false };
 
   eventQueue: { type: string; event: MouseEvent }[] = [];
 
@@ -34,9 +37,11 @@ export class DSL {
 
   name: Name;
 
-  // ctx.ellipse(x, y, rx, ry, rotation, 0, 2*Math.PI);
+  lineWidth: LineWidth = new LineWidth(0);
 
-  // event: Event
+  img: Img = new Img();
+
+  zIndex: ZIndex = new ZIndex(0);
 
   constructor({
     position,
@@ -45,22 +50,26 @@ export class DSL {
     id,
     selected,
     eventQueue,
-    hovered,
     type,
     rotation,
     font,
     name,
+    lineWidth,
+    img,
+    zIndex,
   }: DSLParams) {
     this.position = new Position(position.x, position.y);
     this.size = new Size(size.width, size.height);
-    this.color = new Color(color.filelColor, color.strokeColor);
+    this.color = new Color(color.fillColor, color.strokeColor);
     this.rotation = new Rotation(rotation?.value || 0);
     this.id = id;
     this.selected = selected;
     this.eventQueue = eventQueue || [];
-    this.hovered = hovered || false;
     this.type = type;
     this.font = new Font(font);
     this.name = new Name(name);
+    this.lineWidth = new LineWidth(lineWidth?.value || 0);
+    this.img = new Img(img);
+    this.zIndex = new ZIndex(zIndex?.value);
   }
 }

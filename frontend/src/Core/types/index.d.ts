@@ -1,6 +1,6 @@
 import type { Color, Position, Size } from "../Components";
 
-export type ComponentStore = {
+export type StateStore = {
   position: Map<string, Position>;
   size: Map<string, Size>;
   color: Map<string, Color>;
@@ -9,4 +9,6 @@ export type ComponentStore = {
   rotation: Map<string, { value: number }>;
   type: Map<string, string>;
   font: Map<string, Font>;
+  lineWidth: Map<string, { value: number }>;
+  img: Map<string, Img>;
 };

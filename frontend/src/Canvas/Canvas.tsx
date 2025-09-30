@@ -10,64 +10,15 @@ import { EventSystem } from "../Core/System/EventSystem";
 import { InputSystem } from "../Core/System/InputSytem";
 
 function Canvas(props: CanvasProps) {
-  const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
-  const offSetCtxRef = useRef<CanvasRenderingContext2D | null>(null);
-  const posRef = useRef({ x: 10, y: 10 });
-
-  const rect = () => {
-    if (ctxRef.current) {
-      ctxRef.current.clearRect(0, 0, props.width, props.height); // 清空画布
-      ctxRef.current.fillStyle = "#f1f1f1";
-      ctxRef.current.fillRect(posRef.current.x, posRef.current.y, 290, 290);
-
-      ctxRef.current.strokeStyle = "blue";
-
-      ctxRef.current.strokeRect(
-        posRef.current.x - 3,
-        posRef.current.y - 3,
-        296,
-        296
-      );
-
-      offSetCtxRef.current?.clearRect(0, 0, props.width, props.height); // 清空画布
-      offSetCtxRef.current!.fillStyle = "rgb(0,0,255,255)";
-      offSetCtxRef.current!.fillRect(
-        posRef.current.x,
-        posRef.current.y,
-        290,
-        290
-      );
-
-      // requestAnimationFrame(rect);
-    }
-  };
-  const render = () => {
-    requestAnimationFrame(rect);
-  };
-  useEffect(() => {
-    // const offSetCanvasRef = document.createElement("canvas");
-    // offSetCanvasRef.width = props.width;
-    // offSetCanvasRef.height = props.height;
-    // offSetCtxRef.current = offSetCanvasRef.getContext("2d");
-    const canvasDom = document.getElementById("canvas") as HTMLCanvasElement;
-    ctxRef.current = canvasDom.getContext("2d");
-    // render();
-    // setTimeout(() => {
-    //   const pixel: ImageData = offSetCtxRef.current!.getImageData(
-    //     posRef.current.x + 10,
-    //     posRef.current.y + 10,
-    //     1,
-    //     1
-    //   );
-    //   console.log(pixel.data.join(","), 111);
-    // }, 1000);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const initCanvas = () => {
     const dsls: any = [
       {
         id: "1",
         type: "rect",
         position: { x: 0, y: 0 },
         size: { width: 375, height: 60 },
-        color: { filelColor: "#FF5000", strokeColor: "#FF5000" },
+        color: { fillColor: "#FF5000", strokeColor: "#FF5000" },
         selected: { value: false },
       },
       {
@@ -75,7 +26,7 @@ function Canvas(props: CanvasProps) {
         type: "text",
         position: { x: 20, y: 15 },
         size: { width: 200, height: 30 },
-        color: { filelColor: "", strokeColor: "" },
+        color: { fillColor: "", strokeColor: "" },
         selected: { value: false },
         font: {
           family: "Arial",
@@ -90,7 +41,7 @@ function Canvas(props: CanvasProps) {
         type: "rect",
         position: { x: 20, y: 70 },
         size: { width: 335, height: 40 },
-        color: { filelColor: "#FFFFFF", strokeColor: "#CCCCCC" },
+        color: { fillColor: "#FFFFFF", strokeColor: "#CCCCCC" },
         selected: { value: false },
       },
       {
@@ -98,7 +49,7 @@ function Canvas(props: CanvasProps) {
         type: "text",
         position: { x: 35, y: 78 },
         size: { width: 200, height: 25 },
-        color: { filelColor: "", strokeColor: "" },
+        color: { fillColor: "", strokeColor: "" },
         selected: { value: false },
         font: {
           family: "Arial",
@@ -113,23 +64,26 @@ function Canvas(props: CanvasProps) {
         type: "ellipse",
         position: { x: 335, y: 75 },
         size: { width: 25, height: 25 },
-        color: { filelColor: "#FF5000", strokeColor: "#FF5000" },
+        color: { fillColor: "#FF5000", strokeColor: "#FF5000" },
         selected: { value: false },
       },
       {
         id: "6",
-        type: "rect",
+        type: "img",
         position: { x: 0, y: 120 },
         size: { width: 375, height: 150 },
-        color: { filelColor: "#FFD700", strokeColor: "#FFD700" },
+        color: { fillColor: "#FFD700", strokeColor: "#FFD700" },
         selected: { value: false },
+        img: {
+          src: "https://gw.alicdn.com/imgextra/i2/O1CN01nlPQ9s1y3aKUb5tDo_!!6000000006523-0-tps-800-450.jpg",
+        },
       },
       {
         id: "7",
         type: "text",
         position: { x: 30, y: 180 },
         size: { width: 300, height: 40 },
-        color: { filelColor: "", strokeColor: "" },
+        color: { fillColor: "", strokeColor: "" },
         selected: { value: false },
         font: {
           family: "Arial",
@@ -144,7 +98,7 @@ function Canvas(props: CanvasProps) {
         type: "rect",
         position: { x: 0, y: 280 },
         size: { width: 375, height: 100 },
-        color: { filelColor: "#FFFFFF", strokeColor: "#E5E5E5" },
+        color: { fillColor: "#FFFFFF", strokeColor: "#E5E5E5" },
         selected: { value: false },
       },
       {
@@ -152,7 +106,7 @@ function Canvas(props: CanvasProps) {
         type: "rect",
         position: { x: 15, y: 290 },
         size: { width: 60, height: 60 },
-        color: { filelColor: "#FFCC00", strokeColor: "#FFCC00" },
+        color: { fillColor: "#FFCC00", strokeColor: "#FFCC00" },
         selected: { value: false },
       },
       {
@@ -160,7 +114,7 @@ function Canvas(props: CanvasProps) {
         type: "text",
         position: { x: 25, y: 355 },
         size: { width: 40, height: 20 },
-        color: { filelColor: "", strokeColor: "" },
+        color: { fillColor: "", strokeColor: "" },
         selected: { value: false },
         font: {
           family: "Arial",
@@ -175,7 +129,7 @@ function Canvas(props: CanvasProps) {
         type: "rect",
         position: { x: 90, y: 290 },
         size: { width: 60, height: 60 },
-        color: { filelColor: "#00CCFF", strokeColor: "#00CCFF" },
+        color: { fillColor: "#00CCFF", strokeColor: "#00CCFF" },
         selected: { value: false },
       },
       {
@@ -183,7 +137,7 @@ function Canvas(props: CanvasProps) {
         type: "text",
         position: { x: 100, y: 355 },
         size: { width: 40, height: 20 },
-        color: { filelColor: "", strokeColor: "" },
+        color: { fillColor: "", strokeColor: "" },
         selected: { value: false },
         font: {
           family: "Arial",
@@ -198,7 +152,7 @@ function Canvas(props: CanvasProps) {
         type: "rect",
         position: { x: 0, y: 400 },
         size: { width: 375, height: 350 },
-        color: { filelColor: "#FFFFFF", strokeColor: "#E5E5E5" },
+        color: { fillColor: "#FFFFFF", strokeColor: "#E5E5E5" },
         selected: { value: false },
       },
       {
@@ -206,7 +160,7 @@ function Canvas(props: CanvasProps) {
         type: "text",
         position: { x: 20, y: 410 },
         size: { width: 150, height: 30 },
-        color: { filelColor: "", strokeColor: "" },
+        color: { fillColor: "", strokeColor: "" },
         selected: { value: false },
         font: {
           family: "Arial",
@@ -221,7 +175,7 @@ function Canvas(props: CanvasProps) {
         type: "rect",
         position: { x: 20, y: 450 },
         size: { width: 150, height: 150 },
-        color: { filelColor: "#F5F5F5", strokeColor: "#CCCCCC" },
+        color: { fillColor: "#F5F5F5", strokeColor: "#CCCCCC" },
         selected: { value: false },
       },
       {
@@ -229,7 +183,7 @@ function Canvas(props: CanvasProps) {
         type: "text",
         position: { x: 25, y: 605 },
         size: { width: 140, height: 20 },
-        color: { filelColor: "", strokeColor: "" },
+        color: { fillColor: "", strokeColor: "" },
         selected: { value: false },
         font: {
           family: "Arial",
@@ -244,7 +198,7 @@ function Canvas(props: CanvasProps) {
         type: "rect",
         position: { x: 0, y: 710 },
         size: { width: 375, height: 60 },
-        color: { filelColor: "#FFFFFF", strokeColor: "#E5E5E5" },
+        color: { fillColor: "#FFFFFF", strokeColor: "#E5E5E5" },
         selected: { value: false },
       },
       {
@@ -252,7 +206,7 @@ function Canvas(props: CanvasProps) {
         type: "text",
         position: { x: 25, y: 725 },
         size: { width: 40, height: 20 },
-        color: { filelColor: "", strokeColor: "" },
+        color: { fillColor: "", strokeColor: "" },
         selected: { value: false },
         font: {
           family: "Arial",
@@ -267,7 +221,7 @@ function Canvas(props: CanvasProps) {
         type: "text",
         position: { x: 115, y: 725 },
         size: { width: 40, height: 20 },
-        color: { filelColor: "", strokeColor: "" },
+        color: { fillColor: "", strokeColor: "" },
         selected: { value: false },
         font: {
           family: "Arial",
@@ -282,7 +236,7 @@ function Canvas(props: CanvasProps) {
         type: "text",
         position: { x: 205, y: 725 },
         size: { width: 40, height: 20 },
-        color: { filelColor: "", strokeColor: "" },
+        color: { fillColor: "", strokeColor: "" },
         selected: { value: false },
         font: {
           family: "Arial",
@@ -297,7 +251,7 @@ function Canvas(props: CanvasProps) {
         type: "text",
         position: { x: 295, y: 725 },
         size: { width: 40, height: 20 },
-        color: { filelColor: "", strokeColor: "" },
+        color: { fillColor: "", strokeColor: "" },
         selected: { value: false },
         font: {
           family: "Arial",
@@ -308,9 +262,9 @@ function Canvas(props: CanvasProps) {
         },
       },
     ];
-    if (canvasDom) {
+    if (canvasRef.current) {
       const core = new Core(dsls);
-      const context = core.initCanvas(canvasDom);
+      const context = core.initCanvas(canvasRef.current);
 
       core.addSystem(new RenderSystem(context, core));
       core.addSystem(new PickingSystem(context, core));
@@ -320,12 +274,23 @@ function Canvas(props: CanvasProps) {
       core.update();
       console.log(core, "core");
     }
+  };
+  useEffect(() => {
+    canvasRef.current = document.getElementById("canvas") as HTMLCanvasElement;
+
+    initCanvas();
+    // return () => {
+    //   // 这里做一些清理工作
+    //   canvasRef.current?.remove();
+    //   initCanvas();
+    // };
   }, []);
+
   return (
     <div className={styles.canvas}>
       <canvas
         id="canvas"
-        style={{ position: "absolute", left: 0, top: 0, zIndex: 1 }}
+        style={{ position: "absolute", left: "5px", top: "5px", zIndex: 1 }}
         width={props.width}
         height={props.height}
       ></canvas>

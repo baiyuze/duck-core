@@ -1,10 +1,11 @@
 import type { Color, Position, Size } from "./Components";
 import type { Font } from "./Components/Font";
+import type { Img } from "./Components/Img";
 import { DSL } from "./DSL/DSL";
 import { Entity } from "./Entity/Entity";
 import { RenderSystem } from "./System/RenderSystem/RenderSystem";
 import { System } from "./System/System";
-import type { ComponentStore } from "./types";
+import type { StateStore } from "./types";
 
 export class Core {
   /**
@@ -15,7 +16,7 @@ export class Core {
 
   SystemMap: Map<string, System> = new Map();
 
-  components: ComponentStore = {
+  stateStore: StateStore = {
     position: new Map<string, Position>(),
     size: new Map<string, Size>(),
     color: new Map<string, Color>(),
@@ -24,6 +25,8 @@ export class Core {
     rotation: new Map<string, { value: number }>(),
     type: new Map<string, string>(),
     font: new Map<string, Font>(),
+    lineWidth: new Map<string, { value: number }>(),
+    img: new Map<string, Img>(),
   };
 
   system: System[] = [];
@@ -56,16 +59,18 @@ export class Core {
 
   initComponents() {
     this.dsls.forEach((dsl: DSL) => {
-      this.components.position.set(dsl.id, dsl.position);
-      this.components.size.set(dsl.id, dsl.size);
-      this.components.color.set(dsl.id, dsl.color);
-      this.components.selected.set(dsl.id, {
-        value: dsl?.selected?.value,
+      this.stateStore.position.set(dsl.id, dsl.position);
+      this.stateStore.size.set(dsl.id, dsl.size);
+      this.stateStore.color.set(dsl.id, dsl.color);
+      this.stateStore.selected.set(dsl.id, {
+        value: dsl?.selected?.value as boolean,
         hovered: false,
       });
-      this.components.type.set(dsl.id, dsl.type);
-      this.components.rotation.set(dsl.id, dsl.rotation);
-      this.components.font.set(dsl.id, dsl.font);
+      this.stateStore.type.set(dsl.id, dsl.type);
+      this.stateStore.rotation.set(dsl.id, dsl.rotation);
+      this.stateStore.font.set(dsl.id, dsl.font);
+      this.stateStore.lineWidth.set(dsl.id, dsl.lineWidth);
+      this.stateStore.img.set(dsl.id, dsl.img);
     });
   }
 
@@ -84,7 +89,7 @@ export class Core {
 
   update() {
     this.system.forEach((sys) => {
-      sys.update(this.components);
+      sys.update(this.stateStore);
     });
   }
 

@@ -1,5 +1,5 @@
 import type { Core } from "../Core";
-import type { ComponentStore } from "../types";
+import type { StateStore } from "../types";
 import { System } from "./System";
 
 /**
@@ -9,7 +9,7 @@ export class InputSystem extends System {
   ctx: CanvasRenderingContext2D;
   core: Core;
   entityManager: any;
-  components: ComponentStore | null = null;
+  stateStore: StateStore | null = null;
   keys: string[] = [];
   constructor(ctx: CanvasRenderingContext2D, core: Core) {
     super();
@@ -67,7 +67,7 @@ export class InputSystem extends System {
     if (fn) fn();
   }
 
-  update(components: ComponentStore) {
-    this.components = components;
+  update(stateStore: StateStore) {
+    this.stateStore = stateStore;
   }
 }

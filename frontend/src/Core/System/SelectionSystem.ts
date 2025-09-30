@@ -1,30 +1,42 @@
+import { extend } from "lodash";
 import type { Position, Size } from "../Components";
 import type { Core } from "../Core";
-import type { ComponentStore } from "../types";
-import type { System } from "./System";
+import type { StateStore } from "../types";
+import { System } from "./System";
 
-export class SelectionSystem implements System {
+export class SelectionSystem extends System {
   core: Core;
   ctx: CanvasRenderingContext2D;
   selectionCtx: CanvasRenderingContext2D | null = null;
-  components?: ComponentStore;
+  stateStore?: StateStore;
   constructor(ctx: CanvasRenderingContext2D, core: Core) {
+    super();
     this.ctx = ctx;
     this.core = core;
     this.initSelectionCanvas();
   }
 
   initSelectionCanvas() {
+    // 清理之前的selectionCtx
+    console.log(this.selectionCtx, "selectionCtx");
     const canvasDom = this.ctx.canvas;
     const parent = canvasDom.parentElement;
     if (!parent) return;
+
+    // 查找并移除旧的 selection canvas
+    const oldSelectionCanvas = parent.querySelector("#selection-canvas");
+    if (oldSelectionCanvas) {
+      parent.removeChild(oldSelectionCanvas);
+    }
+
     // 创建一个新的canvas用于渲染选中状态
     const selectionCanvas = document.createElement("canvas");
+    selectionCanvas.id = "selection-canvas"; // 添加一个id以便查询
     selectionCanvas.width = this.ctx.canvas.width;
     selectionCanvas.height = this.ctx.canvas.height;
     selectionCanvas.style.position = "absolute";
-    selectionCanvas.style.top = "0";
-    selectionCanvas.style.left = "0";
+    selectionCanvas.style.top = "5px";
+    selectionCanvas.style.left = "5px";
     selectionCanvas.style.pointerEvents = "none";
     selectionCanvas.style.zIndex = "10";
     parent.appendChild(selectionCanvas);
@@ -60,12 +72,12 @@ export class SelectionSystem implements System {
     ctx.restore();
   }
 
-  render(components: ComponentStore, entityId: string, isHover = false) {
+  render(stateStore: StateStore, entityId: string, isHover = false) {
     if (!this.selectionCtx) return;
     const ctx = this.selectionCtx;
-    const selected = components.selected.get(entityId);
-    const position = components.position.get(entityId);
-    const size = components.size.get(entityId);
+    const selected = stateStore.selected.get(entityId);
+    const position = stateStore.position.get(entityId);
+    const size = stateStore.size.get(entityId);
     if (position && size) {
       if (!selected?.value) {
         this.shapeRect({
@@ -118,18 +130,18 @@ export class SelectionSystem implements System {
     );
   }
 
-  update(components: ComponentStore) {
+  update(stateStore: StateStore) {
     this.clearCanvas();
     // 渲染之前应该清理之前的选中状态，而不是清理画布
-    this.components = components;
+    this.stateStore = stateStore;
 
-    components.selected.forEach((selected, entityId) => {
+    stateStore.selected.forEach((selected, entityId) => {
       if (!selected.value) return;
-      this.render(components, entityId);
+      this.render(stateStore, entityId);
     });
-    components.selected.forEach((selected, entityId) => {
+    stateStore.selected.forEach((selected, entityId) => {
       if (!selected.hovered) return;
-      this.render(components, entityId, true);
+      this.render(stateStore, entityId, true);
     });
   }
 }
