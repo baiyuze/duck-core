@@ -68,7 +68,6 @@ export class EventSystem extends System {
     if (!this.stateStore) return;
     if (this.stateStore.eventQueue.length) return;
     this.stateStore.eventQueue.push({ type: "mousemove", event });
-    // console.log(this.stateStore.eventQueue.length, "-->");
     this.render();
   }
 }

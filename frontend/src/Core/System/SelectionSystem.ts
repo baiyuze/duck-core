@@ -18,7 +18,6 @@ export class SelectionSystem extends System {
 
   initSelectionCanvas() {
     // 清理之前的selectionCtx
-    console.log(this.selectionCtx, "selectionCtx");
     const canvasDom = this.ctx.canvas;
     const parent = canvasDom.parentElement;
     if (!parent) return;
