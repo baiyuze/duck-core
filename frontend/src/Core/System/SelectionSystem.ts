@@ -30,9 +30,12 @@ export class SelectionSystem extends System {
 
     // 创建一个新的canvas用于渲染选中状态
     const selectionCanvas = document.createElement("canvas");
+    const dpr = window.devicePixelRatio || 1;
     selectionCanvas.id = "selection-canvas"; // 添加一个id以便查询
-    selectionCanvas.width = this.ctx.canvas.width;
-    selectionCanvas.height = this.ctx.canvas.height;
+    selectionCanvas.width = this.ctx.canvas.width * dpr;
+    selectionCanvas.height = this.ctx.canvas.height * dpr;
+    selectionCanvas.style.width = this.ctx.canvas.width + "px";
+    selectionCanvas.style.height = this.ctx.canvas.height + "px";
     selectionCanvas.style.position = "absolute";
     selectionCanvas.style.top = "5px";
     selectionCanvas.style.left = "5px";
@@ -40,6 +43,9 @@ export class SelectionSystem extends System {
     selectionCanvas.style.zIndex = "10";
     parent.appendChild(selectionCanvas);
     this.selectionCtx = selectionCanvas.getContext("2d");
+    if (this.selectionCtx) {
+      this.selectionCtx.scale(dpr, dpr); // 缩放回逻辑大小
+    }
   }
 
   shapeRect({
