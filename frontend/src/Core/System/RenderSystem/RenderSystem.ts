@@ -47,7 +47,7 @@ export class RenderSystem extends System {
     if (type === ShapeType.Ellipse) {
       const { x, y } = position;
       const { width, height } = size;
-      const { fillColor } = color;
+      const { fillColor, strokeColor } = color;
       this.ctx.fillStyle = fillColor || "transparent";
       this.ctx.beginPath();
       this.ctx.ellipse(
@@ -60,7 +60,7 @@ export class RenderSystem extends System {
         2 * Math.PI
       );
       this.ctx.fill();
-      this.ctx.strokeStyle = "red"; // 可以是颜色字符串、渐变、模式等
+      this.ctx.strokeStyle = strokeColor || "transparent"; // 可以是颜色字符串、渐变、模式等
       this.ctx.lineWidth = 2;
       this.ctx.stroke();
       this.ctx.closePath();

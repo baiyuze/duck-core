@@ -1,3 +1,4 @@
+import type { Position, Size } from "../Components";
 import type { Core } from "../Core";
 import type { ComponentStore } from "../types";
 import type { System } from "./System";
@@ -30,6 +31,35 @@ export class SelectionSystem implements System {
     this.selectionCtx = selectionCanvas.getContext("2d");
   }
 
+  shapeRect({
+    position,
+    size,
+    color,
+    dash,
+  }: {
+    position: Position;
+    size: Size;
+    color: string;
+    dash?: number[];
+  }) {
+    if (!this.selectionCtx) return;
+    const ctx = this.selectionCtx;
+    ctx.save();
+
+    ctx.setLineDash(dash || []);
+
+    ctx.strokeStyle = color;
+
+    ctx.lineWidth = 2;
+    ctx.strokeRect(
+      position.x - 2,
+      position.y - 2,
+      size.width + 4,
+      size.height + 4
+    );
+    ctx.restore();
+  }
+
   render(components: ComponentStore, entityId: string, isHover = false) {
     if (!this.selectionCtx) return;
     const ctx = this.selectionCtx;
@@ -37,24 +67,21 @@ export class SelectionSystem implements System {
     const position = components.position.get(entityId);
     const size = components.size.get(entityId);
     if (position && size) {
-      // hover改为虚线
-      // const strokeStyle = isHover ? "rgba(90, 132, 255, 0.8)" : "rgb(90, 132, 255)";
-      // const lineWidth = isHover ? 1 : 2;
       if (!selected?.value) {
-        ctx.setLineDash([2, 2]);
-        ctx.strokeStyle = "rgba(90, 132, 255, 0.8)";
-        ctx.lineWidth = 1;
-      } else {
-        ctx.setLineDash([]);
-        ctx.strokeStyle = "rgb(90, 132, 255)";
-        ctx.lineWidth = 2;
+        this.shapeRect({
+          position,
+          size,
+          color: "rgba(90, 132, 255, 0.8)",
+          dash: [2, 2],
+        });
+      } else if (!(selected.hovered && isHover)) {
+        this.shapeRect({
+          position,
+          size,
+          color: "rgba(90, 132, 255)",
+          dash: [],
+        });
       }
-      ctx.strokeRect(
-        position.x - 2,
-        position.y - 2,
-        size.width + 4,
-        size.height + 4
-      );
 
       // 选中的时候，标记4个角，用于后续的缩放操作
       if (!isHover) {
@@ -95,11 +122,11 @@ export class SelectionSystem implements System {
     this.clearCanvas();
     // 渲染之前应该清理之前的选中状态，而不是清理画布
     this.components = components;
+
     components.selected.forEach((selected, entityId) => {
       if (!selected.value) return;
       this.render(components, entityId);
     });
-
     components.selected.forEach((selected, entityId) => {
       if (!selected.hovered) return;
       this.render(components, entityId, true);

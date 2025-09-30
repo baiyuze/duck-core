@@ -139,15 +139,29 @@ export class PickingSystem extends System {
   }
 
   /**
-   * 清空选中状态与hover状态
+   * 清空选中状态
    * @returns
    */
-  clearNodeState() {
+  clearSelectedState() {
     if (!this.components) return;
     this.components.selected.forEach((sel) => {
       sel.value = false;
+    });
+  }
+  /**
+   * 清空hover状态
+   * @returns
+   */
+  clearHoverState() {
+    if (!this.components) return;
+    this.components.selected.forEach((sel) => {
       sel.hovered = false;
     });
+  }
+
+  clear() {
+    this.clearSelectedState();
+    this.clearHoverState();
   }
 
   onClick() {
@@ -158,7 +172,7 @@ export class PickingSystem extends System {
     const colorId = this.getColorId(x, y);
     if (colorId && colorId[3] === 0) {
       // 清空选择
-      this.clearNodeState();
+      this.clear();
       this.core.update();
       return;
     }
@@ -184,7 +198,7 @@ export class PickingSystem extends System {
       });
     } else {
       //清空hover状态
-      this.clearNodeState();
+      this.clearHoverState();
     }
     // 直接清空所有，重新渲染状态
     this.core.update();
