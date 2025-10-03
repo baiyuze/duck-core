@@ -25,7 +25,9 @@ export class PickingSystem extends System {
     offscreenCanvas.width = width;
     offscreenCanvas.height = height;
 
-    return offscreenCanvas.getContext("2d");
+    return offscreenCanvas.getContext("2d", {
+      willReadFrequently: true,
+    });
   }
 
   render(stateStore: StateStore) {

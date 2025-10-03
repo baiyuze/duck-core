@@ -43,34 +43,56 @@ export class Core {
   initCanvas(canvas: HTMLCanvasElement) {
     const dpr = window.devicePixelRatio || 1;
 
-    // 设置 CSS 尺寸：保持在逻辑尺寸（用户看到的大小）
     canvas.style.width = canvas.width + "px";
     canvas.style.height = canvas.height + "px";
 
-    // 设置实际像素尺寸：乘以 dpr，保证清晰
     canvas.width = canvas.width * dpr;
     canvas.height = canvas.height * dpr;
 
-    const ctx = canvas.getContext("2d")!;
-    ctx.scale(dpr, dpr); // 缩放回逻辑大小
+    const ctx = canvas.getContext("2d", {
+      willReadFrequently: true,
+    }) as CanvasRenderingContext2D;
+    ctx.scale(dpr, dpr);
 
     return ctx;
   }
 
   initComponents() {
     this.dsls.forEach((dsl: DSL) => {
-      this.stateStore.position.set(dsl.id, dsl.position);
-      this.stateStore.size.set(dsl.id, dsl.size);
-      this.stateStore.color.set(dsl.id, dsl.color);
-      this.stateStore.selected.set(dsl.id, {
-        value: dsl?.selected?.value as boolean,
-        hovered: false,
-      });
-      this.stateStore.type.set(dsl.id, dsl.type);
-      this.stateStore.rotation.set(dsl.id, dsl.rotation);
-      this.stateStore.font.set(dsl.id, dsl.font);
-      this.stateStore.lineWidth.set(dsl.id, dsl.lineWidth);
-      this.stateStore.img.set(dsl.id, dsl.img);
+      for (const key in dsl) {
+        const value = (dsl as any)[key];
+        if (value === undefined) {
+          throw new Error(`DSL属性${key}未定义`);
+        }
+
+        if (
+          (typeof value === "object" &&
+            value !== null &&
+            !Array.isArray(value)) ||
+          key === "type"
+        ) {
+          const map = this.stateStore[key as keyof StateStore] as Map<
+            string,
+            DSL[keyof DSL]
+          >;
+          if (map && map instanceof Map) {
+            map.set(dsl.id, value);
+          }
+        }
+      }
+
+      // this.stateStore.position.set(dsl.id, dsl.position);
+      // this.stateStore.size.set(dsl.id, dsl.size);
+      // this.stateStore.color.set(dsl.id, dsl.color);
+      // this.stateStore.selected.set(dsl.id, {
+      //   value: dsl?.selected?.value as boolean,
+      //   hovered: false,
+      // });
+      // this.stateStore.type.set(dsl.id, dsl.type);
+      // this.stateStore.rotation.set(dsl.id, dsl.rotation);
+      // this.stateStore.font.set(dsl.id, dsl.font);
+      // this.stateStore.lineWidth.set(dsl.id, dsl.lineWidth);
+      // this.stateStore.img.set(dsl.id, dsl.img);
     });
   }
 
