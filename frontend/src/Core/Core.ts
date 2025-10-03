@@ -57,6 +57,9 @@ export class Core {
     return ctx;
   }
 
+  /**
+   * 只存储组件数据为CLASS的属性
+   */
   initComponents() {
     this.dsls.forEach((dsl: DSL) => {
       for (const key in dsl) {
