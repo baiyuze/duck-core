@@ -1,6 +1,8 @@
 import type { Color, Position, Size } from "../Components";
 import type { Img } from "../Components/Img";
 import type { LineWidth } from "../Components/LineWidth";
+import type Polygon from "../Components/Polygon";
+import type Scale from "../Components/Scale";
 import type { ZIndex } from "../Components/ZIndex";
 
 export interface DSLParams {
@@ -17,4 +19,6 @@ export interface DSLParams {
   name?: string;
   img?: Img;
   zIndex: ZIndex;
+  scale?: Scale;
+  polygon?: Polygon;
 }

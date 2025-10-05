@@ -269,11 +269,13 @@ function Canvas(props: CanvasProps) {
         color: { fillColor: "#666", strokeColor: "" },
         selected: { value: false },
         scale: { value: 1 },
-        vertexs: [
-          { x: 10, y: 10 },
-          { x: 20, y: 30 },
-          { x: 30, y: 10 },
-        ],
+        polygon: {
+          vertexs: [
+            { x: 10, y: 10 },
+            { x: 20, y: 30 },
+            { x: 30, y: 10 },
+          ],
+        },
 
         // fillColor: "#666666",
       },

@@ -13,6 +13,8 @@ import type { DSLParams } from "../types/dsl";
 import { LineWidth } from "../Components/LineWidth";
 import { Img } from "../Components/Img";
 import { ZIndex } from "../Components/ZIndex";
+import Scale from "../Components/Scale";
+import Polygon from "../Components/Polygon";
 
 export class DSL {
   type: string;
@@ -43,6 +45,10 @@ export class DSL {
 
   zIndex: ZIndex = new ZIndex(0);
 
+  scale: Scale = new Scale(1);
+
+  polygon: Polygon = new Polygon();
+
   constructor({
     position,
     size,
@@ -57,6 +63,8 @@ export class DSL {
     lineWidth,
     img,
     zIndex,
+    scale,
+    polygon,
   }: DSLParams) {
     this.position = new Position(position.x, position.y);
     this.size = new Size(size.width, size.height);
@@ -71,5 +79,7 @@ export class DSL {
     this.lineWidth = new LineWidth(lineWidth?.value || 0);
     this.img = new Img(img);
     this.zIndex = new ZIndex(zIndex?.value);
+    this.scale = new Scale(scale?.value);
+    this.polygon = new Polygon(polygon);
   }
 }

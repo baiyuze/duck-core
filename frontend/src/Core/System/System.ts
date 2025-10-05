@@ -7,6 +7,8 @@ import type {
   Size,
 } from "../Components";
 import type { Img } from "../Components/Img";
+import type Polygon from "../Components/Polygon";
+import type Scale from "../Components/Scale";
 import type { Core } from "../Core";
 import type { DSL } from "../DSL/DSL";
 import type { StateStore } from "../types";
@@ -29,6 +31,8 @@ export class System {
     const lineWidth = components.lineWidth.get(entityId) as LineWidth;
     const font = components.font.get(entityId) as Font;
     const img = components.img.get(entityId) as Img;
+    const scale = components.scale.get(entityId) as Scale;
+    const polygon = components.polygon.get(entityId) as Polygon;
 
     return {
       size,
@@ -39,6 +43,8 @@ export class System {
       lineWidth,
       font,
       img,
+      scale,
+      polygon,
     };
   }
 }
