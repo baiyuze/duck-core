@@ -1,4 +1,7 @@
-import type { Color, Position, Size } from "../Components";
+import type { Color, Font, Position, Size, Img } from "../Components";
+import type {} from "../Components/Img";
+import type Polygon from "../Components/Polygon";
+import type Scale from "../Components/Scale";
 
 export type StateStore = {
   position: Map<string, Position>;
@@ -11,4 +14,6 @@ export type StateStore = {
   font: Map<string, Font>;
   lineWidth: Map<string, { value: number }>;
   img: Map<string, Img>;
+  scale: Map<string, Scale>;
+  polygon: Map<string, Polygon>;
 };

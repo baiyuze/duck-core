@@ -41,9 +41,12 @@ export class RenderSystem extends System {
   render(stateStore: StateStore, ctx: CanvasRenderingContext2D) {
     // 每帧先清空画布
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
     // 遍历所有 position 组件的实体
     stateStore.position.forEach((pos, entityId) => {
+      ctx.save();
       this.drawShape(stateStore, entityId);
+      ctx.restore();
     });
   }
   /**

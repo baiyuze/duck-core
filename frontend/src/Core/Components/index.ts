@@ -5,3 +5,8 @@ export * from "./Rotation";
 export * from "./Font";
 export * from "./Name";
 export * from "./LineWidth";
+export * from "./Img";
+export * from "./Scale";
+export * from "./Polygon";
+// const components =  import.meta.glob("./*", { eager: true });
+// export * from components;

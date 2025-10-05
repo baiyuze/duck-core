@@ -1,6 +1,8 @@
 import type { Color, Position, Size } from "./Components";
 import type { Font } from "./Components/Font";
 import type { Img } from "./Components/Img";
+import type Polygon from "./Components/Polygon";
+import type Scale from "./Components/Scale";
 import { DSL } from "./DSL/DSL";
 import { Entity } from "./Entity/Entity";
 import { RenderSystem } from "./System/RenderSystem/RenderSystem";
@@ -27,6 +29,8 @@ export class Core {
     font: new Map<string, Font>(),
     lineWidth: new Map<string, { value: number }>(),
     img: new Map<string, Img>(),
+    scale: new Map<string, Scale>(),
+    polygon: new Map<string, Polygon>(),
   };
 
   system: System[] = [];
