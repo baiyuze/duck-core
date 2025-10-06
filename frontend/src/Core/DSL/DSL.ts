@@ -66,6 +66,7 @@ export class DSL {
     scale,
     polygon,
   }: DSLParams) {
+    console.log("polygon", arguments, position, polygon);
     this.position = new Position(position.x, position.y);
     this.size = new Size(size.width, size.height);
     this.color = new Color(color.fillColor, color.strokeColor);

@@ -16,27 +16,60 @@ export class PolygonRender extends System {
     if (!this.stateStore) return;
     const state = this.getComponentsByEntityId(this.stateStore, entityId);
 
-    const { x, y } = state.position;
+    // const { x, y } = state.position;
     // const { width, height } = state.size;
     const { fillColor, strokeColor } = state.color;
     const { vertexs } = state.polygon;
 
-    // this.ctx.fillStyle = fillColor || "transparent";
-    // this.ctx.strokeStyle = strokeColor || "transparent";
-    // this.ctx.strokeRect(x, y, width, height);
-    // if (state.lineWidth.value) {
-    //   this.ctx.lineWidth = state.lineWidth.value;
-    // }
-    // if (fillColor) this.ctx.fillRect(x, y, width, height);
-    // 绘制多边形
-    // 先获取position，再获取scale，再获取rotation，最后开始执行绘制vertexs,需要获取原点。
     const ctx = this.ctx;
-    ctx.translate(x, y);
+    // 需要注意translate和rotate的顺序，先translate再rotate
+    // ctx.translate(x, y);
     ctx.beginPath();
     if (vertexs.length > 0) {
-      ctx.moveTo(vertexs[0].x, vertexs[0].y);
+      const movePoint =
+        vertexs[0].type === "M"
+          ? vertexs[0]
+          : vertexs.find((v) => v.type === "M");
+      if (!movePoint) return;
+      if (!movePoint.point) return;
+      const { point } = movePoint;
+      ctx.moveTo(point.x, point.y);
+
+      // 需要按照点的顺序进行绘制，先判断类型，如果是L，直接lineTo，如果是Q，quadraticCurveTo，如果是C，bezierCurveTo
       for (let i = 1; i < vertexs.length; i++) {
-        ctx.lineTo(vertexs[i].x, vertexs[i].y);
+        const vertex = vertexs[i];
+        console.log("vertex", vertex);
+        switch (vertex.type) {
+          case "L":
+            if (vertex.point) {
+              ctx.lineTo(vertex.point?.x, vertex.point.y);
+            }
+            break;
+          case "Q":
+            if (vertex.controlPoint && vertex.endPoint) {
+              ctx.quadraticCurveTo(
+                vertex.controlPoint.x,
+                vertex.controlPoint.y,
+                vertex.endPoint.x,
+                vertex.endPoint.y
+              );
+            }
+            break;
+          case "C":
+            if (vertex.startPoint && vertex.endPoint && vertex.point) {
+              ctx.bezierCurveTo(
+                vertex.startPoint.x,
+                vertex.startPoint.y,
+                vertex.endPoint.x,
+                vertex.endPoint.y,
+                vertex.point.x,
+                vertex.point.y
+              );
+            }
+            break;
+          default:
+            break;
+        }
       }
       ctx.closePath();
       // 需要将fill和stroke分开和scale和rotation分开，分别渲染。

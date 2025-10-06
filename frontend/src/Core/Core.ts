@@ -82,7 +82,6 @@ export class Core {
             string,
             DSL[keyof DSL]
           >;
-          console.log("map", map, key, dsl);
           if (map && map instanceof Map) {
             map.set(dsl.id, value);
           }
