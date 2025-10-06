@@ -1,4 +1,5 @@
 import type { Color, Font, Position, Size, Img } from "../Components";
+import type { EllipseRadius } from "../Components/EllipseRadius";
 import type {} from "../Components/Img";
 import type Polygon from "../Components/Polygon";
 import type Scale from "../Components/Scale";
@@ -16,4 +17,5 @@ export type StateStore = {
   img: Map<string, Img>;
   scale: Map<string, Scale>;
   polygon: Map<string, Polygon>;
+  ellipseRadius: Map<string, EllipseRadius>;
 };

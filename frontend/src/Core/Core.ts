@@ -1,4 +1,5 @@
 import type { Color, Position, Size } from "./Components";
+import type { EllipseRadius } from "./Components/EllipseRadius";
 import type { Font } from "./Components/Font";
 import type { Img } from "./Components/Img";
 import type Polygon from "./Components/Polygon";
@@ -31,6 +32,7 @@ export class Core {
     img: new Map<string, Img>(),
     scale: new Map<string, Scale>(),
     polygon: new Map<string, Polygon>(),
+    ellipseRadius: new Map<string, EllipseRadius>(),
   };
 
   system: System[] = [];
@@ -46,7 +48,6 @@ export class Core {
 
   initCanvas(canvas: HTMLCanvasElement) {
     const dpr = window.devicePixelRatio || 1;
-
     canvas.style.width = canvas.width + "px";
     canvas.style.height = canvas.height + "px";
 

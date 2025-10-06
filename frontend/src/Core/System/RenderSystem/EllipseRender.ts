@@ -18,23 +18,24 @@ export class EllipseRender extends System {
     const state = this.getComponentsByEntityId(this.stateStore, entityId);
 
     const { x, y } = state.position;
-    const { width, height } = state.size;
+    const { rx, ry } = state.ellipseRadius;
+    // const { width, height } = state.size;
     const { fillColor, strokeColor } = state.color;
-    this.ctx.fillStyle = fillColor || "transparent";
     this.ctx.beginPath();
     this.ctx.ellipse(
-      x + width / 2,
-      y + height / 2,
-      width / 2,
-      height / 2,
-      (state.rotation.value * Math.PI) / 180,
+      x,
+      y,
+      rx, // 水平半径
+      ry, // 垂直半径
+      0, // 旋转角度
       0,
       2 * Math.PI
     );
-    this.ctx.fill();
     this.ctx.strokeStyle = strokeColor || "transparent"; // 可以是颜色字符串、渐变、模式等
-    this.ctx.lineWidth = 2;
     this.ctx.stroke();
+    this.ctx.fillStyle = fillColor || "transparent";
+    this.ctx.fill();
+    this.ctx.lineWidth = 2;
     this.ctx.closePath();
   }
 }

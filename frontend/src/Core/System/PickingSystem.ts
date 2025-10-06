@@ -39,6 +39,8 @@ export class PickingSystem extends System {
 
     // 遍历所有 position 组件的实体
     stateStore.position.forEach((pos, entityId) => {
+      ctx.save();
+      // 获取实体的 size 组件
       const size = stateStore.size.get(entityId);
       // 离屏渲染颜色
       const fillColor = this.entityManager.getColorById(entityId);
@@ -47,6 +49,7 @@ export class PickingSystem extends System {
       if (size) {
         ctx.fillRect(pos.x, pos.y, size.width, size.height);
       }
+      ctx.restore();
     });
   }
 

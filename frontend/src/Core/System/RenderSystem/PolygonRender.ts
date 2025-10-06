@@ -23,7 +23,6 @@ export class PolygonRender extends System {
 
     const ctx = this.ctx;
     // 需要注意translate和rotate的顺序，先translate再rotate
-    // ctx.translate(x, y);
     ctx.beginPath();
     if (vertexs.length > 0) {
       const movePoint =

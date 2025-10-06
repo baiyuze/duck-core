@@ -6,6 +6,7 @@ import type {
   Rotation,
   Size,
 } from "../Components";
+import type { EllipseRadius } from "../Components/EllipseRadius";
 import type { Img } from "../Components/Img";
 import type Polygon from "../Components/Polygon";
 import type Scale from "../Components/Scale";
@@ -33,6 +34,9 @@ export class System {
     const img = components.img.get(entityId) as Img;
     const scale = components.scale.get(entityId) as Scale;
     const polygon = components.polygon.get(entityId) as Polygon;
+    const ellipseRadius = components.ellipseRadius.get(
+      entityId
+    ) as EllipseRadius;
 
     return {
       size,
@@ -45,6 +49,7 @@ export class System {
       img,
       scale,
       polygon,
+      ellipseRadius,
     };
   }
 }

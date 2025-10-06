@@ -62,7 +62,7 @@ export class SelectionSystem extends System {
     if (!this.selectionCtx) return;
     const ctx = this.selectionCtx;
     ctx.save();
-
+    // 更新坐标原点位置
     ctx.setLineDash(dash || []);
 
     ctx.strokeStyle = color;

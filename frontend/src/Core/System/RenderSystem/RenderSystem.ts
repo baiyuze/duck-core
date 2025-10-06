@@ -45,7 +45,7 @@ export class RenderSystem extends System {
     // 遍历所有 position 组件的实体
     stateStore.position.forEach((pos, entityId) => {
       ctx.save();
-      // ctx.translate(pos.x, pos.y);
+      // 中心原点应该是图形的中心点
       this.drawShape(stateStore, entityId);
       ctx.restore();
     });

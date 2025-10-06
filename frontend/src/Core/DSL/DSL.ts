@@ -15,6 +15,7 @@ import { Img } from "../Components/Img";
 import { ZIndex } from "../Components/ZIndex";
 import Scale from "../Components/Scale";
 import Polygon from "../Components/Polygon";
+import { EllipseRadius } from "../Components/EllipseRadius";
 
 export class DSL {
   type: string;
@@ -49,6 +50,8 @@ export class DSL {
 
   polygon: Polygon = new Polygon();
 
+  ellipseRadius: EllipseRadius = new EllipseRadius();
+
   constructor({
     position,
     size,
@@ -65,9 +68,10 @@ export class DSL {
     zIndex,
     scale,
     polygon,
+    ellipseRadius,
   }: DSLParams) {
     console.log("polygon", arguments, position, polygon);
-    this.position = new Position(position.x, position.y);
+    this.position = new Position(position);
     this.size = new Size(size.width, size.height);
     this.color = new Color(color.fillColor, color.strokeColor);
     this.rotation = new Rotation(rotation?.value || 0);
@@ -82,5 +86,6 @@ export class DSL {
     this.zIndex = new ZIndex(zIndex?.value);
     this.scale = new Scale(scale?.value);
     this.polygon = new Polygon(polygon);
+    this.ellipseRadius = new EllipseRadius(ellipseRadius);
   }
 }

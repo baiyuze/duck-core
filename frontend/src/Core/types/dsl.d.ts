@@ -1,4 +1,5 @@
 import type { Color, Position, Size } from "../Components";
+import type { EllipseRadius } from "../Components/EllipseRadius";
 import type { Img } from "../Components/Img";
 import type { LineWidth } from "../Components/LineWidth";
 import type Polygon from "../Components/Polygon";
@@ -21,4 +22,5 @@ export interface DSLParams {
   zIndex: ZIndex;
   scale?: Scale;
   polygon?: Polygon;
+  ellipseRadius?: EllipseRadius;
 }
