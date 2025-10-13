@@ -30,15 +30,20 @@ export class SelectionSystem extends System {
 
     // 创建一个新的canvas用于渲染选中状态
     const selectionCanvas = document.createElement("canvas");
+
     const dpr = window.devicePixelRatio || 1;
+
+    const width = this.core.defaultSize.width;
+    const height = this.core.defaultSize.height;
+    selectionCanvas.style.width = width + "px";
+    selectionCanvas.style.height = height + "px";
+
+    selectionCanvas.width = width * dpr;
+    selectionCanvas.height = height * dpr;
     selectionCanvas.id = "selection-canvas"; // 添加一个id以便查询
-    selectionCanvas.width = this.ctx.canvas.width * dpr;
-    selectionCanvas.height = this.ctx.canvas.height * dpr;
-    selectionCanvas.style.width = this.ctx.canvas.width + "px";
-    selectionCanvas.style.height = this.ctx.canvas.height + "px";
     selectionCanvas.style.position = "absolute";
-    selectionCanvas.style.top = "5px";
-    selectionCanvas.style.left = "5px";
+    selectionCanvas.style.top = "0";
+    selectionCanvas.style.left = "0";
     selectionCanvas.style.pointerEvents = "none";
     selectionCanvas.style.zIndex = "10";
     parent.appendChild(selectionCanvas);

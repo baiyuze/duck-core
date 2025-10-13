@@ -195,10 +195,9 @@ const Copilot = (props: CopilotProps) => {
   // ==================== Runtime ====================
 
   const [agent] = useXAgent<BubbleDataType>({
-    baseURL:
-      "https://api.x.ant.design/api/llm_siliconflow_deepSeek-r1-distill-1wen-7b",
-    model: "DeepSeek-R1-Distill-Qwen-7B",
-    dangerouslyApiKey: "Bearer sk-xxxxxxxxxxxxxxxxxxxx",
+    baseURL: "/compatible-mode/v1/chat/completions",
+    model: "deepseek-r1",
+    dangerouslyApiKey: "Bearer sk-",
   });
 
   const loading = agent.isRequesting();
@@ -401,15 +400,15 @@ const Copilot = (props: CopilotProps) => {
         <>
           <Welcome
             variant="borderless"
-            title="👋 Hello, I'm Ant Design X"
-            description="Base on Ant Design, AGI product interface solution, create a better intelligent vision~"
+            title="👋你好，我是设计师X"
+            description="基于Ant Design，AGI产品界面解决方案，创造更好的智能视觉~"
             className={styles.chatWelcome}
           />
 
           <Prompts
             vertical
-            title="I can help："
-            items={MOCK_QUESTIONS.map((i) => ({ key: i, description: i }))}
+            // title="I can help："
+            // items={MOCK_QUESTIONS.map((i) => ({ key: i, description: i }))}
             onItemClick={(info) =>
               handleUserSubmit(info?.data?.description as string)
             }

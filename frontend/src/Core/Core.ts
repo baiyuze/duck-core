@@ -14,6 +14,7 @@ export class Core {
   /**
    * 是否多选
    */
+  defaultSize = { width: 800, height: 800 };
   multiple: boolean = false;
   dsls: DSL[] = [];
 
@@ -46,13 +47,17 @@ export class Core {
     this.initComponents();
   }
 
-  initCanvas(canvas: HTMLCanvasElement) {
+  initCanvas(
+    canvas: HTMLCanvasElement,
+    size: { width: number; height: number }
+  ) {
+    this.defaultSize = size;
     const dpr = window.devicePixelRatio || 1;
-    canvas.style.width = canvas.width + "px";
-    canvas.style.height = canvas.height + "px";
+    canvas.style.width = size.width + "px";
+    canvas.style.height = size.height + "px";
 
-    canvas.width = canvas.width * dpr;
-    canvas.height = canvas.height * dpr;
+    canvas.width = size.width * dpr;
+    canvas.height = size.height * dpr;
 
     const ctx = canvas.getContext("2d", {
       willReadFrequently: true,

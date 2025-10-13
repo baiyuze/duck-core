@@ -310,7 +310,10 @@ function Canvas(props: CanvasProps) {
     ];
     if (canvasRef.current) {
       const core = new Core(dsls);
-      const context = core.initCanvas(canvasRef.current);
+      const context = core.initCanvas(canvasRef.current, {
+        width: 800,
+        height: 800,
+      });
 
       core.addSystem(new RenderSystem(context, core));
       core.addSystem(new PickingSystem(context, core));
