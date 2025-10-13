@@ -8,6 +8,7 @@ import { PickingSystem } from "../Core/System/PickingSystem";
 import styles from "./Canvas.module.scss";
 import { EventSystem } from "../Core/System/EventSystem";
 import { InputSystem } from "../Core/System/InputSytem";
+import CopilotDemo from "../Components/AiChat/AiChat";
 
 function Canvas(props: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -265,13 +266,12 @@ function Canvas(props: CanvasProps) {
       {
         id: "12",
         type: "ellipse",
-        position: { x: 80, y: 55 }, // 向上微调，居中
-        size: { width: 75, height: 80 }, // 缩小头部尺寸，更精致
+        position: { x: 70, y: 0 }, // 向上微调，居中
+        size: { width: 60, height: 80 }, // 缩小头部尺寸，更精致
         color: {
           fillColor: "#AAAAbA", // 稍微亮一点的填充色
           strokeColor: "#AAAAAA", // 柔和一点的描边色
         },
-        ellipseRadius: { rx: 30, ry: 40 },
         selected: { value: false },
         scale: { value: 1 },
       },
@@ -333,13 +333,15 @@ function Canvas(props: CanvasProps) {
   }, []);
 
   return (
-    <div className={styles.canvas}>
-      <canvas
-        id="canvas"
-        style={{ position: "absolute", left: "5px", top: "5px", zIndex: 1 }}
-        width={800}
-        height={800}
-      ></canvas>
+    <div className={styles.canvasContainer}>
+      {/* <div className={styles.top}></div> */}
+      <div className={styles.left}></div>
+      <div className={styles.canvas}>
+        <canvas id="canvas" width={800} height={800}></canvas>
+      </div>
+      <div className={styles.controls}>
+        <CopilotDemo />
+      </div>
     </div>
   );
 }
