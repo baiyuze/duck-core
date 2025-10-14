@@ -38,7 +38,7 @@ func DslDesignTpl() *prompt.DefaultChatTemplate {
   "rotation": ( "value": number ),
   "font": (
     "family": string,
-    "size": string,
+    "size": number,
     "weight": string,
     "style": string,
     "variant": string,
@@ -54,16 +54,39 @@ func DslDesignTpl() *prompt.DefaultChatTemplate {
   "polygon": ( "vertexs": [] ) | null, 
 )
 ---
-【dsl注意】
+【DSLParams的JSON约束】
 - polygon.vertexs基于坐标原点，为左上角(0,0)，目前没有相对坐标
 - type类型为img时，必须是一个可以使用的图片或者网址图片，不要使用不存在的图
 - type类型为text时，font必须存在，其他类型，font可以为空对象或者默认值
+- 仔细检查DSLParams，确保是合法的JSON数组，不能有多余逗号，不能有多余字段,不能缺字段,不能有注释，不能有多余空格
+- 字段值必须符合类型要求，不能有类型错误
+- 允许空字段使用 null 或省略（omitempty）
+- size.width 和 size.height 必须大于0
+- zIndex.value 必须为整数，且大于等于0
+- img.src 必须为合法的图片地址或base64图片
+- font.size 必须为大于0的整数
+- font.family 必须为浏览器支持的字体，不能使用苹方字体
+- font.weight 必须为字符串，例如 "400"
+- font.lineHeight 必须为字符串，例如 "1.5"
+- position.x 和 position.y 必须大于等于0
+- rotation.value 必须为数字，可以为负数
+- lineWidth.value 必须为大于等于0的数字
+- fillColor 和 strokeColor 必须为合法的颜色值，可以是十六进制颜色值（#RRGGBB）或 rgba() 格式，或者 null
+- type 必须是 "ellipse" | "rect" | "text" | "polygon" | "img" 之一
+- selected.value 必须为布尔值，selected.hovered 布尔值
+- eventQueue 必须为空数组
+- id 必须唯一，number的字符串，比如说"1"
+- scale.value 必须为大于0的数字
+- polygon.vertexs 必须为数组，且每个顶点包含 x 和 y 坐标，坐标必须为大于等于0的数字
+- 输出前自动自检：
+  - 每个对象 type 是否合法
+  - 字段是否完整
 
 【默认值规范】
 
-- 页面背景 fillColor 默认 "#FFFFFF"
+- 页面背景 fillColor 默认 "#f6f6f6"，如果使用这个背景色，需要确定这个颜色不会造成浏览器看不见，可以使用浅灰色 #F5F5F5,颜色要协调
 - 文本字体 fillColor 默认 "#333333"
-- 字体 family 默认 "Arial"
+- 字体 family 默认 "Arial"，不要使用浏览器不支持的字体，不要使用苹方字体，因为有些浏览器不支持，使用默认谷歌浏览器支持的字体
 - lineWidth 默认 null（无边框）
 - scale 默认 null（1:1）
 - rotation.value 默认 0
@@ -72,6 +95,11 @@ func DslDesignTpl() *prompt.DefaultChatTemplate {
 - eventQueue 必须为空数组
 - strokeColor 可为 null
 - id 必须唯一，number的字符串，比如说"1"
+- selected 必须为 ("value": false, "hovered": false)
+- font 这个字段只有 type 为 text 时必须有值，其他类型可以是空对象
+- img 这个字段只有 type 为 img 时必须有值，其他类型可以是 null
+- polygon 这个字段只有 type 为 polygon 时必须有值，其他类型可以是 null
+- 目前画布大小只有800 * 800，坐标和尺寸必须在这个范围内，可以使用scale等比例缩小
 
 
 ---
