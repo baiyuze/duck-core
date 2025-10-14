@@ -1,5 +1,4 @@
 import type { Core } from "../../Core";
-import type { DSL } from "../../DSL/DSL";
 import type { StateStore } from "../../types";
 import { System } from "../System";
 
@@ -11,9 +10,9 @@ export class TextRender extends System {
     super();
     this.core = core;
     this.ctx = ctx;
-    this.stateStore = core.stateStore;
   }
   draw(entityId: string) {
+    this.stateStore = this.core.stateStore;
     if (!this.stateStore) return;
     const state = this.getComponentsByEntityId(this.stateStore, entityId);
     if (!state) return;
@@ -29,6 +28,8 @@ export class TextRender extends System {
     ];
     this.ctx.font = parts.filter((v) => v).join(" ");
     this.ctx.fillStyle = font.fillColor || "#000";
+    console.log(parts.filter((v) => v).join(" "), font.fillColor, "font");
+
     this.ctx.strokeStyle = font.strokeColor || "transparent";
     if (font.strokeColor) this.ctx.strokeText(font.text, x, y + font.size);
     this.ctx.fillText(font.text, x, y + font.size);

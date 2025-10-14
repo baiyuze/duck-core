@@ -10,9 +10,9 @@ export class PolygonRender extends System {
     super();
     this.core = core;
     this.ctx = ctx;
-    this.stateStore = core.stateStore;
   }
   draw(entityId: string) {
+    this.stateStore = this.core.stateStore;
     if (!this.stateStore) return;
     const state = this.getComponentsByEntityId(this.stateStore, entityId);
 

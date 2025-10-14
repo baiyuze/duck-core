@@ -55,11 +55,7 @@ export class PickingSystem extends System {
 
   update(stateStore: StateStore) {
     this.stateStore = stateStore;
-    // render只执行一次
-    if (!this.isRendered) {
-      this.isRendered = true;
-      this.render(stateStore);
-    }
+    this.render(stateStore);
     this.onClick();
     this.onHover();
   }

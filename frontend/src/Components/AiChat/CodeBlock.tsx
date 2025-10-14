@@ -4,7 +4,7 @@ import {
   ThunderboltOutlined,
 } from "@ant-design/icons";
 import { Button, message } from "antd";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import hljs from "highlight.js";
 import "highlight.js/styles/github.css";
 
@@ -18,19 +18,8 @@ const CodeBlock = ({ language, children, onApply }: CodeBlockProps) => {
   const [copied, setCopied] = useState(false);
   const codeRef = useRef<HTMLElement>(null);
 
-  // 应用语法高亮
-  useEffect(() => {
-    if (codeRef.current && language) {
-      try {
-        hljs.highlightElement(codeRef.current);
-      } catch (error) {
-        console.error("代码高亮失败:", error);
-      }
-    }
-  }, [children, language]);
-
-  // 判断是否为 JSON 数据
-  const isJSON = () => {
+  // 使用 useMemo 缓存是否为 JSON 的判断结果
+  const isJSON = useMemo(() => {
     if (
       !language ||
       !["json", "javascript", "js", "typescript", "ts"].includes(
@@ -46,9 +35,10 @@ const CodeBlock = ({ language, children, onApply }: CodeBlockProps) => {
     } catch {
       return false;
     }
-  };
+  }, [language, children]);
 
-  const handleCopy = async () => {
+  // 使用 useCallback 缓存事件处理函数
+  const handleCopy = useCallback(async () => {
     try {
       await navigator.clipboard.writeText(children);
       setCopied(true);
@@ -57,16 +47,29 @@ const CodeBlock = ({ language, children, onApply }: CodeBlockProps) => {
     } catch (error) {
       message.error("复制失败");
     }
-  };
+  }, [children]);
 
-  const handleApply = () => {
+  const handleApply = useCallback(() => {
     if (onApply) {
       onApply(children);
       message.success("已应用代码");
     }
-  };
+  }, [onApply, children]);
 
-  const canApply = isJSON() && onApply;
+  // useEffect(() => {
+  //   if (codeRef.current && language) {
+  //     // 延迟执行高亮，避免在快速更新时重复执行
+  //     try {
+  //       // 清除之前的高亮
+  //       // codeRef.current.removeAttribute("data-highlighted");
+  //       hljs.highlightElement(codeRef.current);
+  //     } catch (error) {
+  //       console.error("代码高亮失败:", error);
+  //     }
+  //   }
+  // }, [children, language]);
+
+  const canApply = isJSON && onApply;
 
   return (
     <div style={{ position: "relative", marginBlock: 8 }}>

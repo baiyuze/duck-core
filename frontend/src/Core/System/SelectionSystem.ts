@@ -88,7 +88,6 @@ export class SelectionSystem extends System {
     const selected = stateStore.selected.get(entityId);
     const position = stateStore.position.get(entityId);
     const size = stateStore.size.get(entityId);
-    console.log(selected, "selected---->");
     if (position && size) {
       if (!selected?.value) {
         this.shapeRect({
@@ -147,7 +146,6 @@ export class SelectionSystem extends System {
     this.stateStore = stateStore;
 
     stateStore.selected.forEach((selected, entityId) => {
-      console.log(stateStore.selected, "---->");
       if (!selected.value) return;
       this.render(stateStore, entityId);
     });

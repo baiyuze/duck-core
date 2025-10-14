@@ -100,6 +100,8 @@ const ThinkingContent = ({ content }: { content: string }) => {
         padding: "12px 16px",
         marginBottom: 8,
         color: "#fff",
+        willChange: "height", // 提示浏览器这个元素的高度会变化
+        transition: "height 0.2s ease-out", // 平滑的高度过渡
       }}
     >
       <div
@@ -131,7 +133,7 @@ const ThinkingContent = ({ content }: { content: string }) => {
             paddingTop: 8,
             borderTop: "1px solid rgba(255,255,255,0.2)",
             whiteSpace: "pre-wrap",
-            fontSize: 13,
+            fontSize: 12,
             lineHeight: 1.6,
             opacity: 0.95,
           }}
@@ -150,6 +152,8 @@ const useCopilotStyle = createStyles(({ token, css }) => {
       flex-direction: column;
       background: ${token.colorBgContainer};
       color: ${token.colorText};
+      height: 100%; /* 确保固定高度 */
+      overflow: hidden; /* 防止整体容器溢出 */
     `,
     // chatHeader 样式
     chatHeader: css`
@@ -176,9 +180,12 @@ const useCopilotStyle = createStyles(({ token, css }) => {
     `,
     // chatList 样式
     chatList: css`
-      overflow: auto;
+      overflow: hidden; /* 防止滚动条闪烁 */
       padding-block: 16px;
       flex: 1;
+      min-height: 0; /* 确保flex子元素可以缩小 */
+      display: flex;
+      flex-direction: column;
     `,
     chatWelcome: css`
       margin-inline: 16px;
@@ -197,6 +204,15 @@ const useCopilotStyle = createStyles(({ token, css }) => {
       background-size: 100% 2px;
       background-repeat: no-repeat;
       background-position: bottom;
+    `,
+    // 防止内容变化时的闪烁
+    messageContent: css`
+      will-change: contents;
+      contain: layout style;
+      word-wrap: break-word;
+      word-break: break-word;
+      overflow-wrap: break-word;
+      min-height: 1em; /* 确保最小高度 */
     `,
     thinkingIndicator: css`
       display: inline-flex;
@@ -237,6 +253,7 @@ const Copilot = (props: CopilotProps) => {
   const { styles } = useCopilotStyle();
   const attachmentsRef = useRef<GetRef<typeof Attachments>>(null);
   const abortController = useRef<AbortController>(null);
+  const chatListRef = useRef<HTMLDivElement>(null);
 
   // ==================== State ====================
 
@@ -250,6 +267,29 @@ const Copilot = (props: CopilotProps) => {
   const [files, setFiles] = useState<GetProp<AttachmentsProps, "items">>([]);
 
   const [inputValue, setInputValue] = useState("");
+
+  // 防抖滚动到底部
+  const scrollToBottomDebounced = useRef<number>(0);
+  const scrollToBottom = () => {
+    if (scrollToBottomDebounced.current) {
+      clearTimeout(scrollToBottomDebounced.current);
+    }
+    scrollToBottomDebounced.current = window.setTimeout(() => {
+      if (chatListRef.current) {
+        const scrollElement =
+          chatListRef.current.querySelector(".ant-bubble-list");
+        if (scrollElement) {
+          // 判断用户是否手动滚动到上面，如果不在底部则不自动滚动
+          const { scrollTop, scrollHeight, clientHeight } = scrollElement;
+          const isAtBottom = scrollTop + clientHeight >= scrollHeight - 50; // 50px 的容差，适应轻微滚动
+
+          if (isAtBottom) {
+            scrollElement.scrollTop = scrollElement.scrollHeight;
+          }
+        }
+      }
+    }, 10);
+  };
 
   // ==================== Callbacks ====================
 
@@ -464,11 +504,16 @@ const Copilot = (props: CopilotProps) => {
     </div>
   );
   const chatList = (
-    <div className={styles.chatList}>
+    <div className={styles.chatList} ref={chatListRef}>
       {messages?.length ? (
         /** 消息列表 */
         <Bubble.List
-          style={{ height: "100%", paddingInline: 16 }}
+          style={{
+            height: "100%",
+            paddingInline: 16,
+            overflow: "auto",
+            scrollBehavior: "smooth",
+          }}
           items={messages?.map((i) => {
             const msg = i.message as BubbleDataType;
             const isLoading = i.status === "loading";
@@ -477,7 +522,9 @@ const Copilot = (props: CopilotProps) => {
             return {
               ...msg,
               classNames: {
-                content: isLoading ? styles.loadingMessage : "",
+                content: isLoading
+                  ? styles.loadingMessage
+                  : styles.messageContent,
               },
               typing: isLoading
                 ? { step: 5, interval: 20, suffix: <>💗</> }
@@ -679,9 +726,9 @@ const Copilot = (props: CopilotProps) => {
                 <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                   <SpeechButton className={styles.speechButton} />
                   {loading ? (
-                    <LoadingButton type="default">取消</LoadingButton>
+                    <LoadingButton type="default"></LoadingButton>
                   ) : (
-                    <SendButton type="primary">发送</SendButton>
+                    <SendButton type="primary"></SendButton>
                   )}
                 </div>
               );
@@ -699,8 +746,19 @@ const Copilot = (props: CopilotProps) => {
         ...prev,
         [curSession]: messages,
       }));
+      // 当消息更新时，滚动到底部
+      scrollToBottom();
     }
   }, [messages]);
+
+  // 清理定时器
+  useEffect(() => {
+    return () => {
+      if (scrollToBottomDebounced.current) {
+        clearTimeout(scrollToBottomDebounced.current);
+      }
+    };
+  }, []);
 
   return (
     <div
@@ -785,7 +843,7 @@ const useWorkareaStyle = createStyles(({ token, css }) => {
   };
 });
 
-const CopilotDemo = () => {
+const CopilotDemo = (props: { onApplyCode: (code: string) => void }) => {
   const { styles: workareaStyles } = useWorkareaStyle();
 
   // ==================== State =================
@@ -794,16 +852,14 @@ const CopilotDemo = () => {
   // ==================== Render =================
   return (
     <div className={workareaStyles.copilotWrapper}>
-      {/** 左侧工作区 */}
-
-      {/** 右侧对话区 */}
-      <Copilot copilotOpen={copilotOpen} setCopilotOpen={setCopilotOpen} />
+      <Copilot
+        copilotOpen={copilotOpen}
+        setCopilotOpen={setCopilotOpen}
+        onApplyCode={props.onApplyCode}
+      />
     </div>
   );
 };
-
-// 导出独立的 Copilot 组件供外部使用
-export { Copilot };
 
 // 导出默认的 Demo 组件
 export default CopilotDemo;

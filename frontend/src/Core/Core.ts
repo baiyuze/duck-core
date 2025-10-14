@@ -20,31 +20,35 @@ export class Core {
 
   SystemMap: Map<string, System> = new Map();
 
-  stateStore: StateStore = {
-    position: new Map<string, Position>(),
-    size: new Map<string, Size>(),
-    color: new Map<string, Color>(),
-    selected: new Map<string, { value: boolean; hovered: boolean }>(),
-    eventQueue: [],
-    rotation: new Map<string, { value: number }>(),
-    type: new Map<string, string>(),
-    font: new Map<string, Font>(),
-    lineWidth: new Map<string, { value: number }>(),
-    img: new Map<string, Img>(),
-    scale: new Map<string, Scale>(),
-    polygon: new Map<string, Polygon>(),
-    ellipseRadius: new Map<string, EllipseRadius>(),
-  };
+  stateStore: StateStore = Core.getStateStore();
 
   system: System[] = [];
 
   entityManager = new Entity();
 
+  static getStateStore() {
+    return {
+      position: new Map<string, Position>(),
+      size: new Map<string, Size>(),
+      color: new Map<string, Color>(),
+      selected: new Map<string, { value: boolean; hovered: boolean }>(),
+      eventQueue: [],
+      rotation: new Map<string, { value: number }>(),
+      type: new Map<string, string>(),
+      font: new Map<string, Font>(),
+      lineWidth: new Map<string, { value: number }>(),
+      img: new Map<string, Img>(),
+      scale: new Map<string, Scale>(),
+      polygon: new Map<string, Polygon>(),
+      ellipseRadius: new Map<string, EllipseRadius>(),
+    };
+  }
+
   // ctx: CanvasRenderingContext2D | null;
   constructor(dsls: any[]) {
     // this.ctx = ctx;
-    this.dsls = dsls.map((dsl) => new DSL(dsl));
-    this.initComponents();
+
+    this.initComponents(dsls);
   }
 
   initCanvas(
@@ -73,7 +77,10 @@ export class Core {
   /**
    * 只存储组件数据为CLASS的属性
    */
-  initComponents() {
+  initComponents(dsls: any[] = []) {
+    this.resetState();
+    this.dsls = dsls.map((dsl) => new DSL(dsl));
+
     this.dsls.forEach((dsl: DSL) => {
       for (const key in dsl) {
         if (key == "selected") {
@@ -100,20 +107,12 @@ export class Core {
           }
         }
       }
-
-      // this.stateStore.position.set(dsl.id, dsl.position);
-      // this.stateStore.size.set(dsl.id, dsl.size);
-      // this.stateStore.color.set(dsl.id, dsl.color);
-      // this.stateStore.selected.set(dsl.id, {
-      //   value: dsl?.selected?.value as boolean,
-      //   hovered: false,
-      // });
-      // this.stateStore.type.set(dsl.id, dsl.type);
-      // this.stateStore.rotation.set(dsl.id, dsl.rotation);
-      // this.stateStore.font.set(dsl.id, dsl.font);
-      // this.stateStore.lineWidth.set(dsl.id, dsl.lineWidth);
-      // this.stateStore.img.set(dsl.id, dsl.img);
     });
+  }
+
+  resetState() {
+    this.stateStore = Core.getStateStore();
+    this.entityManager = new Entity();
   }
 
   addSystem(system: System) {
