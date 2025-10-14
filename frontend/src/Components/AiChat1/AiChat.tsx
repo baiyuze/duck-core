@@ -1,17 +1,17 @@
 import {
-  BulbOutlined,
+  AppstoreAddOutlined,
   CloseOutlined,
   CloudUploadOutlined,
   CommentOutlined,
   CopyOutlined,
   DislikeOutlined,
-  DownOutlined,
   LikeOutlined,
-  LoadingOutlined,
   OpenAIFilled,
   PaperClipOutlined,
   PlusOutlined,
-  ThunderboltOutlined,
+  ProductOutlined,
+  ReloadOutlined,
+  ScheduleOutlined,
 } from "@ant-design/icons";
 import {
   Attachments,
@@ -30,6 +30,7 @@ import {
   Button,
   type GetProp,
   type GetRef,
+  Image,
   Popover,
   Space,
   Spin,
@@ -37,111 +38,59 @@ import {
 } from "antd";
 import { createStyles } from "antd-style";
 import dayjs from "dayjs";
-import { useEffect, useRef, useState } from "react";
-import MarkdownRenderer from "./MarkdownRenderer";
+import React, { useEffect, useRef, useState } from "react";
 
 type BubbleDataType = {
   role: string;
   content: string;
-  thinking?: string;
 };
 
 const MOCK_SESSION_LIST = [
   {
     key: "5",
-    label: "新对话",
-    group: "今天",
+    label: "New session",
+    group: "Today",
   },
   {
     key: "4",
-    label: "如何实现 React 组件优化？",
-    group: "今天",
+    label: "What has Ant Design X upgraded?",
+    group: "Today",
   },
   {
     key: "3",
-    label: "DeepSeek 模型的特点",
-    group: "今天",
+    label: "New AGI Hybrid Interface",
+    group: "Today",
   },
   {
     key: "2",
-    label: "前端性能优化方案",
-    group: "昨天",
+    label: "How to quickly install and import components?",
+    group: "Yesterday",
   },
   {
     key: "1",
-    label: "TypeScript 类型系统",
-    group: "昨天",
+    label: "What is Ant Design X?",
+    group: "Yesterday",
   },
 ];
 const MOCK_SUGGESTIONS = [
-  { label: "写一份报告", value: "report" },
-  { label: "生成创意", value: "creative" },
+  { label: "Write a report", value: "report" },
+  { label: "Draw a picture", value: "draw" },
   {
-    label: "查询知识",
+    label: "Check some knowledge",
     value: "knowledge",
     icon: <OpenAIFilled />,
     children: [
-      { label: "关于 React", value: "react" },
-      { label: "关于 TypeScript", value: "typescript" },
+      { label: "About React", value: "react" },
+      { label: "About Ant Design", value: "antd" },
     ],
   },
 ];
-const AGENT_PLACEHOLDER = "正在生成内容，请稍候...";
-
-// 思考过程组件
-const ThinkingContent = ({ content }: { content: string }) => {
-  const [collapsed, setCollapsed] = useState(true);
-
-  return (
-    <div
-      style={{
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        borderRadius: 8,
-        padding: "12px 16px",
-        marginBottom: 8,
-        color: "#fff",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          cursor: "pointer",
-          marginBottom: collapsed ? 0 : 8,
-        }}
-        onClick={() => setCollapsed(!collapsed)}
-      >
-        <Space>
-          <BulbOutlined style={{ fontSize: 16 }} />
-          <span style={{ fontWeight: 500 }}>AI 思考过程</span>
-        </Space>
-        <DownOutlined
-          style={{
-            fontSize: 12,
-            transform: collapsed ? "rotate(0deg)" : "rotate(180deg)",
-            transition: "transform 0.3s",
-          }}
-        />
-      </div>
-      {!collapsed && (
-        <div
-          style={{
-            marginTop: 8,
-            paddingTop: 8,
-            borderTop: "1px solid rgba(255,255,255,0.2)",
-            whiteSpace: "pre-wrap",
-            fontSize: 13,
-            lineHeight: 1.6,
-            opacity: 0.95,
-          }}
-        >
-          {content}
-        </div>
-      )}
-    </div>
-  );
-};
+const MOCK_QUESTIONS = [
+  "What has Ant Design X upgraded?",
+  "What components are in Ant Design X?",
+  "How to quickly install and import components?",
+];
+const AGENT_PLACEHOLDER = "Generating content, please wait...";
 
 const useCopilotStyle = createStyles(({ token, css }) => {
   return {
@@ -198,17 +147,6 @@ const useCopilotStyle = createStyles(({ token, css }) => {
       background-repeat: no-repeat;
       background-position: bottom;
     `,
-    thinkingIndicator: css`
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 12px;
-      color: #fff;
-      font-size: 12px;
-      margin-bottom: 8px;
-    `,
     // chatSend 样式
     chatSend: css`
       padding: 12px;
@@ -229,11 +167,10 @@ const useCopilotStyle = createStyles(({ token, css }) => {
 interface CopilotProps {
   copilotOpen: boolean;
   setCopilotOpen: (open: boolean) => void;
-  onApplyCode?: (code: string) => void; // 应用代码的回调函数
 }
 
 const Copilot = (props: CopilotProps) => {
-  const { copilotOpen, setCopilotOpen, onApplyCode } = props;
+  const { copilotOpen, setCopilotOpen } = props;
   const { styles } = useCopilotStyle();
   const attachmentsRef = useRef<GetRef<typeof Attachments>>(null);
   const abortController = useRef<AbortController>(null);
@@ -251,44 +188,16 @@ const Copilot = (props: CopilotProps) => {
 
   const [inputValue, setInputValue] = useState("");
 
-  // ==================== Callbacks ====================
-
   /**
-   * 应用代码块中的 JSON 数据
-   */
-  const handleApplyCode = (code: string) => {
-    if (onApplyCode) {
-      // 如果外部传入了回调函数，使用外部的
-      onApplyCode(code);
-    } else {
-      // 默认行为
-      try {
-        const jsonData = JSON.parse(code);
-        console.log("应用的 JSON 数据:", jsonData);
-
-        // TODO: 在这里实现你的应用逻辑
-        // 例如：将 JSON 数据应用到画布、更新配置等
-
-        message.success("JSON 数据已应用");
-      } catch (error) {
-        message.error("数据格式错误");
-        console.error("解析 JSON 失败:", error);
-      }
-    }
-  };
-
-  /**
-   * 🔔 配置说明:
-   * - baseURL: API 基础地址，使用 vite 代理指向后端 http://192.168.50.1:8888
-   * - model: 接口路径 chat，实际请求为 POST /api/ai/chat
-   * - dangerouslyApiKey: API 密钥（如果后端需要）
+   * 🔔 Please replace the BASE_URL, PATH, MODEL, API_KEY with your own values.
    */
 
   // ==================== Runtime ====================
 
   const [agent] = useXAgent<BubbleDataType>({
-    baseURL: "/api/ai/chat",
+    baseURL: "/compatible-mode/v1/chat/completions",
     model: "deepseek-r1",
+    dangerouslyApiKey: "Bearer sk-",
   });
 
   const loading = agent.isRequesting();
@@ -298,64 +207,48 @@ const Copilot = (props: CopilotProps) => {
     requestFallback: (_, { error }) => {
       if (error.name === "AbortError") {
         return {
-          content: "请求已取消",
+          content: "Request is aborted",
           role: "assistant",
         };
       }
       return {
-        content: `请求失败: ${error.message || "请重试"}`,
+        content: "Request failed, please try again!",
         role: "assistant",
       };
     },
     transformMessage: (info) => {
       const { originMessage, chunk } = info || {};
       let currentContent = "";
-      let currentThinking = "";
-
+      let currentThink = "";
       try {
-        if (chunk?.data && !chunk?.data.includes("[DONE]")) {
-          // 尝试解析后端返回的数据
-          const data = JSON.parse(chunk?.data);
-
-          // 根据后端实际返回格式调整
-          // 如果后端直接返回文本内容
-          if (typeof data === "string") {
-            currentContent = data;
-          }
-          // 如果后端返回对象格式（类似 DeepSeek）
-          else if (data?.choices?.[0]?.delta) {
-            const delta = data.choices[0].delta;
-            currentThinking = delta?.reasoning_content || "";
-            currentContent = delta?.content || "";
-          }
-          // 如果后端返回其他格式，尝试获取内容
-          else {
-            currentContent = data?.content || data?.text || "";
-          }
+        if (chunk?.data && !chunk?.data.includes("DONE")) {
+          const message = JSON.parse(chunk?.data);
+          currentThink = message?.choices?.[0]?.delta?.reasoning_content || "";
+          currentContent = message?.choices?.[0]?.delta?.content || "";
         }
       } catch (error) {
-        console.error("解析消息失败:", error);
-        // 如果解析失败，尝试直接使用原始数据
-        if (chunk?.data && !chunk?.data.includes("[DONE]")) {
-          currentContent = chunk?.data;
-        }
+        console.error(error);
       }
 
-      // 获取原始内容
-      const prevContent = originMessage?.content || "";
-      const prevThinking = (originMessage as any)?.thinking || "";
+      let content = "";
 
-      // 构建新的思考和内容
-      const newThinking = prevThinking + currentThinking;
-      const newContent = prevContent + currentContent;
-
-      // 判断是否正在思考（有 thinking 但没有 content）
-      const isThinking = newThinking && !newContent;
+      if (!originMessage?.content && currentThink) {
+        content = `<think>${currentThink}`;
+      } else if (
+        originMessage?.content?.includes("<think>") &&
+        !originMessage?.content.includes("</think>") &&
+        currentContent
+      ) {
+        content = `${originMessage?.content}</think>${currentContent}`;
+      } else {
+        content = `${
+          originMessage?.content || ""
+        }${currentThink}${currentContent}`;
+      }
 
       return {
-        content: newContent || (isThinking ? "" : ""),
+        content: content,
         role: "assistant",
-        thinking: newThinking || undefined,
       };
     },
     resolveAbortController: (controller) => {
@@ -392,37 +285,37 @@ const Copilot = (props: CopilotProps) => {
   // ==================== Nodes ====================
   const chatHeader = (
     <div className={styles.chatHeader}>
-      <div className={styles.headerTitle}>
-        <ThunderboltOutlined style={{ color: "#764ba2" }} />
-        <span>AI 智能助手</span>
-      </div>
+      <div className={styles.headerTitle}>✨ AI Copilot</div>
       <Space size={0}>
         <Button
           type="text"
           icon={<PlusOutlined />}
           onClick={() => {
             if (agent.isRequesting()) {
-              message.error("正在处理消息中，请等待完成或取消当前请求...");
+              message.error(
+                "Message is Requesting, you can create a new conversation after request done or abort it right now..."
+              );
               return;
             }
 
             if (messages?.length) {
               const timeNow = dayjs().valueOf().toString();
               abortController.current?.abort();
+              // The abort execution will trigger an asynchronous requestFallback, which may lead to timing issues.
+              // In future versions, the sessionId capability will be added to resolve this problem.
               setTimeout(() => {
                 setSessionList([
-                  { key: timeNow, label: "新对话", group: "今天" },
+                  { key: timeNow, label: "New session", group: "Today" },
                   ...sessionList,
                 ]);
                 setCurSession(timeNow);
                 setMessages([]);
               }, 100);
             } else {
-              message.info("当前已经是新对话");
+              message.error("It is now a new conversation.");
             }
           }}
           className={styles.headerButton}
-          title="新建对话"
         />
         <Popover
           placement="bottom"
@@ -430,12 +323,16 @@ const Copilot = (props: CopilotProps) => {
           content={
             <Conversations
               items={sessionList?.map((i) =>
-                i.key === curSession ? { ...i, label: `[当前] ${i.label}` } : i
+                i.key === curSession
+                  ? { ...i, label: `[current] ${i.label}` }
+                  : i
               )}
               activeKey={curSession}
               groupable
               onActiveChange={async (val) => {
                 abortController.current?.abort();
+                // The abort execution will trigger an asynchronous requestFallback, which may lead to timing issues.
+                // In future versions, the sessionId capability will be added to resolve this problem.
                 setTimeout(() => {
                   setCurSession(val);
                   setMessages(messageHistory?.[val] || []);
@@ -450,7 +347,6 @@ const Copilot = (props: CopilotProps) => {
             type="text"
             icon={<CommentOutlined />}
             className={styles.headerButton}
-            title="历史对话"
           />
         </Popover>
         <Button
@@ -458,7 +354,6 @@ const Copilot = (props: CopilotProps) => {
           icon={<CloseOutlined />}
           onClick={() => setCopilotOpen(false)}
           className={styles.headerButton}
-          title="关闭"
         />
       </Space>
     </div>
@@ -469,74 +364,27 @@ const Copilot = (props: CopilotProps) => {
         /** 消息列表 */
         <Bubble.List
           style={{ height: "100%", paddingInline: 16 }}
-          items={messages?.map((i) => {
-            const msg = i.message as BubbleDataType;
-            const isLoading = i.status === "loading";
-            const hasThinking = msg.thinking && msg.thinking.length > 0;
-
-            return {
-              ...msg,
-              classNames: {
-                content: isLoading ? styles.loadingMessage : "",
-              },
-              typing: isLoading
+          items={messages?.map((i) => ({
+            ...i.message,
+            classNames: {
+              content: i.status === "loading" ? styles.loadingMessage : "",
+            },
+            typing:
+              i.status === "loading"
                 ? { step: 5, interval: 20, suffix: <>💗</> }
                 : false,
-              // 如果有思考过程，在内容前显示
-              content: (
-                <>
-                  {hasThinking && <ThinkingContent content={msg.thinking!} />}
-                  {isLoading && hasThinking && !msg.content && (
-                    <div className={styles.thinkingIndicator}>
-                      <LoadingOutlined spin />
-                      <span>正在深度思考...</span>
-                    </div>
-                  )}
-                  {msg.content && (
-                    <MarkdownRenderer
-                      content={msg.content}
-                      onApplyCode={handleApplyCode}
-                    />
-                  )}
-                </>
-              ),
-            };
-          })}
+          }))}
           roles={{
             assistant: {
               placement: "start",
-              avatar: {
-                icon: <ThunderboltOutlined />,
-                style: {
-                  background:
-                    "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                },
-              },
-              footer: (msg) => {
-                const content = (msg as any)?.props?.children?.[1]?.props
-                  ?.children;
-                const hasContent = content && typeof content === "string";
-
-                return hasContent ? (
-                  <div style={{ display: "flex", marginTop: 4 }}>
-                    <Button
-                      type="text"
-                      size="small"
-                      icon={<CopyOutlined />}
-                      onClick={() => {
-                        navigator.clipboard.writeText(content);
-                        message.success("已复制到剪贴板");
-                      }}
-                    />
-                    <Button type="text" size="small" icon={<LikeOutlined />} />
-                    <Button
-                      type="text"
-                      size="small"
-                      icon={<DislikeOutlined />}
-                    />
-                  </div>
-                ) : null;
-              },
+              footer: (
+                <div style={{ display: "flex" }}>
+                  <Button type="text" size="small" icon={<ReloadOutlined />} />
+                  <Button type="text" size="small" icon={<CopyOutlined />} />
+                  <Button type="text" size="small" icon={<LikeOutlined />} />
+                  <Button type="text" size="small" icon={<DislikeOutlined />} />
+                </div>
+              ),
               loadingRender: () => (
                 <Space>
                   <Spin size="small" />
@@ -544,15 +392,7 @@ const Copilot = (props: CopilotProps) => {
                 </Space>
               ),
             },
-            user: {
-              placement: "end",
-              avatar: {
-                style: {
-                  background:
-                    "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-                },
-              },
-            },
+            user: { placement: "end" },
           }}
         />
       ) : (
@@ -560,18 +400,15 @@ const Copilot = (props: CopilotProps) => {
         <>
           <Welcome
             variant="borderless"
-            title="👋 你好，我是X"
-            description="我可以进行网页设计，比如说帮我设计要给系统商城！"
+            title="👋你好，我是设计师X"
+            description="基于Ant Design，AGI产品界面解决方案，创造更好的智能视觉~"
             className={styles.chatWelcome}
           />
 
           <Prompts
             vertical
-            title="💡 你可以问我："
-            items={[
-              { key: "1", description: "帮我设计一个小红书首页" },
-              { key: "3", description: "你是谁？" },
-            ]}
+            // title="I can help："
+            // items={MOCK_QUESTIONS.map((i) => ({ key: i, description: i }))}
             onItemClick={(info) =>
               handleUserSubmit(info?.data?.description as string)
             }
@@ -579,7 +416,7 @@ const Copilot = (props: CopilotProps) => {
               marginInline: 16,
             }}
             styles={{
-              title: { fontSize: 14, fontWeight: 500, marginBottom: 8 },
+              title: { fontSize: 14 },
             }}
           />
         </>
@@ -588,7 +425,7 @@ const Copilot = (props: CopilotProps) => {
   );
   const sendHeader = (
     <Sender.Header
-      title="上传文件"
+      title="Upload File"
       styles={{ content: { padding: 0 } }}
       open={attachmentsOpen}
       onOpenChange={setAttachmentsOpen}
@@ -601,11 +438,11 @@ const Copilot = (props: CopilotProps) => {
         onChange={({ fileList }) => setFiles(fileList)}
         placeholder={(type) =>
           type === "drop"
-            ? { title: "将文件拖放到此处" }
+            ? { title: "Drop file here" }
             : {
                 icon: <CloudUploadOutlined />,
-                title: "上传文件",
-                description: "点击或拖拽文件到此区域上传",
+                title: "Upload files",
+                description: "Click or drag files to this area to upload",
               }
         }
       />
@@ -613,29 +450,25 @@ const Copilot = (props: CopilotProps) => {
   );
   const chatSender = (
     <div className={styles.chatSend}>
-      {/* <div className={styles.sendAction}>
+      <div className={styles.sendAction}>
         <Button
-          size="small"
-          icon={<BulbOutlined />}
-          onClick={() => handleUserSubmit("给我一个创意想法")}
+          icon={<ScheduleOutlined />}
+          onClick={() => handleUserSubmit("What has Ant Design X upgraded?")}
         >
-          创意想法
+          Upgrades
         </Button>
         <Button
-          size="small"
           icon={<ProductOutlined />}
-          onClick={() => handleUserSubmit("帮我解决一个技术问题")}
+          onClick={() =>
+            handleUserSubmit(
+              "What component assets are available in Ant Design X?"
+            )
+          }
         >
-          技术问题
+          Components
         </Button>
-        <Button
-          size="small"
-          icon={<AppstoreAddOutlined />}
-          onClick={() => handleUserSubmit("帮我写段代码")}
-        >
-          代码助手
-        </Button>
-      </div> */}
+        <Button icon={<AppstoreAddOutlined />}>More</Button>
+      </div>
 
       {/** 输入框 */}
       <Suggestion
@@ -651,16 +484,14 @@ const Copilot = (props: CopilotProps) => {
               setInputValue(v);
             }}
             onSubmit={() => {
-              if (inputValue.trim()) {
-                handleUserSubmit(inputValue);
-                setInputValue("");
-              }
+              handleUserSubmit(inputValue);
+              setInputValue("");
             }}
             onCancel={() => {
               abortController.current?.abort();
             }}
             allowSpeech
-            placeholder="输入问题或 / 使用技能快捷方式"
+            placeholder="Ask or input / use skills"
             onKeyDown={onKeyDown}
             header={sendHeader}
             prefix={
@@ -668,7 +499,6 @@ const Copilot = (props: CopilotProps) => {
                 type="text"
                 icon={<PaperClipOutlined style={{ fontSize: 18 }} />}
                 onClick={() => setAttachmentsOpen(!attachmentsOpen)}
-                title="附加文件"
               />
             }
             onPasteFile={onPasteFile}
@@ -679,9 +509,9 @@ const Copilot = (props: CopilotProps) => {
                 <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
                   <SpeechButton className={styles.speechButton} />
                   {loading ? (
-                    <LoadingButton type="default">取消</LoadingButton>
+                    <LoadingButton type="default" />
                   ) : (
-                    <SendButton type="primary">发送</SendButton>
+                    <SendButton type="primary" />
                   )}
                 </div>
               );
@@ -802,8 +632,4 @@ const CopilotDemo = () => {
   );
 };
 
-// 导出独立的 Copilot 组件供外部使用
-export { Copilot };
-
-// 导出默认的 Demo 组件
 export default CopilotDemo;

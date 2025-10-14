@@ -45,7 +45,7 @@ export class SelectionSystem extends System {
     selectionCanvas.style.top = "0";
     selectionCanvas.style.left = "0";
     selectionCanvas.style.pointerEvents = "none";
-    selectionCanvas.style.zIndex = "10";
+    selectionCanvas.style.zIndex = "100";
     parent.appendChild(selectionCanvas);
     this.selectionCtx = selectionCanvas.getContext("2d");
     if (this.selectionCtx) {
@@ -88,6 +88,7 @@ export class SelectionSystem extends System {
     const selected = stateStore.selected.get(entityId);
     const position = stateStore.position.get(entityId);
     const size = stateStore.size.get(entityId);
+    console.log(selected, "selected---->");
     if (position && size) {
       if (!selected?.value) {
         this.shapeRect({
@@ -146,6 +147,7 @@ export class SelectionSystem extends System {
     this.stateStore = stateStore;
 
     stateStore.selected.forEach((selected, entityId) => {
+      console.log(stateStore.selected, "---->");
       if (!selected.value) return;
       this.render(stateStore, entityId);
     });

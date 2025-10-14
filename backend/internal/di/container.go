@@ -2,6 +2,7 @@ package di
 
 import (
 	"app/config"
+	"app/internal/ai"
 	"app/internal/common/log"
 	grpcContainer "app/internal/grpc/container"
 	"app/internal/handler"
@@ -33,6 +34,8 @@ func NewContainer() *dig.Container {
 	service.Provide(container)
 	// controller
 	handler.Provide(container)
+
+	ai.Provide(container)
 
 	return container
 }

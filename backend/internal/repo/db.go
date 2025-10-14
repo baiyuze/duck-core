@@ -1,17 +1,18 @@
 package repo
 
 import (
+	"log"
+	"os"
+
 	"go.uber.org/dig"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"log"
-	"os"
 )
 
 func InitDB() (*gorm.DB, error) {
 
 	// dsn := "test:test123@tcp(192.168.1.1::3307)/test?charset=utf8mb4&parseTime=True&loc=Local"
-	SQL_URL := os.Getenv("SQL_URL")
+	SQL_URL := os.Getenv("EMO_URL")
 	dsn := SQL_URL
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		DSN:                       dsn,   // DSN data source name

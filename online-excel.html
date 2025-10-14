@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在线Excel编辑器</title>
+    <script src="https://cdn.jsdelivr.net/npm/x-data-spreadsheet@1.1.9/dist/xspreadsheet.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/x-data-spreadsheet@1.1.9/dist/xspreadsheet.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header h1::before {
+            content: "📊";
+            font-size: 32px;
+        }
+
+        .toolbar {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            border-bottom: 2px solid #e0e0e0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(56, 239, 125, 0.4);
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-warning:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(245, 87, 108, 0.4);
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-info:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(79, 172, 254, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .spreadsheet-container {
+            padding: 20px;
+            min-height: 600px;
+        }
+
+        #spreadsheet {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .divider {
+            width: 1px;
+            height: 30px;
+            background: #d0d0d0;
+            margin: 0 5px;
+        }
+
+        .status-bar {
+            background: #f8f9fa;
+            padding: 10px 30px;
+            border-top: 1px solid #e0e0e0;
+            font-size: 13px;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-info {
+            display: flex;
+            gap: 20px;
+        }
+
+        .badge {
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .toolbar {
+                padding: 10px 15px;
+            }
+
+            .btn {
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+
+            .spreadsheet-container {
+                padding: 10px;
+            }
+        }
+
+        /* 加载动画 */
+        .loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+
+        .loading.active {
+            display: flex;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Toast通知 */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: none;
+            align-items: center;
+            gap: 10px;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .toast.show {
+            display: flex;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .toast.success {
+            border-left: 4px solid #38ef7d;
+        }
+
+        .toast.error {
+            border-left: 4px solid #f5576c;
+        }
+
+        .toast.info {
+            border-left: 4px solid #4facfe;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">
+        <div class="spinner"></div>
+    </div>
+
+    <div class="toast" id="toast">
+        <span id="toastMessage"></span>
+    </div>
+
+    <div class="container">
+        <div class="header">
+            <h1>在线Excel编辑器</h1>
+            <div class="status-info">
+                <span class="badge">已就绪</span>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <button class="btn btn-primary" onclick="newSpreadsheet()">
+                📄 新建表格
+            </button>
+            
+            <button class="btn btn-success" onclick="document.getElementById('fileInput').click()">
+                📁 导入Excel
+            </button>
+            <input type="file" id="fileInput" class="file-input" accept=".xlsx,.xls,.csv" onchange="importFile(event)">
+            
+            <button class="btn btn-info" onclick="exportToExcel()">
+                💾 导出Excel
+            </button>
+            
+            <button class="btn btn-info" onclick="exportToJSON()">
+                📋 导出JSON
+            </button>
+
+            <div class="divider"></div>
+            
+            <button class="btn btn-warning" onclick="clearAll()">
+                🗑️ 清空数据
+            </button>
+
+            <button class="btn btn-primary" onclick="addSheet()">
+                ➕ 添加工作表
+            </button>
+
+            <button class="btn btn-success" onclick="saveToLocal()">
+                💿 保存到本地
+            </button>
+
+            <button class="btn btn-info" onclick="loadFromLocal()">
+                📂 从本地加载
+            </button>
+        </div>
+
+        <div class="spreadsheet-container">
+            <div id="spreadsheet"></div>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-info">
+                <span>⚡ 实时保存</span>
+                <span>🔢 支持公式计算</span>
+                <span>🎨 支持样式设置</span>
+            </div>
+            <span>© 2025 在线Excel编辑器</span>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script>
+        let spreadsheet;
+        let autoSaveInterval;
+
+        // 初始化表格
+        function initSpreadsheet() {
+            const options = {
+                mode: 'edit',
+                showToolbar: true,
+                showGrid: true,
+                showContextmenu: true,
+                view: {
+                    height: () => document.documentElement.clientHeight - 250,
+                    width: () => document.querySelector('.spreadsheet-container').clientWidth - 40,
+                },
+                row: {
+                    len: 100,
+                    height: 25,
+                },
+                col: {
+                    len: 26,
+                    width: 100,
+                    indexWidth: 60,
+                    minWidth: 60,
+                },
+                style: {
+                    bgcolor: '#ffffff',
+                    align: 'left',
+                    valign: 'middle',
+                    textwrap: false,
+                    strike: false,
+                    underline: false,
+                    color: '#0a0a0a',
+                    font: {
+                        name: 'Arial',
+                        size: 10,
+                        bold: false,
+                        italic: false,
+                    },
+                },
+            };
+
+            spreadsheet = x_spreadsheet('#spreadsheet', options);
+            
+            // 加载本地存储的数据
+            const savedData = localStorage.getItem('spreadsheet_data');
+            if (savedData) {
+                try {
+                    spreadsheet.loadData(JSON.parse(savedData));
+                    showToast('已加载上次保存的数据', 'info');
+                } catch (e) {
+                    console.error('加载数据失败:', e);
+                }
+            }
+
+            // 启动自动保存
+            startAutoSave();
+
+            // 监听窗口大小变化
+            window.addEventListener('resize', () => {
+                spreadsheet.reRender();
+            });
+        }
+
+        // 新建表格
+        function newSpreadsheet() {
+            if (confirm('确定要新建表格吗？当前数据将被清空。')) {
+                spreadsheet.loadData([{
+                    name: 'Sheet1',
+                    rows: {},
+                    cols: {},
+                }]);
+                showToast('新建表格成功', 'success');
+            }
+        }
+
+        // 导入Excel文件
+        function importFile(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            showLoading(true);
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, { type: 'array' });
+                    
+                    const sheets = [];
+                    workbook.SheetNames.forEach((sheetName, index) => {
+                        const worksheet = workbook.Sheets[sheetName];
+                        const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+                        
+                        const rows = {};
+                        jsonData.forEach((row, rowIndex) => {
+                            const cells = {};
+                            row.forEach((cell, colIndex) => {
+                                if (cell !== undefined && cell !== null) {
+                                    cells[colIndex] = { text: String(cell) };
+                                }
+                            });
+                            if (Object.keys(cells).length > 0) {
+                                rows[rowIndex] = { cells };
+                            }
+                        });
+
+                        sheets.push({
+                            name: sheetName,
+                            rows: rows,
+                            cols: {},
+                        });
+                    });
+
+                    spreadsheet.loadData(sheets);
+                    showToast('导入成功！', 'success');
+                } catch (error) {
+                    showToast('导入失败: ' + error.message, 'error');
+                } finally {
+                    showLoading(false);
+                    event.target.value = '';
+                }
+            };
+            reader.readAsArrayBuffer(file);
+        }
+
+        // 导出为Excel
+        function exportToExcel() {
+            showLoading(true);
+            
+            try {
+                const data = spreadsheet.getData();
+                const workbook = XLSX.utils.book_new();
+
+                data.forEach(sheet => {
+                    const worksheetData = [];
+                    const maxRow = Math.max(...Object.keys(sheet.rows).map(Number), 0);
+                    
+                    for (let i = 0; i <= maxRow; i++) {
+                        const row = [];
+                        const rowData = sheet.rows[i];
+                        
+                        if (rowData && rowData.cells) {
+                            const maxCol = Math.max(...Object.keys(rowData.cells).map(Number), 0);
+                            for (let j = 0; j <= maxCol; j++) {
+                                const cell = rowData.cells[j];
+                                row.push(cell ? cell.text : '');
+                            }
+                        }
+                        worksheetData.push(row);
+                    }
+
+                    const worksheet = XLSX.utils.aoa_to_sheet(worksheetData);
+                    XLSX.utils.book_append_sheet(workbook, worksheet, sheet.name);
+                });
+
+                XLSX.writeFile(workbook, 'spreadsheet_' + new Date().getTime() + '.xlsx');
+                showToast('导出成功！', 'success');
+            } catch (error) {
+                showToast('导出失败: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // 导出为JSON
+        function exportToJSON() {
+            try {
+                const data = spreadsheet.getData();
+                const json = JSON.stringify(data, null, 2);
+                const blob = new Blob([json], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'spreadsheet_' + new Date().getTime() + '.json';
+                a.click();
+                URL.revokeObjectURL(url);
+                showToast('导出JSON成功！', 'success');
+            } catch (error) {
+                showToast('导出失败: ' + error.message, 'error');
+            }
+        }
+
+        // 清空所有数据
+        function clearAll() {
+            if (confirm('确定要清空所有数据吗？此操作不可恢复。')) {
+                spreadsheet.loadData([{
+                    name: 'Sheet1',
+                    rows: {},
+                    cols: {},
+                }]);
+                localStorage.removeItem('spreadsheet_data');
+                showToast('数据已清空', 'info');
+            }
+        }
+
+        // 添加工作表
+        function addSheet() {
+            const data = spreadsheet.getData();
+            const sheetCount = data.length;
+            data.push({
+                name: 'Sheet' + (sheetCount + 1),
+                rows: {},
+                cols: {},
+            });
+            spreadsheet.loadData(data);
+            showToast('工作表添加成功！', 'success');
+        }
+
+        // 保存到本地存储
+        function saveToLocal() {
+            try {
+                const data = spreadsheet.getData();
+                localStorage.setItem('spreadsheet_data', JSON.stringify(data));
+                showToast('保存成功！', 'success');
+            } catch (error) {
+                showToast('保存失败: ' + error.message, 'error');
+            }
+        }
+
+        // 从本地存储加载
+        function loadFromLocal() {
+            try {
+                const savedData = localStorage.getItem('spreadsheet_data');
+                if (savedData) {
+                    spreadsheet.loadData(JSON.parse(savedData));
+                    showToast('加载成功！', 'success');
+                } else {
+                    showToast('没有找到保存的数据', 'info');
+                }
+            } catch (error) {
+                showToast('加载失败: ' + error.message, 'error');
+            }
+        }
+
+        // 自动保存
+        function startAutoSave() {
+            autoSaveInterval = setInterval(() => {
+                try {
+                    const data = spreadsheet.getData();
+                    localStorage.setItem('spreadsheet_data', JSON.stringify(data));
+                } catch (e) {
+                    console.error('自动保存失败:', e);
+                }
+            }, 30000); // 每30秒自动保存
+        }
+
+        // 显示加载动画
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            if (show) {
+                loading.classList.add('active');
+            } else {
+                loading.classList.remove('active');
+            }
+        }
+
+        // 显示Toast通知
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            const toastMessage = document.getElementById('toastMessage');
+            
+            toastMessage.textContent = message;
+            toast.className = 'toast show ' + type;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', () => {
+            initSpreadsheet();
+        });
+
+        // 页面卸载前保存数据
+        window.addEventListener('beforeunload', () => {
+            saveToLocal();
+            if (autoSaveInterval) {
+                clearInterval(autoSaveInterval);
+            }
+        });
+
+        // 键盘快捷键
+        document.addEventListener('keydown', (e) => {
+            // Ctrl+S 保存
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveToLocal();
+            }
+            // Ctrl+N 新建
+            if (e.ctrlKey && e.key === 'n') {
+                e.preventDefault();
+                newSpreadsheet();
+            }
+        });
+    </script>
+</body>
+</html>

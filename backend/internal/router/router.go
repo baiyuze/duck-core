@@ -3,11 +3,12 @@ package router
 import (
 	_ "app/docs"
 	"app/internal/dto"
+	"net/http"
+
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"go.uber.org/dig"
-	"net/http"
 )
 
 // RegisterRoutes 注册所有路由
@@ -25,5 +26,6 @@ func RegisterRoutes(r *gin.Engine, container *dig.Container) {
 	RegisterPermissionsRoutes(route, container)
 	RegisterDepartmentRoutes(route, container)
 	RegisterDictRoutes(route, container)
+	RegisterAiRoutes(route, container)
 
 }

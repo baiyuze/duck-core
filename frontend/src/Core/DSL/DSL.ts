@@ -70,10 +70,9 @@ export class DSL {
     polygon,
     ellipseRadius,
   }: DSLParams) {
-    console.log("polygon", arguments, position, polygon);
     this.position = new Position(position);
-    this.size = new Size(size.width, size.height);
-    this.color = new Color(color.fillColor, color.strokeColor);
+    this.size = new Size(size?.width, size?.height);
+    this.color = new Color(color?.fillColor, color?.strokeColor);
     this.rotation = new Rotation(rotation?.value || 0);
     this.id = id;
     this.selected = selected;

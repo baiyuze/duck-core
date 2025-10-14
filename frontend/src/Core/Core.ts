@@ -55,6 +55,9 @@ export class Core {
     const dpr = window.devicePixelRatio || 1;
     canvas.style.width = size.width + "px";
     canvas.style.height = size.height + "px";
+    // canvas.style.position = "absolute";
+    // canvas.style.top = "0";
+    // canvas.style.left = "0";
 
     canvas.width = size.width * dpr;
     canvas.height = size.height * dpr;
@@ -73,7 +76,11 @@ export class Core {
   initComponents() {
     this.dsls.forEach((dsl: DSL) => {
       for (const key in dsl) {
+        if (key == "selected") {
+          dsl.selected = { value: false, hovered: false };
+        }
         const value = (dsl as any)[key];
+
         if (value === undefined) {
           throw new Error(`DSL属性${key}未定义`);
         }
