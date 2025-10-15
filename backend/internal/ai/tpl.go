@@ -51,7 +51,15 @@ func DslDesignTpl() *prompt.DefaultChatTemplate {
   "img": ( "src": string | null ) | null,
   "zIndex": ( "value": number ),
   "scale": ( "value": number ) | null,
-  "polygon": ( "vertexs": [] ) | null, 
+  "polygon": ( "vertexs": [ 
+     (
+      type: "M" | "L" | "Q" | "C";
+      controlPoint?: ( x: number; y: number );
+      startPoint?: ( x: number; y: number );
+      endPoint?: ( x: number; y: number );
+      point?: ( x: number; y: number );
+   )
+  ] ) | null, 
 )
 ---
 【DSLParams的JSON约束】
@@ -68,7 +76,7 @@ func DslDesignTpl() *prompt.DefaultChatTemplate {
 - font.family 必须为浏览器支持的字体，不能使用苹方字体
 - font.weight 必须为字符串，例如 "400"
 - font.lineHeight 必须为字符串，例如 "1.5"
-- position.x 和 position.y 必须大于等于0
+- position.x 和 position.y 必须大于等于0，坐标点在(0,0)
 - rotation.value 必须为数字，可以为负数
 - lineWidth.value 必须为大于等于0的数字
 - fillColor 和 strokeColor 必须为合法的颜色值，可以是十六进制颜色值（#RRGGBB）或 rgba() 格式，或者 null
@@ -77,7 +85,27 @@ func DslDesignTpl() *prompt.DefaultChatTemplate {
 - eventQueue 必须为空数组
 - id 必须唯一，number的字符串，比如说"1"
 - scale.value 必须为大于0的数字
-- polygon.vertexs 必须为数组，且每个顶点包含 x 和 y 坐标，坐标必须为大于等于0的数字
+- polygon.vertexs 必须为数组，且每个顶点必须遵循以下格式
+  - "polygon": ( "vertexs": [ 
+     (
+      type: "M" | "L" | "Q" | "C";
+      controlPoint?: ( x: number; y: number );
+      startPoint?: ( x: number; y: number );
+      endPoint?: ( x: number; y: number );
+      point?: ( x: number; y: number );
+   )
+  ] )
+- position与polygon约束，必须遵守以下内容
+   - 1. 必须保留 position 和 size 属性，position 表示图形的左上角。
+   - 2. polygon.vertexs 中的所有 point 坐标必须是相对于 position 的相对坐标。
+      - 例如：如果 position=(x:360,y:300) 且 size=(width:80,height:60) 的三角形，
+      顶点 vertexs 应写为：
+          ( "type": "M", "point": ( "x": 360, "y": 360 ),
+      ( "type": "L", "point": ( "x": 400, "y": 300 ),
+      ( "type": "L", "point": ( "x": 440, "y": 360 )
+      而不是绝对坐标。
+   - 3. 不允许在 vertexs 中写入绝对坐标。
+   - 4. 不允许重复最后一个点（AI 常喜欢闭合路径），最后一个点由渲染逻辑自动闭合。
 - 输出前自动自检：
   - 每个对象 type 是否合法
   - 字段是否完整

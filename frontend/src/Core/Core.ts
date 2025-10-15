@@ -45,7 +45,7 @@ export class Core {
   }
 
   // ctx: CanvasRenderingContext2D | null;
-  constructor(dsls: any[]) {
+  constructor(dsls: any[] = []) {
     // this.ctx = ctx;
 
     this.initComponents(dsls);
