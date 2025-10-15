@@ -1,0 +1,151 @@
+// ThinkingContent 组件样式
+.thinkingContainer {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 8px;
+  color: #fff;
+  will-change: height;
+  transition: height 0.2s ease-out;
+}
+
+.thinkingHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+
+  &.collapsed {
+    margin-bottom: 0;
+  }
+
+  &:not(.collapsed) {
+    margin-bottom: 8px;
+  }
+}
+
+.thinkingIcon {
+  font-size: 16px;
+}
+
+.thinkingTitle {
+  font-weight: 500;
+}
+
+.thinkingArrow {
+  font-size: 12px;
+  transition: transform 0.3s;
+
+  &.collapsed {
+    transform: rotate(0deg);
+  }
+
+  &.expanded {
+    transform: rotate(180deg);
+  }
+}
+
+.thinkingContentText {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  white-space: pre-wrap;
+  font-size: 12px;
+  line-height: 1.6;
+  opacity: 0.95;
+}
+
+// Bubble.List 样式
+.bubbleList {
+  height: 100%;
+  padding-inline: 16px;
+  overflow: auto;
+  scroll-behavior: smooth;
+}
+
+// Assistant avatar 样式
+.assistantAvatar {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+// User avatar 样式
+.userAvatar {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+// Footer actions 样式
+.footerActions {
+  display: flex;
+  margin-top: 4px;
+}
+
+// Prompts 样式
+.promptsContainer {
+  margin-inline: 16px;
+}
+
+// Sender actions 样式
+.senderActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+// Copilot wrapper 样式
+.copilotContainer {
+  transition: width 0.3s ease;
+}
+
+// 模型切换相关样式
+.modelButtonText {
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.modelMenuItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 4px;
+  min-width: 260px;
+  position: relative;
+}
+
+.modelMenuIcon {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 8px;
+  color: #fff;
+}
+
+.modelMenuContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.modelMenuLabel {
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.modelMenuDesc {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.45);
+  line-height: 1.4;
+}
+
+.modelMenuCheck {
+  color: #52c41a;
+  font-size: 16px;
+  font-weight: bold;
+  position: absolute;
+  right: 8px;
+}

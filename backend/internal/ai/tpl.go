@@ -283,7 +283,7 @@ func DslDesignTpl() *prompt.DefaultChatTemplate {
 - 坐标、尺寸、颜色、字体、ZIndex、图标等都详细填充
 - AI 可根据示例自我完善生成完整页面
 - 遵循 DSLParams[] 所有字段规范，不缺失，不新增
-
+- 返回markdown格式
 ---
 
 `),

@@ -24,3 +24,7 @@ type ChatBody struct {
 	Model    string `json:"model,omitempty"`
 	Stream   bool   `json:"streaml,omitempty"`
 }
+
+type AiHandler struct {
+	Models map[string]AiModel
+}

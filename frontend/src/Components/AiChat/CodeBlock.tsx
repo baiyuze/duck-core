@@ -118,7 +118,7 @@ const CodeBlock = ({ language, children, onApply }: CodeBlockProps) => {
           margin: 0,
           padding: 12,
           background: "#f6f8fa",
-          borderRadius: "0 0 6px 6px",
+          borderRadius: 0,
           overflow: "auto",
           fontSize: 13,
           lineHeight: 1.5,
@@ -128,6 +128,41 @@ const CodeBlock = ({ language, children, onApply }: CodeBlockProps) => {
           {children}
         </code>
       </pre>
+
+      {/* 底部操作按钮 */}
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          alignItems: "center",
+          padding: "4px 12px",
+          background: "#f6f8fa",
+          borderTop: "1px solid #e1e4e8",
+          borderRadius: "0 0 6px 6px",
+          gap: 4,
+        }}
+      >
+        {canApply && (
+          <Button
+            type="text"
+            size="small"
+            icon={<ThunderboltOutlined />}
+            onClick={handleApply}
+            style={{ fontSize: 12 }}
+          >
+            应用
+          </Button>
+        )}
+        <Button
+          type="text"
+          size="small"
+          icon={copied ? <CheckOutlined /> : <CopyOutlined />}
+          onClick={handleCopy}
+          style={{ fontSize: 12 }}
+        >
+          {copied ? "已复制" : "复制"}
+        </Button>
+      </div>
     </div>
   );
 };

@@ -11,6 +11,7 @@ import {
   OpenAIFilled,
   PaperClipOutlined,
   PlusOutlined,
+  RobotOutlined,
   ThunderboltOutlined,
 } from "@ant-design/icons";
 import {
@@ -28,8 +29,10 @@ import {
 import type { Conversation } from "@ant-design/x/es/conversations";
 import {
   Button,
+  Dropdown,
   type GetProp,
   type GetRef,
+  type MenuProps,
   Popover,
   Space,
   Spin,
@@ -39,6 +42,7 @@ import { createStyles } from "antd-style";
 import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
 import MarkdownRenderer from "./MarkdownRenderer";
+import moduleStyles from "./AiChat.module.scss";
 
 type BubbleDataType = {
   role: string;
@@ -73,6 +77,41 @@ const MOCK_SESSION_LIST = [
     group: "昨天",
   },
 ];
+
+// AI 模型列表
+const AI_MODELS = [
+  {
+    key: "deepseek-r1",
+    label: "DeepSeek R1",
+    description: "深度思考模型，适合复杂推理",
+    icon: <ThunderboltOutlined />,
+  },
+  {
+    key: "deepseek-v3",
+    label: "DeepSeek-v3",
+    description: "快速对话模型",
+    icon: <RobotOutlined />,
+  },
+  {
+    key: "gpt-4",
+    label: "GPT-4",
+    description: "OpenAI 最强模型",
+    icon: <OpenAIFilled />,
+  },
+  {
+    key: "gpt-3.5-turbo",
+    label: "GPT-3.5 Turbo",
+    description: "快速高效的对话模型",
+    icon: <OpenAIFilled />,
+  },
+  {
+    key: "qwen3-max",
+    label: "通义千问3",
+    description: "通义千问3系列Max模型",
+    icon: <OpenAIFilled />,
+  },
+];
+
 const MOCK_SUGGESTIONS = [
   { label: "写一份报告", value: "report" },
   { label: "生成创意", value: "creative" },
@@ -93,53 +132,25 @@ const ThinkingContent = ({ content }: { content: string }) => {
   const [collapsed, setCollapsed] = useState(true);
 
   return (
-    <div
-      style={{
-        background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-        borderRadius: 8,
-        padding: "12px 16px",
-        marginBottom: 8,
-        color: "#fff",
-        willChange: "height", // 提示浏览器这个元素的高度会变化
-        transition: "height 0.2s ease-out", // 平滑的高度过渡
-      }}
-    >
+    <div className={moduleStyles.thinkingContainer}>
       <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          cursor: "pointer",
-          marginBottom: collapsed ? 0 : 8,
-        }}
+        className={`${moduleStyles.thinkingHeader} ${
+          collapsed ? moduleStyles.collapsed : ""
+        }`}
         onClick={() => setCollapsed(!collapsed)}
       >
         <Space>
-          <BulbOutlined style={{ fontSize: 16 }} />
-          <span style={{ fontWeight: 500 }}>AI 思考过程</span>
+          <BulbOutlined className={moduleStyles.thinkingIcon} />
+          <span className={moduleStyles.thinkingTitle}>AI 思考过程</span>
         </Space>
         <DownOutlined
-          style={{
-            fontSize: 12,
-            transform: collapsed ? "rotate(0deg)" : "rotate(180deg)",
-            transition: "transform 0.3s",
-          }}
+          className={`${moduleStyles.thinkingArrow} ${
+            collapsed ? moduleStyles.collapsed : moduleStyles.expanded
+          }`}
         />
       </div>
       {!collapsed && (
-        <div
-          style={{
-            marginTop: 8,
-            paddingTop: 8,
-            borderTop: "1px solid rgba(255,255,255,0.2)",
-            whiteSpace: "pre-wrap",
-            fontSize: 12,
-            lineHeight: 1.6,
-            opacity: 0.95,
-          }}
-        >
-          {content}
-        </div>
+        <div className={moduleStyles.thinkingContentText}>{content}</div>
       )}
     </div>
   );
@@ -268,6 +279,9 @@ const Copilot = (props: CopilotProps) => {
 
   const [inputValue, setInputValue] = useState("");
 
+  // 当前选中的模型
+  const [currentModel, setCurrentModel] = useState(AI_MODELS[0].key);
+
   // 防抖滚动到底部
   const scrollToBottomDebounced = useRef<number>(0);
   const scrollToBottom = () => {
@@ -328,7 +342,7 @@ const Copilot = (props: CopilotProps) => {
 
   const [agent] = useXAgent<BubbleDataType>({
     baseURL: "/api/ai/chat",
-    model: "deepseek-r1",
+    model: currentModel,
   });
 
   const loading = agent.isRequesting();
@@ -430,6 +444,33 @@ const Copilot = (props: CopilotProps) => {
   };
 
   // ==================== Nodes ====================
+  const currentModelInfo =
+    AI_MODELS.find((m) => m.key === currentModel) || AI_MODELS[0];
+
+  const modelMenuItems: MenuProps["items"] = AI_MODELS.map((model) => ({
+    key: model.key,
+    label: (
+      <div className={moduleStyles.modelMenuItem}>
+        <div className={moduleStyles.modelMenuIcon}>{model.icon}</div>
+        <div className={moduleStyles.modelMenuContent}>
+          <div className={moduleStyles.modelMenuLabel}>{model.label}</div>
+          <div className={moduleStyles.modelMenuDesc}>{model.description}</div>
+        </div>
+        {model.key === currentModel && (
+          <span className={moduleStyles.modelMenuCheck}>✓</span>
+        )}
+      </div>
+    ),
+    onClick: () => {
+      if (agent.isRequesting()) {
+        message.warning("正在处理消息中，暂时无法切换模型");
+        return;
+      }
+      setCurrentModel(model.key);
+      message.success(`已切换到 ${model.label}`);
+    },
+  }));
+
   const chatHeader = (
     <div className={styles.chatHeader}>
       <div className={styles.headerTitle}>
@@ -437,6 +478,21 @@ const Copilot = (props: CopilotProps) => {
         <span>AI 智能助手</span>
       </div>
       <Space size={0}>
+        <Dropdown
+          menu={{ items: modelMenuItems }}
+          placement="bottomRight"
+          trigger={["click"]}
+        >
+          <Button type="text" className={styles.headerButton} title="切换模型">
+            <Space size={4}>
+              {currentModelInfo.icon}
+              <span className={moduleStyles.modelButtonText}>
+                {currentModelInfo.label}
+              </span>
+              <DownOutlined style={{ fontSize: 10 }} />
+            </Space>
+          </Button>
+        </Dropdown>
         <Button
           type="text"
           icon={<PlusOutlined />}
@@ -508,12 +564,7 @@ const Copilot = (props: CopilotProps) => {
       {messages?.length ? (
         /** 消息列表 */
         <Bubble.List
-          style={{
-            height: "100%",
-            paddingInline: 16,
-            overflow: "auto",
-            scrollBehavior: "smooth",
-          }}
+          className={moduleStyles.bubbleList}
           items={messages?.map((i) => {
             const msg = i.message as BubbleDataType;
             const isLoading = i.status === "loading";
@@ -554,10 +605,7 @@ const Copilot = (props: CopilotProps) => {
               placement: "start",
               avatar: {
                 icon: <ThunderboltOutlined />,
-                style: {
-                  background:
-                    "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                },
+                className: moduleStyles.assistantAvatar,
               },
               footer: (msg) => {
                 const content = (msg as any)?.props?.children?.[1]?.props
@@ -565,7 +613,7 @@ const Copilot = (props: CopilotProps) => {
                 const hasContent = content && typeof content === "string";
 
                 return hasContent ? (
-                  <div style={{ display: "flex", marginTop: 4 }}>
+                  <div className={moduleStyles.footerActions}>
                     <Button
                       type="text"
                       size="small"
@@ -594,10 +642,7 @@ const Copilot = (props: CopilotProps) => {
             user: {
               placement: "end",
               avatar: {
-                style: {
-                  background:
-                    "linear-gradient(135deg, #fa709a 0%, #fee140 100%)",
-                },
+                className: moduleStyles.userAvatar,
               },
             },
           }}
@@ -622,9 +667,7 @@ const Copilot = (props: CopilotProps) => {
             onItemClick={(info) =>
               handleUserSubmit(info?.data?.description as string)
             }
-            style={{
-              marginInline: 16,
-            }}
+            className={moduleStyles.promptsContainer}
             styles={{
               title: { fontSize: 14, fontWeight: 500, marginBottom: 8 },
             }}
@@ -723,7 +766,7 @@ const Copilot = (props: CopilotProps) => {
               const { SendButton, LoadingButton, SpeechButton } =
                 info.components;
               return (
-                <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                <div className={moduleStyles.senderActions}>
                   <SpeechButton className={styles.speechButton} />
                   {loading ? (
                     <LoadingButton type="default"></LoadingButton>
@@ -762,7 +805,7 @@ const Copilot = (props: CopilotProps) => {
 
   return (
     <div
-      className={styles.copilotChat}
+      className={`${styles.copilotChat} ${moduleStyles.copilotContainer}`}
       style={{ width: copilotOpen ? 400 : 0 }}
     >
       {/** 对话区 - header */}
