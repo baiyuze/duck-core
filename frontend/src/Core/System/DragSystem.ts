@@ -127,7 +127,7 @@ export class DragSystem extends System {
       const position = this.stateStore!.position.get(pickEntity.entityId);
 
       if (position) {
-        // 新位置 = 当前鼠标位置 - 初始偏移量
+        // 新位置 = 当前鼠标在画布位置 - 初始偏移量
         position.x = canvasX - this.offset.x;
         position.y = canvasY - this.offset.y;
       }
