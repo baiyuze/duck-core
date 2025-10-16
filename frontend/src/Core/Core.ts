@@ -4,6 +4,7 @@ import type { Font } from "./Components/Font";
 import type { Img } from "./Components/Img";
 import type Polygon from "./Components/Polygon";
 import type Scale from "./Components/Scale";
+import { Selected } from "./Components/Selected";
 import { DSL } from "./DSL/DSL";
 import { Entity } from "./Entity/Entity";
 import { RenderSystem } from "./System/RenderSystem/RenderSystem";
@@ -16,6 +17,7 @@ export class Core {
    */
   defaultSize = { width: 800, height: 800 };
   multiple: boolean = false;
+  isDragging: boolean = false;
   dsls: DSL[] = [];
 
   SystemMap: Map<string, System> = new Map();
@@ -31,7 +33,7 @@ export class Core {
       position: new Map<string, Position>(),
       size: new Map<string, Size>(),
       color: new Map<string, Color>(),
-      selected: new Map<string, { value: boolean; hovered: boolean }>(),
+      selected: new Map<string, Selected>(),
       eventQueue: [],
       rotation: new Map<string, { value: number }>(),
       type: new Map<string, string>(),
@@ -84,7 +86,7 @@ export class Core {
     this.dsls.forEach((dsl: DSL) => {
       for (const key in dsl) {
         if (key == "selected") {
-          dsl.selected = { value: false, hovered: false };
+          dsl.selected = new Selected();
         }
         const value = (dsl as any)[key];
 
@@ -124,14 +126,25 @@ export class Core {
    * @param name 系统名称
    * @returns
    */
-  getSystemByName(name: string) {
-    return this.SystemMap.get(name);
+  getSystemByName<T extends System>(name: string): T | undefined {
+    return this.SystemMap.get(name) as T | undefined;
   }
 
   update() {
     this.system.forEach((sys) => {
       sys.update(this.stateStore);
     });
+  }
+  /**
+   * 统一销毁
+   */
+  destroyed(): void {
+    this.system.forEach((sys) => {
+      sys.destroyed();
+    });
+    this.system = [];
+    this.SystemMap.clear();
+    this.resetState();
   }
 
   // initDSL(dsls: DSL[]) {

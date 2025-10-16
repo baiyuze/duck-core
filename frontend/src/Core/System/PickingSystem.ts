@@ -1,7 +1,8 @@
+import type { Selected } from "../Components/Selected";
 import type { Core } from "../Core";
 import { Entity } from "../Entity/Entity";
 import { EventType } from "../enum";
-import type { StateStore } from "../types";
+import type { PickEntity, StateStore } from "../types";
 import { System } from "./System";
 export class PickingSystem extends System {
   core: Core;
@@ -11,6 +12,7 @@ export class PickingSystem extends System {
   stateStore: StateStore | null = null;
   isClearHover: boolean = false;
   isRendered: boolean = false;
+  offscreenCanvas: HTMLCanvasElement | null = null;
   constructor(ctx: CanvasRenderingContext2D, core: Core) {
     super();
     this.ctx = ctx;
@@ -22,6 +24,7 @@ export class PickingSystem extends System {
   initOffscreenCanvas() {
     const { width, height } = this.ctx.canvas;
     const offscreenCanvas = document.createElement("canvas");
+    this.offscreenCanvas = offscreenCanvas;
     offscreenCanvas.width = width;
     offscreenCanvas.height = height;
 
@@ -56,8 +59,6 @@ export class PickingSystem extends System {
   update(stateStore: StateStore) {
     this.stateStore = stateStore;
     this.render(stateStore);
-    this.onClick();
-    this.onHover();
   }
   /**
    * 根据ID获取选中状态
@@ -106,110 +107,78 @@ export class PickingSystem extends System {
     const { type, event } = coreEvent;
     if (!event) return;
     if (type !== eventType) return;
-    this.stateStore.eventQueue.pop();
+    // 暂时一次只有一个事件
     const rect = this.ctx.canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
     return { x, y };
   }
-
   /**
-   * 隐藏画布选择
-   * @param event
+   * 获取拾取结果，返回选中状态和实体ID
+   * @param x
+   * @param y
    * @returns
    */
-  setSelected(colorId?: number[]) {
-    if (!colorId) return;
-    if (!this.stateStore) return;
+  pick(x: number, y: number): PickEntity | null {
+    const colorId = this.getColorId(x, y);
+    if (!colorId) return null;
     const { selected, entityId } = this.getSelectedByColorId(colorId);
-    console.log(entityId, "entityId");
-
-    if (selected) selected.value = true;
-    // 单选
-    if (!this.core.multiple) {
-      this.stateStore.selected.forEach((sel, id) => {
-        if (id !== entityId) {
-          sel.value = false;
-        }
-      });
-    }
-    // 直接清空所有，重新渲染状态
-  }
-
-  /**
-   * 清空选中状态
-   * @returns
-   */
-  clearSelectedState() {
-    if (!this.stateStore) return;
-    this.stateStore.selected.forEach((sel) => {
-      sel.value = false;
-    });
+    if (!selected) return null;
+    return { selected, entityId };
   }
   /**
-   * 清空hover状态
-   * @returns
+   * 根据事件类型获取实体
+   * @param eventType
+   * @returns PickEntity | null
    */
-  clearHoverState() {
-    if (!this.stateStore) return;
-    this.stateStore.selected.forEach((sel) => {
-      sel.hovered = false;
-    });
-  }
-
-  clear() {
-    this.clearSelectedState();
-    this.clearHoverState();
-  }
-
-  onClick() {
-    if (!this.stateStore) return;
-    const position = this.getPosition(EventType.Click);
-    if (!position) return;
+  getEntityByEvent(eventType: EventType[keyof EventType]): PickEntity | null {
+    const position = this.getPosition(eventType);
+    if (!position) return null;
     const { x, y } = position;
-    const colorId = this.getColorId(x, y);
-    if (colorId && colorId[3] === 0) {
-      // 清空选择
-      this.clear();
-      return;
-    }
-    this.setSelected(colorId);
+    const pickEntity = this.pick(x, y);
+    return pickEntity;
   }
   /**
-   * 修改hover状态
-   * @param event
+   * 检查事件类型是否匹配
+   * @param eventType - 单个事件类型
+   * @param eventTypes - 多个事件类型（数组或联合）
+   * @returns 是否匹配
+   */
+  checkEventTypeIsMatch(
+    eventType: EventType[keyof EventType] | EventType[keyof EventType][]
+  ): boolean {
+    if (!this.stateStore) return false;
+    const eventQueue = this.stateStore.eventQueue;
+    if (eventQueue.length === 0) return false;
+    const lastEventType = eventQueue[eventQueue.length - 1]?.type;
+    if (Array.isArray(eventType)) {
+      return eventType.includes(lastEventType);
+    }
+    if (lastEventType !== eventType) return false;
+    return true;
+  }
+  /**
+   * 获取当前选中的实体
    * @returns
    */
-  setHoverState(colorId?: number[], hovered: boolean = false) {
-    if (!colorId) return;
-    if (!this.stateStore) return;
-    // 根据颜色获取实体id
-    if (hovered) {
-      const { selected, entityId } = this.getSelectedByColorId(colorId);
-      if (selected) selected.hovered = true;
-      // 单选
-      this.stateStore.selected.forEach((sel, id) => {
-        if (id !== entityId) {
-          sel.hovered = false;
-        }
-      });
-    } else {
-      //清空hover状态
-      this.clearHoverState();
-    }
+  getCurrentPickSelectedEntitys(): PickEntity[] | null {
+    if (!this.stateStore) return null;
+    const selectedEntitys: PickEntity[] = [];
+    this.stateStore.selected.forEach((sel, id) => {
+      if (sel.value) {
+        selectedEntitys.push({ selected: sel, entityId: id });
+      }
+    });
+    return selectedEntitys.length > 0 ? selectedEntitys : null;
   }
-  onHover() {
-    const position = this.getPosition(EventType.MouseMove);
-    if (!position) return;
-    const { x, y } = position;
-    const colorId = this.getColorId(x, y);
-    const isNull = !colorId || colorId[3] === 0;
-    if (this.isClearHover && isNull) return;
-    if (colorId && isNull) {
-      this.isClearHover = true;
-      return this.setHoverState(colorId, false);
-    }
-    this.isClearHover = false;
-    this.setHoverState(colorId, true);
+
+  destroyed(): void {
+    this.offscreenCanvas = null;
+    this.offCtx = null as any;
+    this.stateStore = null;
+    this.entityManager = null as any;
+    this.core = null as any;
+    this.ctx = null as any;
+    // this.dispose();
   }
 }

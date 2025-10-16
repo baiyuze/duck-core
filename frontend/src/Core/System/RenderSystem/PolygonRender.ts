@@ -37,7 +37,6 @@ export class PolygonRender extends System {
       // 需要按照点的顺序进行绘制，先判断类型，如果是L，直接lineTo，如果是Q，quadraticCurveTo，如果是C，bezierCurveTo
       for (let i = 1; i < vertexs.length; i++) {
         const vertex = vertexs[i];
-        console.log("vertex", vertex);
         switch (vertex.type) {
           case "L":
             if (vertex.point) {

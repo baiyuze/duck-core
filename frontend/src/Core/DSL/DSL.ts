@@ -16,6 +16,7 @@ import { ZIndex } from "../Components/ZIndex";
 import Scale from "../Components/Scale";
 import Polygon from "../Components/Polygon";
 import { EllipseRadius } from "../Components/EllipseRadius";
+import { Selected } from "../Components/Selected";
 
 export class DSL {
   type: string;
@@ -28,7 +29,7 @@ export class DSL {
 
   id: string;
 
-  selected?: { value: boolean; hovered?: boolean } = { value: false };
+  selected?: Selected;
 
   eventQueue: { type: string; event: MouseEvent }[] = [];
 
@@ -75,7 +76,7 @@ export class DSL {
     this.color = new Color(color?.fillColor, color?.strokeColor);
     this.rotation = new Rotation(rotation?.value || 0);
     this.id = id;
-    this.selected = selected;
+    this.selected = new Selected(selected);
     this.eventQueue = eventQueue || [];
     this.type = type;
     this.font = new Font(font);

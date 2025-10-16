@@ -1,6 +1,10 @@
 import type { Core } from "../Core";
 import { Entity } from "../Entity/Entity";
 import type { StateStore } from "../types";
+import type { ClickSystem } from "./ClickSystem";
+import type { DragSystem } from "./DragSystem";
+import type { HoverSystem } from "./HoverSystem";
+import type { SelectionSystem } from "./SelectionSystem";
 import { System } from "./System";
 import { throttle } from "lodash";
 
@@ -17,15 +21,40 @@ export class EventSystem extends System {
     this.ctx = ctx;
     this.core = core;
     this.dispose();
+    console.log(2222222, "02020");
     this.throttledMouseMove = throttle(this.onMouseMove.bind(this), 96);
     ctx.canvas.addEventListener("click", this.onClick.bind(this));
+    ctx.canvas.addEventListener("mouseup", this.onMouseUp.bind(this));
+    ctx.canvas.addEventListener("mousedown", this.onMouseDown.bind(this));
     ctx.canvas.addEventListener("mousemove", this.throttledMouseMove);
   }
 
   dispose() {
     this.ctx.canvas.removeEventListener("click", this.onClick.bind(this));
     this.ctx.canvas.removeEventListener("mousemove", this.throttledMouseMove);
+    this.ctx.canvas.removeEventListener("mouseup", this.onMouseUp.bind(this));
+    this.ctx.canvas.removeEventListener(
+      "mousedown",
+      this.onMouseDown.bind(this)
+    );
     this.throttledMouseMove?.cancel();
+  }
+
+  onMouseUp(event: MouseEvent) {
+    if (!this.stateStore) return;
+    this.stateStore.eventQueue.push({
+      type: "mouseup",
+      event,
+    });
+    this.render();
+  }
+  onMouseDown(event: MouseEvent) {
+    if (!this.stateStore) return;
+    this.stateStore.eventQueue.push({
+      type: "mousedown",
+      event,
+    });
+    this.render();
   }
 
   nextTick(cb: () => void) {
@@ -37,18 +66,27 @@ export class EventSystem extends System {
   }
 
   render() {
-    const pickingSystem = this.core.getSystemByName("PickingSystem");
-    const selectionSystem = this.core.getSystemByName("SelectionSystem");
-    this.nextTick(() => {
-      if (!this.stateStore) return;
-      if (pickingSystem) {
-        pickingSystem.update(this.stateStore);
-      }
-      if (selectionSystem) {
-        selectionSystem.update(this.stateStore);
-      }
-      this.stateStore.eventQueue = [];
-    });
+    const core = this.core;
+    const selectionSystem =
+      core.getSystemByName<SelectionSystem>("SelectionSystem");
+    const hoverSystem = core.getSystemByName<HoverSystem>("HoverSystem");
+    const clickSystem = core.getSystemByName<ClickSystem>("ClickSystem");
+    const dragSystem = core.getSystemByName<DragSystem>("DragSystem");
+
+    if (!this.stateStore) return;
+    if (hoverSystem) {
+      hoverSystem.update(this.stateStore);
+    }
+    if (clickSystem) {
+      clickSystem.update(this.stateStore);
+    }
+    if (selectionSystem) {
+      selectionSystem.update(this.stateStore);
+    }
+    if (dragSystem) {
+      dragSystem.update(this.stateStore);
+    }
+    this.stateStore.eventQueue = [];
   }
   /**
    * 点击
@@ -57,17 +95,28 @@ export class EventSystem extends System {
    */
   onClick(event: MouseEvent) {
     if (!this.stateStore) return;
-    this.stateStore.eventQueue.push({
-      type: "click",
-      event,
-    });
+    this.stateStore.eventQueue = [
+      {
+        type: "click",
+        event,
+      },
+    ];
     this.render();
   }
   onMouseMove(event: MouseEvent) {
     // 加一个节流
     if (!this.stateStore) return;
     if (this.stateStore.eventQueue.length) return;
-    this.stateStore.eventQueue.push({ type: "mousemove", event });
+    this.stateStore.eventQueue = [{ type: "mousemove", event }];
     this.render();
+  }
+
+  destroyed(): void {
+    this.dispose();
+    this.offCtx = null;
+    this.stateStore = null;
+    this.entityManager = null as any;
+    this.core = null as any;
+    this.ctx = null as any;
   }
 }

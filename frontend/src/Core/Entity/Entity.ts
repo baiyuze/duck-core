@@ -27,7 +27,8 @@ export class Entity {
    * @returns entityId
    */
   rgbaToId([r, g, b, a]: number[]): string {
-    if (a !== 255) throw new Error("Alpha 通道无效，必须为 255");
+    // if (a !== 255) throw new Error("Alpha 通道无效，必须为 255");
+    if (a === 0) return "0"; // 透明区域，表示没有实体
     const id = (r << 16) | (g << 8) | b;
     return String(id);
   }

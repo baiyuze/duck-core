@@ -154,4 +154,20 @@ export class SelectionSystem extends System {
       this.render(stateStore, entityId, true);
     });
   }
+
+  destroyed(): void {
+    this.clearCanvas();
+    // 移除selection canvas
+    const canvasDom = this.ctx.canvas;
+    const parent = canvasDom.parentElement;
+    if (!parent) return;
+    const selectionCanvas = parent.querySelector("#selection-canvas");
+    if (selectionCanvas) {
+      parent.removeChild(selectionCanvas);
+    }
+    this.selectionCtx = null;
+    this.stateStore = undefined;
+    this.core = null as any;
+    this.ctx = null as any;
+  }
 }

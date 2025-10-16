@@ -52,4 +52,8 @@ export class System {
       ellipseRadius,
     };
   }
+  /**
+   * 销毁
+   */
+  destroyed() {}
 }
