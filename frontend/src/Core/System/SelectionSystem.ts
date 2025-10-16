@@ -149,6 +149,7 @@ export class SelectionSystem extends System {
       if (!selected.value) return;
       this.render(stateStore, entityId);
     });
+    if (this.core.isDragging) return;
     stateStore.selected.forEach((selected, entityId) => {
       if (!selected.hovered) return;
       this.render(stateStore, entityId, true);

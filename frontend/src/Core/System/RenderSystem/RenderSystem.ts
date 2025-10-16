@@ -14,11 +14,14 @@ export class RenderSystem extends System {
   offCtx: CanvasRenderingContext2D | null = null;
   entityManager: Entity = new Entity();
   renderMap = new Map<string, System>();
-
+  throttledRender: ReturnType<typeof throttle>;
   constructor(ctx: CanvasRenderingContext2D, core: Core) {
     super();
     this.core = core;
     this.ctx = ctx;
+    this.throttledRender = throttle((stateStore: StateStore) => {
+      this.render(stateStore, this.ctx);
+    }, 16);
     this.initRenderMap();
   }
 
@@ -27,10 +30,6 @@ export class RenderSystem extends System {
       this.renderMap.set(key, new SystemClass(this.ctx, this.core));
     });
   }
-
-  throttledRender = throttle((stateStore: StateStore) => {
-    this.render(stateStore, this.ctx);
-  }, 100);
 
   drawShape(stateStore: StateStore, entityId: string) {
     const type = stateStore.type.get(entityId);

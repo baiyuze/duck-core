@@ -21,17 +21,16 @@ export class EventSystem extends System {
     this.ctx = ctx;
     this.core = core;
     this.dispose();
-    console.log(2222222, "02020");
-    this.throttledMouseMove = throttle(this.onMouseMove.bind(this), 96);
+    this.throttledMouseMove = throttle(this.onMouseMove.bind(this), 16);
     ctx.canvas.addEventListener("click", this.onClick.bind(this));
     ctx.canvas.addEventListener("mouseup", this.onMouseUp.bind(this));
     ctx.canvas.addEventListener("mousedown", this.onMouseDown.bind(this));
-    ctx.canvas.addEventListener("mousemove", this.throttledMouseMove);
+    document.addEventListener("mousemove", this.throttledMouseMove);
   }
 
   dispose() {
     this.ctx.canvas.removeEventListener("click", this.onClick.bind(this));
-    this.ctx.canvas.removeEventListener("mousemove", this.throttledMouseMove);
+    document.removeEventListener("mousemove", this.throttledMouseMove);
     this.ctx.canvas.removeEventListener("mouseup", this.onMouseUp.bind(this));
     this.ctx.canvas.removeEventListener(
       "mousedown",
@@ -104,7 +103,6 @@ export class EventSystem extends System {
     this.render();
   }
   onMouseMove(event: MouseEvent) {
-    // 加一个节流
     if (!this.stateStore) return;
     if (this.stateStore.eventQueue.length) return;
     this.stateStore.eventQueue = [{ type: "mousemove", event }];

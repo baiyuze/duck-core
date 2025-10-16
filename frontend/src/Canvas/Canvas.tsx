@@ -150,7 +150,9 @@ function Canvas(props: CanvasProps) {
       rotation: { value: 0 },
       font: null,
       name: "用户头像",
-      img: { src: "https://via.placeholder.com/24x24?text=U" },
+      img: {
+        src: "https://cdn.pixabay.com/photo/2025/07/20/08/07/alley-9723861_1280.jpg",
+      },
       zIndex: { value: 21 },
       scale: null,
       polygon: null,
@@ -211,7 +213,9 @@ function Canvas(props: CanvasProps) {
       rotation: { value: 0 },
       font: null,
       name: "内容图片",
-      img: { src: "https://via.placeholder.com/167x167?text=Image" },
+      img: {
+        src: "https://cdn.pixabay.com/photo/2025/09/12/15/10/small-copper-9830647_1280.jpg",
+      },
       zIndex: { value: 21 },
       scale: null,
       polygon: null,

@@ -29,10 +29,9 @@ export class ClickSystem extends System {
     if (!pickEntity) return;
     if (!this.stateStore) return;
     const { selected, entityId } = pickEntity;
-    console.log(entityId, "entityId");
-
     if (selected) selected.value = true;
     // 单选
+    console.log(this.core.multiple, "---this.core.multiple");
     if (!this.core.multiple) {
       this.stateStore.selected.forEach((sel, id) => {
         if (id !== entityId) {
@@ -63,8 +62,8 @@ export class ClickSystem extends System {
     const pickSystem =
       this.core.getSystemByName<PickingSystem>("PickingSystem");
     if (!pickSystem) return;
-    if (pickSystem.checkEventTypeIsMatch(EventType.Click) === false) return;
-    const pickEntity = pickSystem.getEntityByEvent(EventType.Click);
+    if (pickSystem.checkEventTypeIsMatch(EventType.MouseDown) === false) return;
+    const pickEntity = pickSystem.getEntityByEvent(EventType.MouseDown);
     if (!pickEntity) {
       // 清空选择
       this.clear();

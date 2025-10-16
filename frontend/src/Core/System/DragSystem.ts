@@ -4,6 +4,7 @@ import { EventType } from "../enum";
 import type { StateStore } from "../types";
 import type { RenderSystem } from "./OffsetSystem";
 import type { PickingSystem } from "./PickingSystem";
+import type { SelectionSystem } from "./SelectionSystem";
 import { System } from "./System";
 export class DragSystem extends System {
   core: Core;
@@ -13,6 +14,8 @@ export class DragSystem extends System {
   isMouseDown: boolean = false;
   isMouseMove: boolean = false;
   isMouseUp: boolean = false;
+  offset: { x: number; y: number } = { x: 0, y: 0 };
+  dragStarted: boolean = false; // 标记是否已经开始拖拽
   constructor(ctx: CanvasRenderingContext2D, core: Core) {
     super();
     this.ctx = ctx;
@@ -22,6 +25,21 @@ export class DragSystem extends System {
   update(stateStore: StateStore) {
     this.stateStore = stateStore;
     this.onDrag();
+  }
+
+  render() {
+    const renderSystem =
+      this.core.getSystemByName<RenderSystem>("RenderSystem");
+
+    const pickSystem =
+      this.core.getSystemByName<PickingSystem>("PickingSystem");
+    const selectionSystem =
+      this.core.getSystemByName<SelectionSystem>("SelectionSystem");
+    if (this.stateStore) {
+      renderSystem?.update(this.stateStore);
+      pickSystem?.update(this.stateStore);
+      selectionSystem?.update(this.stateStore);
+    }
   }
 
   onDrag() {
@@ -39,10 +57,14 @@ export class DragSystem extends System {
     if (pickSystem.checkEventTypeIsMatch(EventType.MouseDown)) {
       this.isMouseUp = false;
       this.isMouseDown = true;
+      this.isMouseMove = false;
+      this.dragStarted = false;
     }
     if (pickSystem.checkEventTypeIsMatch(EventType.MouseMove)) {
       this.isMouseMove = true;
-      this.core.isDragging = true;
+      if (this.isMouseDown) {
+        this.core.isDragging = true;
+      }
     }
     if (pickSystem.checkEventTypeIsMatch(EventType.MouseUp)) {
       this.core.isDragging = false;
@@ -50,32 +72,139 @@ export class DragSystem extends System {
       this.isMouseDown = false;
       this.isMouseMove = false;
     }
-    console.log(this.isMouseDown, this.isMouseMove, this.isMouseUp, "---->");
-    if (this.isMouseDown && this.isMouseMove && !this.isMouseUp) {
-      // 拖拽中
+
+    // 鼠标按下但还没有移动时，初始化拖拽
+    if (this.isMouseDown && !this.dragStarted) {
+      this.onDragStart(pickSystem);
+      this.dragStarted = true;
+    }
+
+    // 鼠标按下并移动时，执行拖拽
+    if (this.isMouseDown && this.isMouseMove && this.dragStarted) {
       this.onDragShape(pickSystem);
+    }
+
+    // 鼠标抬起时，结束拖拽
+    if (this.isMouseUp && this.dragStarted) {
+      this.onDragEnd();
+      this.dragStarted = false;
     }
   }
 
-  onDragShape(pickSystem: PickingSystem) {
-    const renderSystem =
-      this.core.getSystemByName<RenderSystem>("RenderSystem");
+  onDragStart(pickSystem: PickingSystem) {
     const selectedEntitys = pickSystem.getCurrentPickSelectedEntitys();
     if (!this.stateStore || !selectedEntitys) return;
     const eventQueue = this.stateStore.eventQueue;
     const lastEvent = eventQueue[eventQueue.length - 1];
-    console.log(selectedEntitys, "selectedEntitys");
+
+    // 获取画布坐标（不是屏幕坐标）
+    const rect = this.ctx.canvas.getBoundingClientRect();
+    const canvasX = lastEvent.event.clientX - rect.left;
+    const canvasY = lastEvent.event.clientY - rect.top;
+
+    selectedEntitys.forEach((pickEntity) => {
+      const position = this.stateStore!.position.get(pickEntity.entityId);
+      if (position) {
+        // 计算鼠标在元素内的偏移量
+        this.offset.x = canvasX - position.x;
+        this.offset.y = canvasY - position.y;
+      }
+    });
+  }
+
+  onDragShape(pickSystem: PickingSystem) {
+    const selectedEntitys = pickSystem.getCurrentPickSelectedEntitys();
+    if (!this.stateStore || !selectedEntitys) return;
+    const eventQueue = this.stateStore.eventQueue;
+    const lastEvent = eventQueue[eventQueue.length - 1];
+
+    // 获取当前鼠标的画布坐标
+    const rect = this.ctx.canvas.getBoundingClientRect();
+    const canvasX = lastEvent.event.clientX - rect.left;
+    const canvasY = lastEvent.event.clientY - rect.top;
+
     selectedEntitys.forEach((pickEntity) => {
       const position = this.stateStore!.position.get(pickEntity.entityId);
 
       if (position) {
-        position.x = lastEvent.event.x;
-        position.y = lastEvent.event.y;
-        console.log(position, "-----=>");
+        // 新位置 = 当前鼠标位置 - 初始偏移量
+        position.x = canvasX - this.offset.x;
+        position.y = canvasY - this.offset.y;
       }
     });
-    if (renderSystem) {
-      renderSystem?.update(this.stateStore);
-    }
+    this.render();
+  }
+
+  onDragEnd() {
+    const pickSystem =
+      this.core.getSystemByName<PickingSystem>("PickingSystem");
+    if (!pickSystem) return;
+
+    const selectedEntitys = pickSystem.getCurrentPickSelectedEntitys();
+    if (!this.stateStore || !selectedEntitys) return;
+
+    // 记录拖拽结束时的最终位置
+    const finalPositions: { entityId: string; x: number; y: number }[] = [];
+    selectedEntitys.forEach((pickEntity) => {
+      const position = this.stateStore!.position.get(pickEntity.entityId);
+      if (position) {
+        finalPositions.push({
+          entityId: pickEntity.entityId,
+          x: position.x,
+          y: position.y,
+        });
+      }
+    });
+
+    // 重置偏移量和拖拽状态
+    this.offset = { x: 0, y: 0 };
+
+    // 触发拖拽结束事件（可以用于历史记录、撤销重做等）
+    this.onDragEndEvent(selectedEntitys, finalPositions);
+
+    this.render();
+  }
+
+  /**
+   * 拖拽结束事件处理
+   * 可以在这里添加自定义逻辑，比如保存历史记录、网格吸附等
+   */
+  private onDragEndEvent(
+    _selectedEntitys: any[],
+    finalPositions: { entityId: string; x: number; y: number }[]
+  ) {
+    // 这里可以添加拖拽结束后的自定义逻辑
+    // 例如：
+    // 1. 保存到历史记录用于撤销/重做
+    // 2. 检查边界限制
+    // 3. 网格吸附
+    // 4. 碰撞检测
+    // 5. 触发自定义事件等
+
+    // 示例：边界检查（确保元素不会拖拽到画布外）
+    this.checkBoundaries(finalPositions);
+  }
+
+  /**
+   * 检查边界限制，防止元素拖拽到画布外
+   */
+  private checkBoundaries(
+    finalPositions: { entityId: string; x: number; y: number }[]
+  ) {
+    if (!this.stateStore) return;
+
+    const canvasWidth = this.ctx.canvas.width;
+    const canvasHeight = this.ctx.canvas.height;
+
+    finalPositions.forEach(({ entityId, x, y }) => {
+      const position = this.stateStore!.position.get(entityId);
+      const size = this.stateStore!.size.get(entityId);
+
+      if (position && size) {
+        // 确保元素不会超出画布边界
+        position.x = Math.max(0, Math.min(x, canvasWidth - size.width));
+        position.y = Math.max(0, Math.min(y, canvasHeight - size.height));
+      }
+    });
   }
 }
