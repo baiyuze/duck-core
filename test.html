@@ -1,190 +1,362 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>Bezier Curve Icons on Canvas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>淘宝网首页</title>
     <style>
-        #myCanvas {
-            border: 1px solid #ccc;
-            background-color: #f9f9f9;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
         }
+        
         body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
+            background-color: #f5f5f5;
+            color: #333;
         }
-        h2 {
-            margin-bottom: 5px;
+        
+        /* 顶部导航栏 */
+        .top-bar {
+            height: 30px;
+            background-color: #ff0036;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .top-bar-left {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .top-bar-right {
+            display: flex;
+            gap: 15px;
+        }
+        
+        /* 主导航栏 */
+        .main-nav {
+            height: 100px;
+            background-color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .logo {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ff0036;
+            margin-right: 40px;
+        }
+        
+        .search-container {
+            flex: 1;
+            max-width: 600px;
+            display: flex;
+            margin: 0 30px;
+        }
+        
+        .search-input {
+            flex: 1;
+            height: 36px;
+            border: 2px solid #ff0036;
+            border-radius: 20px 0 0 20px;
+            padding: 0 15px;
+            font-size: 14px;
+        }
+        
+        .search-button {
+            width: 80px;
+            height: 40px;
+            background-color: #ff0036;
+            color: white;
+            border: none;
+            border-radius: 0 20px 20px 0;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        
+        .cart-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .cart-icon {
+            width: 30px;
+            height: 30px;
+            background-color: #ff0036;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        /* Banner区域 */
+        .banner {
+            height: 300px;
+            background: linear-gradient(to right, #ff6b6b, #ff8e8e);
+            position: relative;
+            overflow: hidden;
+            z-index: 20;
+        }
+        
+        .banner-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: white;
+        }
+        
+        .banner-title {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .banner-subtitle {
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+        
+        .banner-button {
+            display: inline-block;
+            padding: 10px 30px;
+            background-color: white;
+            color: #ff0036;
+            border-radius: 20px;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        
+        /* 分类导航 */
+        .category-nav {
+            height: 50px;
+            background-color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 30px;
+            margin-top: -2px;
+            z-index: 21;
+            position: relative;
+        }
+        
+        .category-item {
+            font-size: 16px;
+            color: #333;
+            text-decoration: none;
+        }
+        
+        /* 商品推荐区 */
+        .product-section {
+            padding: 30px 20px;
+            background-color: #f5f5f5;
+            z-index: 30;
+            position: relative;
+        }
+        
+        .section-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .product-card {
+            background-color: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .product-image {
+            height: 200px;
+            background-color: #f0f0f0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #999;
+        }
+        
+        .product-info {
+            padding: 15px;
+        }
+        
+        .product-title {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .product-price {
+            font-size: 18px;
+            font-weight: bold;
+            color: #ff0036;
+        }
+        
+        /* 页脚 */
+        .footer {
+            height: 200px;
+            background-color: #333;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 0;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            width: 100%;
+            padding: 0 20px;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .footer-link {
+            color: #ccc;
+            text-decoration: none;
+        }
+        
+        .copyright {
+            color: #999;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
-
-    <h2>二次和三次贝塞尔曲线图标示例 (Canvas)</h2>
-    <canvas id="myCanvas" width="450" height="200"></canvas>
-
-    <script>
-        const canvas = document.getElementById('myCanvas');
-        const ctx = canvas.getContext('2d');
-
-        // JSON 数据结构
-        const shapeData = [
-            // ===============================================
-            // 1. 二次贝塞尔曲线 (Q) 图标 - 位于左侧
-            // ===============================================
-            // 1.1 头部 (Head) - 椭圆形 (Q)
-            {
-                "id": "101",
-                "type": "ellipse",
-                "position": { "x": 100, "y": 100 },
-                "size": { "width": 40, "height": 50 },
-                "rx": 20,
-                "ry": 25,
-                "color": { "fillColor": "#666666", "strokeColor": "" },
-                "selected": { "value": false },
-                "scale": { "value": 1 }
-            },
-            // 1.2 身体/肩部 (Body) - 使用二次贝塞尔曲线 (Q)
-            {
-                "id": "102",
-                "type": "polygon",
-                "position": { "x": 60, "y": 125 },
-                "size": { "width": 80, "height": 40 },
-                "color": { "fillColor": "#666666", "strokeColor": "" },
-                "selected": { "value": false },
-                "scale": { "value": 1 },
-                "polygon": {
-                    "vertexs": [
-                        { "type": "M", "point": { "x": 0, "y": 20 } },
-                        { "type": "L", "point": { "x": 0, "y": 40 } },
-                        { "type": "L", "point": { "x": 80, "y": 40 } },
-                        { "type": "L", "point": { "x": 80, "y": 20 } },
-                        // Q: 右侧颈部弧线
-                        { "type": "Q", "controlPoint": { "x": 65, "y": 10 }, "endPoint": { "x": 40, "y": 20 } },
-                        // Q: 左侧颈部弧线 (连接回起点)
-                        { "type": "Q", "controlPoint": { "x": 15, "y": 10 }, "endPoint": { "x": 0, "y": 20 } }
-                    ]
-                }
-            },
-            
-            // ===============================================
-            // 2. 三次贝塞尔曲线 (C) 图标 - 位于右侧
-            // ===============================================
-
-            // 2.1 头部 (Head) - 椭圆形 (C)
-            {
-                "id": "201",
-                "type": "ellipse",
-                "position": { "x": 350, "y": 100 }, // 调整 x 坐标以拉开间距
-                "size": { "width": 40, "height": 50 },
-                "rx": 20,
-                "ry": 25,
-                "color": { "fillColor": "#666666", "strokeColor": "" },
-                "selected": { "value": false },
-                "scale": { "value": 1 }
-            },
-            
-            // 2.2 身体/肩部 (Body) - 使用三次贝塞尔曲线 (C)
-            {
-                "id": "202",
-                "type": "polygon",
-                "position": { "x": 310, "y": 125 }, // 调整 x 坐标以拉开间距 (350 - 40 = 310)
-                "size": { "width": 80, "height": 40 },
-                "color": { "fillColor": "#666666", "strokeColor": "" },
-                "selected": { "value": false },
-                "scale": { "value": 1 },
-                "polygon": {
-                    "vertexs": [
-                        { "type": "M", "point": { "x": 0, "y": 20 } },
-                        { "type": "L", "point": { "x": 0, "y": 40 } },
-                        { "type": "L", "point": { "x": 80, "y": 40 } },
-                        { "type": "L", "point": { "x": 80, "y": 20 } },
-                        
-                        // C: 右侧颈部弧线
-                        {
-                            "type": "C",
-                            "startTangent": { "x": 75, "y": 10 },
-                            "endTangent": { "x": 55, "y": 5 },
-                            "endPoint": { "x": 40, "y": 20 }
-                        },
-                        
-                        // C: 左侧颈部弧线 (连接回起点)
-                        {
-                            "type": "C",
-                            "startTangent": { "x": 25, "y": 5 },
-                            "endTangent": { "x": 5, "y": 10 },
-                            "endPoint": { "x": 0, "y": 20 }
-                        }
-                    ]
-                }
-            }
-        ];
-
-        // 绘图函数
-        function drawShapes() {
-            shapeData.forEach(item => {
-                ctx.beginPath();
-                const { x, y } = item.position;
-                const { fillColor, strokeColor } = item.color;
-                
-                ctx.fillStyle = fillColor || 'none';
-                ctx.strokeStyle = strokeColor || 'none';
-
-                if (item.type === 'ellipse') {
-                    // 绘制椭圆形 (头部)
-                    ctx.ellipse(
-                        x, y,          // 中心点 (cx, cy)
-                        item.rx, item.ry, // 半径 (rx, ry)
-                        0,             // 旋转角度 (0)
-                        0, 2 * Math.PI // 起始角和结束角 (完整圆)
-                    );
-                    ctx.fill();
-
-                } else if (item.type === 'polygon' && item.polygon) {
-                    // 绘制多边形/肩部
-                    const vertexs = item.polygon.vertexs;
-
-                    vertexs.forEach(v => {
-                        // 将相对坐标转换为绝对坐标
-                        const absX = x + (v.point ? v.point.x : 0);
-                        const absY = y + (v.point ? v.point.y : 0);
-                        
-                        switch (v.type) {
-                            case 'M': // MoveTo
-                                ctx.moveTo(absX, absY);
-                                break;
-                            case 'L': // LineTo
-                                ctx.lineTo(absX, absY);
-                                break;
-                            case 'Q': // Quadratic Bezier Curve (二次贝塞尔曲线)
-                                const cpx = x + v.controlPoint.x;
-                                const cpy = y + v.controlPoint.y;
-                                ctx.quadraticCurveTo(cpx, cpy, absX, absY);
-                                break;
-                            case 'C': // Cubic Bezier Curve (三次贝塞尔曲线)
-                                const cp1x = x + v.startTangent.x;
-                                const cp1y = y + v.startTangent.y;
-                                const cp2x = x + v.endTangent.x;
-                                const cp2y = y + v.endTangent.y;
-                                ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, absX, absY);
-                                break;
-                        }
-                    });
-
-                    // 封闭路径并填充
-                    ctx.closePath();
-                    ctx.fill();
-                }
-            });
-            
-            // 添加文本标记，说明曲线类型
-            ctx.fillStyle = "#333333";
-            ctx.font = "14px Arial";
-            ctx.fillText("二次贝塞尔 (Q) - 头部颈部使用 Q 曲线", 20, 185);
-            ctx.fillText("三次贝塞尔 (C) - 头部颈部使用 C 曲线", 280, 185);
-        }
-
-        // 运行绘图
-        drawShapes();
-    </script>
+    <!-- 顶部导航栏 -->
+    <div class="top-bar">
+        <div class="top-bar-left">
+            <span>亲，请登录</span>
+            <span>免费注册</span>
+            <span>手机逛淘宝</span>
+        </div>
+        <div class="top-bar-right">
+            <span>我的淘宝</span>
+            <span>购物车</span>
+            <span>收藏夹</span>
+            <span>联系客服</span>
+            <span>网站导航</span>
+        </div>
+    </div>
+    
+    <!-- 主导航栏 -->
+    <div class="main-nav">
+        <div class="logo">淘宝网</div>
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="搜索商品">
+            <button class="search-button">搜索</button>
+        </div>
+        <div class="cart-container">
+            <div class="cart-icon">12</div>
+            <span>购物车</span>
+        </div>
+    </div>
+    
+    <!-- Banner区域 -->
+    <div class="banner">
+        <div class="banner-content">
+            <div class="banner-title">淘宝618大促</div>
+            <div class="banner-subtitle">全场低至5折，限时抢购！</div>
+            <a href="#" class="banner-button">立即抢购</a>
+        </div>
+    </div>
+    
+    <!-- 分类导航 -->
+    <div class="category-nav">
+        <a href="#" class="category-item">手机</a>
+        <a href="#" class="category-item">家电</a>
+        <a href="#" class="category-item">女装</a>
+        <a href="#" class="category-item">男装</a>
+        <a href="#" class="category-item">美妆</a>
+        <a href="#" class="category-item">母婴</a>
+        <a href="#" class="category-item">运动</a>
+        <a href="#" class="category-item">更多</a>
+    </div>
+    
+    <!-- 商品推荐区 -->
+    <div class="product-section">
+        <h2 class="section-title">热销推荐</h2>
+        <div class="products-grid">
+            <div class="product-card">
+                <div class="product-image">商品图片</div>
+                <div class="product-info">
+                    <div class="product-title">夏季新款连衣裙时尚显瘦</div>
+                    <div class="product-price">¥129.00</div>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-image">商品图片</div>
+                <div class="product-info">
+                    <div class="product-title">华为P50 Pro 5G手机</div>
+                    <div class="product-price">¥5999.00</div>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-image">商品图片</div>
+                <div class="product-info">
+                    <div class="product-title">小米扫地机器人</div>
+                    <div class="product-price">¥1999.00</div>
+                </div>
+            </div>
+            <div class="product-card">
+                <div class="product-image">商品图片</div>
+                <div class="product-info">
+                    <div class="product-title">耐克运动鞋男款</div>
+                    <div class="product-price">¥699.00</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 页脚 -->
+    <div class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="#" class="footer-link">关于淘宝</a>
+                <a href="#" class="footer-link">合作伙伴</a>
+                <a href="#" class="footer-link">营销中心</a>
+                <a href="#" class="footer-link">廉正举报</a>
+                <a href="#" class="footer-link">开放平台</a>
+                <a href="#" class="footer-link">诚征英才</a>
+                <a href="#" class="footer-link">联系我们</a>
+            </div>
+            <div class="copyright">© 2003-2023 Taobao.com 版权所有</div>
+        </div>
+    </div>
 </body>
 </html>

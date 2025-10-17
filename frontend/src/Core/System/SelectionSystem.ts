@@ -68,6 +68,8 @@ export class SelectionSystem extends System {
     const ctx = this.selectionCtx;
     ctx.save();
     // 更新坐标原点位置
+    // const { x, y } = position;
+    // ctx.translate(x, y);
     ctx.setLineDash(dash || []);
 
     ctx.strokeStyle = color;
@@ -116,6 +118,8 @@ export class SelectionSystem extends System {
           [position.x + size.width + 2, position.y + size.height + 2], // 右下
         ];
         ctx.save();
+        // const { x, y } = position;
+        // ctx.translate(x, y);
         ctx.shadowColor = "rgba(0,0,0,0)"; // 禁用阴影
         ctx.fillStyle = "white";
         ctx.strokeStyle = "rgb(90, 132, 255)";

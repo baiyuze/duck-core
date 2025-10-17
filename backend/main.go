@@ -8,8 +8,9 @@ import (
 	"app/internal/middleware"
 	"app/internal/router"
 	"fmt"
-	"go.uber.org/zap"
 	"os"
+
+	"go.uber.org/zap"
 
 	"github.com/gin-gonic/gin"
 )
@@ -50,7 +51,7 @@ func main() {
 
 	router.RegisterRoutes(r, container)
 	// 运行服务器
-	err := r.Run(":8888")
+	err := r.Run(":8889")
 	if err != nil {
 		fmt.Println(err)
 	}

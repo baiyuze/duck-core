@@ -80,7 +80,7 @@ func (h *AiHandler) Chat(c *gin.Context) {
 	ctx := *aiModel.Ctx
 
 	messages, err := template.Format(ctx, map[string]any{
-		"role":         "专业资深网页UI设计师",
+		"role":         "专业资深网页UI设计师和资深前端开发专家",
 		"chat_history": []*schema.Message{},
 	})
 	if err != nil {

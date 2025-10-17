@@ -333,9 +333,10 @@ const Copilot = (props: CopilotProps) => {
 
   /**
    * 🔔 配置说明:
-   * - baseURL: API 基础地址，使用 vite 代理指向后端 http://192.168.50.1:8888
-   * - model: 接口路径 chat，实际请求为 POST /api/ai/chat
-   * - dangerouslyApiKey: API 密钥（如果后端需要）
+   * - baseURL: API 基础地址 /api/ai/chat
+   * - 通过 vite 代理转发到后端 http://localhost:8889/api/ai/chat
+   * - Authorization header 通过全局 fetch 拦截器自动添加（见 utils/fetchInterceptor.ts）
+   * - Token 从 localStorage 读取并自动添加到请求头
    */
 
   // ==================== Runtime ====================
@@ -356,6 +357,15 @@ const Copilot = (props: CopilotProps) => {
           role: "assistant",
         };
       }
+
+      // 处理401未授权错误
+      if (error.message?.includes("401") || error.message?.includes("未授权")) {
+        return {
+          content: "身份验证失败，请重新登录",
+          role: "assistant",
+        };
+      }
+
       return {
         content: `请求失败: ${error.message || "请重试"}`,
         role: "assistant",

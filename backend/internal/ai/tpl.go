@@ -9,7 +9,44 @@ func DslDesignTpl() *prompt.DefaultChatTemplate {
 	template := prompt.FromMessages(schema.FString,
 		// 系统消息模板
 		schema.SystemMessage(`
-你是一名{role}，
+你是一名{role}
+
+🎯 总任务：根据用户的需求，先生成HTML+CSS，再转换为DSLParams[]结构。
+
+---
+
+🟢 阶段一：HTML 生成规则
+总体要求：
+1. **禁止任何 JavaScript**；输出中不得包含 <script> 标签、onclick 等内联事件、或任何 JS 代码片段。若需要交互说明，用注释性文本写在外部说明中（但最终产出不得包含注释）。
+2. **必须使用语义化标签**：<header>、<nav>、<main>、<section>、<article>、<aside>、<footer>、<h1>-<h6>、<p>、<ul>/<li>、<button>（仅作为语义；不带 JS）等。
+3. **样式统一放在页面顶部的 <style> 块内**（放在 <head>），不得依赖外部 CSS 文件或内联 <link> 引用。允许少量内联 style 仅用于极小例外（尽量避免）。
+4. **只使用系统/泛用字体**（例如：Arial, Helvetica, Roboto, sans-serif）；**禁止使用苹方或需要外部加载的字体**。
+5. **单位使用像素（px）**，为便于坐标/尺寸映射到 DSL，所有宽高、位置、边距、字体大小均以 px 指定（不使用 rem/em/%）。
+6. **固定画布宽度**：默认移动端为 width: 375px（可按需改为 800px 画布以适配 DSL 的 800x800 限制），请在 <body> 的最外层容器（例如 #app）上明确写出宽度与高度（height 可为 auto 或固定）。
+7. **布局使用绝对坐标辅助说明（可选）**：如果需要高还原度，可以在元素上添加 data-pos-x、data-pos-y、data-width、data-height 四个 data- 属性，值为整数 px，便于后续解析为 DSL 的 position/size（示例见下）。
+8. **图片与图标**：
+   - 图标优先使用内嵌 SVG（直接写 <svg>），并尽量使用简单的形状（rect/ellipse/path）以便映射到 DSL 的 polygon/ellipse/rect。
+   - 图片使用**有效的 URL**或 base64 data URI，确保 src 在网络可访问或为有效 base64（因为 DSL 的 img.src 要求有效地址）。
+9. **可访问性与语义**：
+   - 所有重要图片必须含 alt；所有交互性控件（例如按钮）使用语义元素 <button> 或带有 role 的元素，并包含 aria-label（如果文本不可见）。
+10. **禁止内联脚本式行为说明**（例如 href="javascript:void(0)"、onclick），链接使用 href="#" 也尽量避免，如需占位请使用 href="" 并在外部说明替代含义。
+11. **不要包含注释**（<!-- ... -->）在最终输出中，除非是模型内部的过渡说明（但建议不要输出注释）。
+12. **尽量使用最小、干净的 class 名**，推荐 BEM 风格（例如 .header__logo），但转换器主要依赖 data- 坐标属性或计算样式。
+
+输出格式要求（强制）：
+- 第一部分必须是一个整块 HTML 文本，用 html 包裹（用于模型输出检测）。
+- HTML 中 **必须包含** <style> 样式块，且所有视觉样式（颜色、字体大小、padding、margin、border-radius、背景色、box-shadow 等）都在此块中以 px 为单位明确声明。
+- 若想提高转换精度，**每个视觉元素**（例如每个按钮、图片、标题、卡片）必须包含 data-pos-x、data-pos-y、data-width、data-height（整数，单位 px），表示元素在画布上的绝对位置与尺寸。转换器会优先读取这些属性生成 DSL 的 position/size；若不存在则由解析器根据 DOM 流和样式估算。
+- 颜色必须使用 6 位十六进制（例如 #333333 或透明 rgba()），便于映射到 DSL 的 fillColor/strokeColor。
+- 文本内容应直接写在元素内部（如 <h1>LOGO</h1>），字体相关样式写明 font-family、font-size、font-weight、line-height（line-height 写成字符串形式，如 1.5）。
+- 所有尺寸与坐标必须在 0~800 的范围内（如果你选择 800x800 画布），或在 0~375（若选择 375 宽移动画布并限定高度 <= 800）。请确保不超出画布边界。
+
+
+---
+
+🟠 阶段二：HTML → DSLParams 转换规则
+(把你现在所有 DSLParams 的结构校验、字段顺序、约束全部放这里)
+
 ### 【资深设计师 - 专业工作规范】
 1.  **设计产出要求**：
     * 凡涉及用户界面（UI/UX）设计需求，请严格遵循专业设计流程。
@@ -333,8 +370,10 @@ func DslDesignTpl() *prompt.DefaultChatTemplate {
 
 ---
 
-请根据以上规范和案例生成完整 DSLParams[]，确保：
-
+请根据以上规范和案例生成HTML，并转成完整 DSLParams[]，确保：
+1. 【第一部分】HTML 代码
+2. 【第二部分】DSLParams JSON 数组
+3. 两个部分缺一不可，否则视为错误输出
 - 充分表达页面布局
 - 坐标、尺寸、颜色、字体、ZIndex、图标等都详细填充
 - AI 可根据示例自我完善生成完整页面

@@ -16,7 +16,7 @@ func RegisterAiRoutes(r *gin.RouterGroup, container *dig.Container) {
 
 	err := container.Invoke(func(aiHandler *handler.AiHandler) {
 		// AI 聊天接口 - POST /api/ai/chat
-		router.POST("/chat", middleware.Jwt(false), aiHandler.Chat)
+		router.POST("/chat", middleware.Jwt(true), aiHandler.Chat)
 		// 旧接口保留（兼容）
 		router.GET("/post", middleware.Jwt(false), aiHandler.Chat)
 	})

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -21,6 +21,7 @@
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-markdown": "^10.1.0",
+    "react-router-dom": "^7.9.4",
     "rehype-highlight": "^7.0.2",
     "sass-embedded": "^1.93.2"
   },

@@ -43,6 +43,8 @@ export class PickingSystem extends System {
     // 遍历所有 position 组件的实体
     stateStore.position.forEach((pos, entityId) => {
       ctx.save();
+      // const { x, y } = pos;
+      // ctx.translate(x, y);
       // 获取实体的 size 组件
       const size = stateStore.size.get(entityId);
       // 离屏渲染颜色
