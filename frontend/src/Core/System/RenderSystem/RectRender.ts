@@ -17,16 +17,16 @@ export class RectRender extends System {
     if (!this.stateStore) return;
     const state = this.getComponentsByEntityId(this.stateStore, entityId);
 
-    const { x, y } = state.position;
+    // const { x, y } = state.position;
     const { width, height } = state.size;
     const { fillColor, strokeColor } = state.color;
 
     this.ctx.fillStyle = fillColor || "transparent";
     this.ctx.strokeStyle = strokeColor || "transparent";
-    this.ctx.strokeRect(x, y, width, height);
+    this.ctx.strokeRect(0, 0, width, height);
     if (state.lineWidth.value) {
       this.ctx.lineWidth = state.lineWidth.value;
     }
-    if (fillColor) this.ctx.fillRect(x, y, width, height);
+    if (fillColor) this.ctx.fillRect(0, 0, width, height);
   }
 }

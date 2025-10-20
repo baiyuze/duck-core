@@ -21,6 +21,7 @@ export class PolygonRender extends System {
     const { vertexs } = state.polygon;
 
     const ctx = this.ctx;
+    // ctx.translate(state.position.x, state.position.y);
     // 需要注意translate和rotate的顺序，先translate再rotate
     ctx.beginPath();
     if (vertexs.length > 0) {
