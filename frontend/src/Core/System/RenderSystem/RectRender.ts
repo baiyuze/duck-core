@@ -18,6 +18,7 @@ export class RectRender extends System {
     const state = this.getComponentsByEntityId(this.stateStore, entityId);
 
     // const { x, y } = state.position;
+
     const { width, height } = state.size;
     const { fillColor, strokeColor } = state.color;
 

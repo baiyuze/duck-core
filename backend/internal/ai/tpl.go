@@ -107,7 +107,7 @@ func DslDesignTpl() *prompt.DefaultChatTemplate {
 )
 ---
 【DSLParams的JSON约束】
-- polygon.vertexs基于坐标原点，为左上角(0,0)，目前没有相对坐标
+- polygon.vertexs基于坐标原点，position(x,y)，相对坐标
 - type类型为img时，必须是一个可以使用的图片或者网址图片，不要使用不存在的图
 - type类型为text时，font必须存在，其他类型，font可以为空对象或者默认值
 - 仔细检查DSLParams，确保是合法的JSON数组，不能有多余逗号，不能有多余字段,不能缺字段,不能有注释，不能有多余空格
@@ -140,16 +140,17 @@ func DslDesignTpl() *prompt.DefaultChatTemplate {
    )
   ] )
 - position与polygon约束，必须遵守以下内容
-   - 1. 必须保留 position 和 size 属性，position 表示图形的左上角。
+   - 1. 必须保留 position 和 size 属性，position(x,y)。
    - 2
       - 例如：
       - position=(x:360,y:300) size=(80,60) 的三角形，
       - polygon.vertexs 应为：
-          ( "type": "M", "point": ( "x": 360, "y": 360 ),
-          ( "type": "L", "point": ( "x": 400, "y": 300 ),
-          ( "type": "L", "point": ( "x": 440, "y": 360 )
-          而不是相对坐标。
-   - 3. 不允许在 vertexs 中写入绝对坐标。
+          [
+            ( "type": "M", "point": ( "x": -40, "y": 30 ),
+            ( "type": "L", "point": ( "x": 40, "y": 30 ),
+            ( "type": "L", "point": ( "x": 0, "y": -30 )
+         ]
+         是相对坐标。
    - 4. 不允许重复最后一个点（AI 常喜欢闭合路径），最后一个点由渲染逻辑自动闭合。
 - 输出前自动自检：
   - 每个对象 type 是否合法

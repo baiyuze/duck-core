@@ -17,7 +17,7 @@ export class TextRender extends System {
     const state = this.getComponentsByEntityId(this.stateStore, entityId);
     if (!state) return;
 
-    const { x, y } = state.position;
+    // const { x, y } = state.position;
     const font = state.font;
     const parts = [
       font.style || "",
@@ -29,7 +29,7 @@ export class TextRender extends System {
     this.ctx.font = parts.filter((v) => v).join(" ");
     this.ctx.fillStyle = font.fillColor || "#000";
     this.ctx.strokeStyle = font.strokeColor || "transparent";
-    if (font.strokeColor) this.ctx.strokeText(font.text, x, y + font.size);
-    this.ctx.fillText(font.text, x, y + font.size);
+    if (font.strokeColor) this.ctx.strokeText(font.text, 0, 0 + font.size);
+    this.ctx.fillText(font.text, 0, 0 + font.size);
   }
 }

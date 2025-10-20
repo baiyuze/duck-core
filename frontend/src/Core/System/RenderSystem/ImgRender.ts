@@ -20,21 +20,21 @@ export class ImgRender extends System {
     const state = this.getComponentsByEntityId(this.stateStore, entityId);
 
     if (!state) return;
-    const { x, y } = state.position;
+    // const { x, y } = state.position;
     const { width, height } = state.size;
     const imgComponent = state.img;
     if (!imgComponent || !imgComponent.src) return;
     if (this.imgCache.has(imgComponent.src)) {
       const cachedImg = this.imgCache.get(imgComponent.src);
       if (cachedImg) {
-        this.ctx.drawImage(cachedImg, x, y, width, height);
+        this.ctx.drawImage(cachedImg, 0, 0, width, height);
       }
       return;
     }
     const img = new Image();
     img.src = imgComponent.src;
     img.onload = () => {
-      this.ctx.drawImage(img, x, y, width, height);
+      this.ctx.drawImage(img, 0, 0, width, height);
       this.imgCache.set(img.src, img);
     };
   }

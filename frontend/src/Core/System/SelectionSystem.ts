@@ -68,19 +68,14 @@ export class SelectionSystem extends System {
     const ctx = this.selectionCtx;
     ctx.save();
     // 更新坐标原点位置
-    // const { x, y } = position;
-    // ctx.translate(x, y);
+    const { x, y } = position;
+    ctx.translate(x, y);
     ctx.setLineDash(dash || []);
 
     ctx.strokeStyle = color;
 
     ctx.lineWidth = 2;
-    ctx.strokeRect(
-      position.x - 2,
-      position.y - 2,
-      size.width + 4,
-      size.height + 4
-    );
+    ctx.strokeRect(-2, -2, size.width + 4, size.height + 4);
     ctx.restore();
   }
 
@@ -111,15 +106,15 @@ export class SelectionSystem extends System {
       if (!isHover) {
         const handleSize = 8;
         const half = handleSize / 2;
-        const corners = [
-          [position.x - 2, position.y - 2], // 左上
-          [position.x + size.width + 2, position.y - 2], // 右上
-          [position.x - 2, position.y + size.height + 2], // 左下
-          [position.x + size.width + 2, position.y + size.height + 2], // 右下
-        ];
         ctx.save();
-        // const { x, y } = position;
-        // ctx.translate(x, y);
+        const corners = [
+          [-2, -2], // 左上
+          [size.width + 2, -2], // 右上
+          [-2, size.height + 2], // 左下
+          [size.width + 2, size.height + 2], // 右下
+        ];
+        const { x, y } = position;
+        ctx.translate(x, y);
         ctx.shadowColor = "rgba(0,0,0,0)"; // 禁用阴影
         ctx.fillStyle = "white";
         ctx.strokeStyle = "rgb(90, 132, 255)";

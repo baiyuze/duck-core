@@ -18,14 +18,14 @@ export class EllipseRender extends System {
 
     const state = this.getComponentsByEntityId(this.stateStore, entityId);
 
-    const { x, y } = state.position;
+    // const { x, y } = state.position;
     // const { rx, ry } = state.ellipseRadius;
     const { width, height } = state.size;
     const { fillColor, strokeColor } = state.color;
     this.ctx.beginPath();
     this.ctx.ellipse(
-      x + width / 2,
-      y + height / 2,
+      width / 2,
+      height / 2,
       width / 2, // 水平半径
       height / 2, // 垂直半径
       0, // 旋转角度

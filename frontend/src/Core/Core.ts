@@ -19,6 +19,7 @@ export class Core {
   multiple: boolean = false;
   isDragging: boolean = false;
   dsls: DSL[] = [];
+  renderMode: string = "relative"; //relative absolute
 
   SystemMap: Map<string, System> = new Map();
 

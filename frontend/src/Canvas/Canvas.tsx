@@ -423,17 +423,19 @@ function Canvas(props: CanvasProps) {
   const dsls: any[] = [
     {
       position: { x: 0, y: 0 },
-      size: { width: 375, height: 800 },
+      size: { width: 175, height: 100 },
       color: { fillColor: "#f6f6f6", strokeColor: null },
       lineWidth: null,
       id: "1",
       selected: { value: false, hovered: false },
       eventQueue: [],
-      type: "rect",
+      type: "img",
       rotation: { value: 0 },
       font: {},
       name: null,
-      img: null,
+      img: {
+        src: "https://cdn.pixabay.com/photo/2025/05/13/07/47/skyscrapers-9596809_1280.jpg",
+      },
       zIndex: { value: 0 },
       scale: null,
       polygon: null,
@@ -454,6 +456,219 @@ function Canvas(props: CanvasProps) {
       zIndex: { value: 30 },
       scale: null,
       polygon: null,
+    },
+    {
+      position: { x: 100, y: 400 },
+      size: { width: 175, height: 100 },
+      color: { fillColor: "#333333", strokeColor: null },
+      lineWidth: null,
+      id: "3",
+      selected: { value: false, hovered: false },
+      eventQueue: [],
+      type: "text",
+      rotation: { value: 0 },
+      font: {
+        family: "Arial",
+        size: 16,
+        weight: "400",
+        style: "normal",
+        variant: "normal",
+        lineHeight: "1.5",
+        text: "Hello World",
+        fillColor: "#000",
+        strokeColor: null,
+      },
+      name: null,
+      img: null,
+      zIndex: { value: 30 },
+      scale: null,
+      polygon: null,
+    },
+
+    {
+      position: {
+        x: 0,
+        y: 0,
+      },
+      size: {
+        width: 375,
+        height: 300,
+      },
+      color: {
+        fillColor: "#f6f6f6",
+        strokeColor: null,
+      },
+      lineWidth: null,
+      id: "11",
+      selected: {
+        value: false,
+        hovered: false,
+      },
+      eventQueue: [],
+      type: "rect",
+      rotation: {
+        value: 0,
+      },
+      font: {},
+      name: null,
+      img: null,
+      zIndex: {
+        value: 0,
+      },
+      scale: null,
+      polygon: null,
+    },
+
+    {
+      position: {
+        x: 0,
+        y: 20,
+      },
+      size: {
+        width: 375,
+        height: 24,
+      },
+      color: {
+        fillColor: null,
+        strokeColor: null,
+      },
+      lineWidth: null,
+      id: "33",
+      selected: {
+        value: false,
+        hovered: false,
+      },
+      eventQueue: [],
+      type: "text",
+      rotation: {
+        value: 0,
+      },
+      font: {
+        family: "Arial",
+        size: 20,
+        weight: "600",
+        style: "normal",
+        variant: "normal",
+        lineHeight: "1.2",
+        text: "五角星设计",
+        fillColor: "#333333",
+        strokeColor: null,
+      },
+      name: null,
+      img: null,
+      zIndex: {
+        value: 20,
+      },
+      scale: null,
+      polygon: null,
+    },
+    {
+      position: {
+        x: 100,
+        y: 80,
+      },
+      size: {
+        width: 175,
+        height: 175,
+      },
+      color: {
+        fillColor: "#ff6b6b",
+        strokeColor: "#d63031",
+      },
+      lineWidth: {
+        value: 2,
+      },
+      id: "44",
+      selected: {
+        value: false,
+        hovered: false,
+      },
+      eventQueue: [],
+      type: "polygon",
+      rotation: {
+        value: 0,
+      },
+      font: {},
+      name: null,
+      img: null,
+      zIndex: {
+        value: 30,
+      },
+      scale: null,
+      polygon: {
+        vertexs: [
+          {
+            type: "M",
+            point: {
+              x: 87.5,
+              y: 0,
+            },
+          },
+          {
+            type: "L",
+            point: {
+              x: 112.5,
+              y: 62.5,
+            },
+          },
+          {
+            type: "L",
+            point: {
+              x: 175,
+              y: 62.5,
+            },
+          },
+          {
+            type: "L",
+            point: {
+              x: 127.5,
+              y: 100,
+            },
+          },
+          {
+            type: "L",
+            point: {
+              x: 142.5,
+              y: 175,
+            },
+          },
+          {
+            type: "L",
+            point: {
+              x: 87.5,
+              y: 137.5,
+            },
+          },
+          {
+            type: "L",
+            point: {
+              x: 32.5,
+              y: 175,
+            },
+          },
+          {
+            type: "L",
+            point: {
+              x: 47.5,
+              y: 100,
+            },
+          },
+          {
+            type: "L",
+            point: {
+              x: 0,
+              y: 62.5,
+            },
+          },
+          {
+            type: "L",
+            point: {
+              x: 62.5,
+              y: 62.5,
+            },
+          },
+        ],
+      },
     },
   ];
   const coreRef = useRef<Core | null>(null);
