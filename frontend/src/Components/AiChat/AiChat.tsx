@@ -43,6 +43,8 @@ import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
 import MarkdownRenderer from "./MarkdownRenderer";
 import moduleStyles from "./AiChat.module.scss";
+import { Help } from "../../Core/help";
+const help = new Help();
 
 type BubbleDataType = {
   role: string;
@@ -313,20 +315,11 @@ const Copilot = (props: CopilotProps) => {
   const handleApplyCode = (code: string) => {
     if (onApplyCode) {
       // 如果外部传入了回调函数，使用外部的
-      onApplyCode(code);
-    } else {
-      // 默认行为
-      try {
-        const jsonData = JSON.parse(code);
-        console.log("应用的 JSON 数据:", jsonData);
-
-        // TODO: 在这里实现你的应用逻辑
-        // 例如：将 JSON 数据应用到画布、更新配置等
-
-        message.success("JSON 数据已应用");
-      } catch (error) {
-        message.error("数据格式错误");
-        console.error("解析 JSON 失败:", error);
+      // 判断是否是html
+      const isHtml = code.trim().startsWith("<");
+      if (isHtml) {
+        help.init(code);
+        // onApplyCode(code);
       }
     }
   };

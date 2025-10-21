@@ -675,31 +675,11 @@ function Canvas(props: CanvasProps) {
   const engineRef = useRef<Engine | null>(null);
   const initCanvas = () => {
     if (canvasRef.current) {
-      // const core = new Core(dsls);
-      // engineRef.current = new Engine(core);
-      // const context = engineRef.current.initCanvas(canvasRef.current, {
-      //   width: 800,
-      //   height: 800,
-      // });
-
-      // engineRef.current.addSystem(new RenderSystem(context, engineRef.current));
-      // engineRef.current.addSystem(
-      //   new PickingSystem(context, engineRef.current)
-      // );
-      // engineRef.current.addSystem(new HoverSystem(context, engineRef.current));
-      // engineRef.current.addSystem(new ClickSystem(context, engineRef.current));
-      // engineRef.current.addSystem(
-      //   new SelectionSystem(context, engineRef.current)
-      // );
-      // engineRef.current.addSystem(new EventSystem(context, engineRef.current));
-      // engineRef.current.addSystem(new InputSystem(context, engineRef.current));
-      // engineRef.current.addSystem(new DragSystem(context, engineRef.current));
       engineRef.current = createEngine(dsls, canvasRef.current, {
         width: 800,
         height: 800,
       });
       engineRef.current.update();
-      console.log(engineRef.current, "engineRef.current---");
     }
   };
   const handlerApplyCode = (code: string) => {

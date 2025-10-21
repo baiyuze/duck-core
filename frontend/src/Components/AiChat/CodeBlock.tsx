@@ -4,8 +4,7 @@ import {
   ThunderboltOutlined,
 } from "@ant-design/icons";
 import { Button, message } from "antd";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import hljs from "highlight.js";
+import { useCallback, useMemo, useRef, useState } from "react";
 import "highlight.js/styles/github.css";
 
 interface CodeBlockProps {
@@ -37,6 +36,18 @@ const CodeBlock = ({ language, children, onApply }: CodeBlockProps) => {
     }
   }, [language, children]);
 
+  // 使用 useMemo 缓存是否为 HTML 的判断结果
+  const isHTML = useMemo(() => {
+    if (!language || !["html", "htm", "xml"].includes(language.toLowerCase())) {
+      return false;
+    }
+
+    // 简单检查是否包含 HTML 标签
+    const htmlRegex =
+      /<\s*[a-zA-Z][^>]*>.*?<\s*\/\s*[a-zA-Z]+\s*>|<\s*[a-zA-Z][^>]*\/\s*>/s;
+    return htmlRegex.test(children.trim());
+  }, [language, children]);
+
   // 使用 useCallback 缓存事件处理函数
   const handleCopy = useCallback(async () => {
     try {
@@ -52,9 +63,15 @@ const CodeBlock = ({ language, children, onApply }: CodeBlockProps) => {
   const handleApply = useCallback(() => {
     if (onApply) {
       onApply(children);
-      message.success("已应用代码");
+      if (isJSON) {
+        message.success("JSON 数据已应用");
+      } else if (isHTML) {
+        message.success("HTML 代码已应用");
+      } else {
+        message.success("代码已应用");
+      }
     }
-  }, [onApply, children]);
+  }, [onApply, children, isJSON, isHTML]);
 
   // useEffect(() => {
   //   if (codeRef.current && language) {
@@ -69,7 +86,7 @@ const CodeBlock = ({ language, children, onApply }: CodeBlockProps) => {
   //   }
   // }, [children, language]);
 
-  const canApply = isJSON && onApply;
+  const canApply = (isJSON || isHTML) && onApply;
 
   return (
     <div style={{ position: "relative", marginBlock: 8 }}>
