@@ -1,7 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import type { CanvasProps } from "./Canvas.d";
-import { Core } from "../Core/Core";
-import { DSL } from "../Core/DSL/DSL";
+import { Engine } from "../Core/Core/Engine";
 import { RenderSystem } from "../Core/System/RenderSystem/RenderSystem";
 import { SelectionSystem } from "../Core/System/SelectionSystem";
 import { PickingSystem } from "../Core/System/PickingSystem";
@@ -12,6 +11,8 @@ import CopilotDemo from "../Components/AiChat/AiChat";
 import { HoverSystem } from "../Core/System/HoverSystem";
 import { ClickSystem } from "../Core/System/ClickSystem";
 import { DragSystem } from "../Core/System/DragSystem";
+import { Core } from "../Core";
+import { createEngine } from "../Core/engineFactory";
 
 function Canvas(props: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -671,32 +672,41 @@ function Canvas(props: CanvasProps) {
       },
     },
   ];
-  const coreRef = useRef<Core | null>(null);
+  const engineRef = useRef<Engine | null>(null);
   const initCanvas = () => {
     if (canvasRef.current) {
-      coreRef.current = new Core(dsls);
-      const context = coreRef.current.initCanvas(canvasRef.current, {
+      // const core = new Core(dsls);
+      // engineRef.current = new Engine(core);
+      // const context = engineRef.current.initCanvas(canvasRef.current, {
+      //   width: 800,
+      //   height: 800,
+      // });
+
+      // engineRef.current.addSystem(new RenderSystem(context, engineRef.current));
+      // engineRef.current.addSystem(
+      //   new PickingSystem(context, engineRef.current)
+      // );
+      // engineRef.current.addSystem(new HoverSystem(context, engineRef.current));
+      // engineRef.current.addSystem(new ClickSystem(context, engineRef.current));
+      // engineRef.current.addSystem(
+      //   new SelectionSystem(context, engineRef.current)
+      // );
+      // engineRef.current.addSystem(new EventSystem(context, engineRef.current));
+      // engineRef.current.addSystem(new InputSystem(context, engineRef.current));
+      // engineRef.current.addSystem(new DragSystem(context, engineRef.current));
+      engineRef.current = createEngine(dsls, canvasRef.current, {
         width: 800,
         height: 800,
       });
-
-      coreRef.current.addSystem(new RenderSystem(context, coreRef.current));
-      coreRef.current.addSystem(new PickingSystem(context, coreRef.current));
-      coreRef.current.addSystem(new HoverSystem(context, coreRef.current));
-      coreRef.current.addSystem(new ClickSystem(context, coreRef.current));
-      coreRef.current.addSystem(new SelectionSystem(context, coreRef.current));
-      coreRef.current.addSystem(new EventSystem(context, coreRef.current));
-      coreRef.current.addSystem(new InputSystem(context, coreRef.current));
-      coreRef.current.addSystem(new DragSystem(context, coreRef.current));
-      coreRef.current.update();
-      console.log(coreRef.current, "core");
+      engineRef.current.update();
+      console.log(engineRef.current, "engineRef.current---");
     }
   };
   const handlerApplyCode = (code: string) => {
     try {
       const parsedCode = JSON.parse(code);
-      coreRef.current?.initComponents(parsedCode);
-      coreRef.current?.update();
+      engineRef.current?.initComponents(parsedCode);
+      engineRef.current?.update();
     } catch (error) {
       console.error("Error applying code:", error);
     }
@@ -705,8 +715,8 @@ function Canvas(props: CanvasProps) {
     canvasRef.current = document.getElementById("canvas") as HTMLCanvasElement;
     initCanvas();
     return () => {
-      coreRef.current?.destroyed();
-      coreRef.current = null;
+      engineRef.current?.destroyed();
+      engineRef.current = null;
       canvasRef.current = null;
     };
   }, []);

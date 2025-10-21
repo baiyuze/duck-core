@@ -1,18 +1,18 @@
 import { extend } from "lodash";
 import type { Position, Size } from "../Components";
-import type { Core } from "../Core";
+import type { Engine } from "../Core/Engine";
 import type { StateStore } from "../types";
 import { System } from "./System";
 
 export class SelectionSystem extends System {
-  core: Core;
+  engine: Engine;
   ctx: CanvasRenderingContext2D;
   selectionCtx: CanvasRenderingContext2D | null = null;
   stateStore?: StateStore;
-  constructor(ctx: CanvasRenderingContext2D, core: Core) {
+  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
     super();
     this.ctx = ctx;
-    this.core = core;
+    this.engine = engine;
     this.initSelectionCanvas();
   }
 
@@ -33,8 +33,8 @@ export class SelectionSystem extends System {
 
     const dpr = window.devicePixelRatio || 1;
 
-    const width = this.core.defaultSize.width;
-    const height = this.core.defaultSize.height;
+    const width = this.engine.defaultSize.width;
+    const height = this.engine.defaultSize.height;
     selectionCanvas.style.width = width + "px";
     selectionCanvas.style.height = height + "px";
 
@@ -148,7 +148,7 @@ export class SelectionSystem extends System {
       if (!selected.value) return;
       this.render(stateStore, entityId);
     });
-    if (this.core.isDragging) return;
+    if (this.engine.core.isDragging) return;
     stateStore.selected.forEach((selected, entityId) => {
       if (!selected.hovered) return;
       this.render(stateStore, entityId, true);
@@ -167,7 +167,7 @@ export class SelectionSystem extends System {
     }
     this.selectionCtx = null;
     this.stateStore = undefined;
-    this.core = null as any;
+    this.engine = null as any;
     this.ctx = null as any;
   }
 }

@@ -1,4 +1,4 @@
-import type { Core } from "../Core";
+import type { Engine } from "../Core/Engine";
 import { Entity } from "../Entity/Entity";
 import { EventType } from "../enum";
 import type { StateStore } from "../types";
@@ -7,7 +7,7 @@ import type { PickingSystem } from "./PickingSystem";
 import type { SelectionSystem } from "./SelectionSystem";
 import { System } from "./System";
 export class DragSystem extends System {
-  core: Core;
+  engine: Engine;
   ctx: CanvasRenderingContext2D;
   entityManager: Entity = new Entity();
   stateStore: StateStore | null = null;
@@ -16,10 +16,10 @@ export class DragSystem extends System {
   isMouseUp: boolean = false;
   offset: { x: number; y: number } = { x: 0, y: 0 };
   dragStarted: boolean = false; // 标记是否已经开始拖拽
-  constructor(ctx: CanvasRenderingContext2D, core: Core) {
+  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
     super();
     this.ctx = ctx;
-    this.core = core;
+    this.engine = engine;
   }
 
   update(stateStore: StateStore) {
@@ -29,12 +29,12 @@ export class DragSystem extends System {
 
   render() {
     const renderSystem =
-      this.core.getSystemByName<RenderSystem>("RenderSystem");
+      this.engine.getSystemByName<RenderSystem>("RenderSystem");
 
     const pickSystem =
-      this.core.getSystemByName<PickingSystem>("PickingSystem");
+      this.engine.getSystemByName<PickingSystem>("PickingSystem");
     const selectionSystem =
-      this.core.getSystemByName<SelectionSystem>("SelectionSystem");
+      this.engine.getSystemByName<SelectionSystem>("SelectionSystem");
     if (this.stateStore) {
       renderSystem?.update(this.stateStore);
       pickSystem?.update(this.stateStore);
@@ -44,7 +44,7 @@ export class DragSystem extends System {
 
   onDrag() {
     const pickSystem =
-      this.core.getSystemByName<PickingSystem>("PickingSystem");
+      this.engine.getSystemByName<PickingSystem>("PickingSystem");
     if (!pickSystem) return;
     if (
       pickSystem.checkEventTypeIsMatch([
@@ -63,11 +63,11 @@ export class DragSystem extends System {
     if (pickSystem.checkEventTypeIsMatch(EventType.MouseMove)) {
       this.isMouseMove = true;
       if (this.isMouseDown) {
-        this.core.isDragging = true;
+        this.engine.core.isDragging = true;
       }
     }
     if (pickSystem.checkEventTypeIsMatch(EventType.MouseUp)) {
-      this.core.isDragging = false;
+      this.engine.core.isDragging = false;
       this.isMouseUp = true;
       this.isMouseDown = false;
       this.isMouseMove = false;
@@ -137,7 +137,7 @@ export class DragSystem extends System {
 
   onDragEnd() {
     const pickSystem =
-      this.core.getSystemByName<PickingSystem>("PickingSystem");
+      this.engine.getSystemByName<PickingSystem>("PickingSystem");
     if (!pickSystem) return;
 
     const selectedEntitys = pickSystem.getCurrentPickSelectedEntitys();

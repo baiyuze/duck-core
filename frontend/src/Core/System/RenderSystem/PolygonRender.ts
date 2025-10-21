@@ -1,18 +1,18 @@
-import type { Core } from "../../Core";
+import type { Engine } from "../../Core/Engine";
 import type { StateStore } from "../../types";
 import { System } from "../System";
 
 export class PolygonRender extends System {
-  core: Core;
+  engine: Engine;
   ctx: CanvasRenderingContext2D;
   stateStore: StateStore | null = null;
-  constructor(ctx: CanvasRenderingContext2D, core: Core) {
+  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
     super();
-    this.core = core;
+    this.engine = engine;
     this.ctx = ctx;
   }
   draw(entityId: string) {
-    this.stateStore = this.core.stateStore;
+    this.stateStore = this.engine.stateStore;
     if (!this.stateStore) return;
     const state = this.getComponentsByEntityId(this.stateStore, entityId);
 

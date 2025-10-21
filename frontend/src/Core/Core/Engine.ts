@@ -1,57 +1,30 @@
-import type { Color, Position, Size } from "./Components";
-import type { EllipseRadius } from "./Components/EllipseRadius";
-import type { Font } from "./Components/Font";
-import type { Img } from "./Components/Img";
-import type Polygon from "./Components/Polygon";
-import type Scale from "./Components/Scale";
-import { Selected } from "./Components/Selected";
-import { DSL } from "./DSL/DSL";
-import { Entity } from "./Entity/Entity";
-import { RenderSystem } from "./System/RenderSystem/RenderSystem";
-import { System } from "./System/System";
-import type { StateStore } from "./types";
+import type { Size } from "../Components";
+import { Selected } from "../Components/Selected";
+import { DSL } from "../DSL/DSL";
+import { Entity } from "../Entity/Entity";
+import { System } from "../System/System";
+import type { StateStore } from "../types";
+import type { Core } from "./Core";
+import type { EngineContext } from "./EngineContext";
 
-export class Core {
+export class Engine implements EngineContext {
   /**
    * 是否多选
    */
-  defaultSize = { width: 800, height: 800 };
-  multiple: boolean = false;
-  isDragging: boolean = false;
+  defaultSize: Size = { width: 800, height: 800 };
   dsls: DSL[] = [];
-  renderMode: string = "relative"; //relative absolute
-
   SystemMap: Map<string, System> = new Map();
-
-  stateStore: StateStore = Core.getStateStore();
-
   system: System[] = [];
-
   entityManager = new Entity();
 
-  static getStateStore() {
-    return {
-      position: new Map<string, Position>(),
-      size: new Map<string, Size>(),
-      color: new Map<string, Color>(),
-      selected: new Map<string, Selected>(),
-      eventQueue: [],
-      rotation: new Map<string, { value: number }>(),
-      type: new Map<string, string>(),
-      font: new Map<string, Font>(),
-      lineWidth: new Map<string, { value: number }>(),
-      img: new Map<string, Img>(),
-      scale: new Map<string, Scale>(),
-      polygon: new Map<string, Polygon>(),
-      ellipseRadius: new Map<string, EllipseRadius>(),
-    };
+  // ctx: CanvasRenderingContext2D | null;
+  constructor(public core: Core) {
+    // this.ctx = ctx;
+    // this.initComponents(dsls);
   }
 
-  // ctx: CanvasRenderingContext2D | null;
-  constructor(dsls: any[] = []) {
-    // this.ctx = ctx;
-
-    this.initComponents(dsls);
+  get stateStore() {
+    return this.core.stateStore;
   }
 
   initCanvas(
@@ -81,7 +54,7 @@ export class Core {
    * 只存储组件数据为CLASS的属性
    */
   initComponents(dsls: any[] = []) {
-    this.resetState();
+    this.core.resetState();
     this.dsls = dsls.map((dsl) => new DSL(dsl));
 
     this.dsls.forEach((dsl: DSL) => {
@@ -113,10 +86,10 @@ export class Core {
     });
   }
 
-  resetState() {
-    this.stateStore = Core.getStateStore();
-    this.entityManager = new Entity();
-  }
+  // resetState() {
+  //   this.stateStore = Engine.getStateStore();
+  //   this.entityManager = new Entity();
+  // }
 
   addSystem(system: System) {
     this.system.push(system);
@@ -145,7 +118,7 @@ export class Core {
     });
     this.system = [];
     this.SystemMap.clear();
-    this.resetState();
+    this.core.resetState();
   }
 
   // initDSL(dsls: DSL[]) {

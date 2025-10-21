@@ -1,17 +1,17 @@
-import type { Core } from "../Core";
+import type { Engine } from "../Core/Engine";
 import type { DSL } from "../DSL/DSL";
 import { Entity } from "../Entity/Entity";
 import type { StateStore } from "../types";
 import { System } from "./System";
 
 export class RenderSystem extends System {
-  core: Core;
+  engine: Engine;
   ctx: CanvasRenderingContext2D;
   offCtx: CanvasRenderingContext2D | null = null;
   entityManager: Entity = new Entity();
-  constructor(ctx: CanvasRenderingContext2D, core: Core) {
+  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
     super();
-    this.core = core;
+    this.engine = engine;
     this.ctx = ctx;
   }
 

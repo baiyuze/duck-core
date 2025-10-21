@@ -1,11 +1,11 @@
 import type { Selected } from "../Components/Selected";
-import type { Core } from "../Core";
+import type { Engine } from "../Core/Engine";
 import { Entity } from "../Entity/Entity";
 import { EventType } from "../enum";
 import type { PickEntity, StateStore } from "../types";
 import { System } from "./System";
 export class PickingSystem extends System {
-  core: Core;
+  engine: Engine;
   ctx: CanvasRenderingContext2D;
   offCtx: CanvasRenderingContext2D;
   entityManager: Entity = new Entity();
@@ -13,10 +13,10 @@ export class PickingSystem extends System {
   isClearHover: boolean = false;
   isRendered: boolean = false;
   offscreenCanvas: HTMLCanvasElement | null = null;
-  constructor(ctx: CanvasRenderingContext2D, core: Core) {
+  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
     super();
     this.ctx = ctx;
-    this.core = core;
+    this.engine = engine;
     this.offCtx = this.initOffscreenCanvas() as CanvasRenderingContext2D;
     // ctx.canvas.addEventListener("click", this.onClick.bind(this));
   }
@@ -179,7 +179,7 @@ export class PickingSystem extends System {
     this.offCtx = null as any;
     this.stateStore = null;
     this.entityManager = null as any;
-    this.core = null as any;
+    this.engine = null as any;
     this.ctx = null as any;
     // this.dispose();
   }

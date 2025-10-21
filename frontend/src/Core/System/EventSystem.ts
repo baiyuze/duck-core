@@ -1,4 +1,4 @@
-import type { Core } from "../Core";
+import type { Engine } from "../Core/Engine";
 import { Entity } from "../Entity/Entity";
 import type { StateStore } from "../types";
 import type { ClickSystem } from "./ClickSystem";
@@ -9,17 +9,17 @@ import { System } from "./System";
 import { throttle } from "lodash";
 
 export class EventSystem extends System {
-  core: Core;
+  engine: Engine;
   ctx: CanvasRenderingContext2D;
   offCtx: CanvasRenderingContext2D | null = null;
   entityManager: Entity = new Entity();
   stateStore: StateStore | null = null;
   throttledMouseMove: ReturnType<typeof throttle>;
 
-  constructor(ctx: CanvasRenderingContext2D, core: Core) {
+  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
     super();
     this.ctx = ctx;
-    this.core = core;
+    this.engine = engine;
     this.dispose();
     this.throttledMouseMove = throttle(this.onMouseMove.bind(this), 16);
     ctx.canvas.addEventListener("click", this.onClick.bind(this));
@@ -65,12 +65,12 @@ export class EventSystem extends System {
   }
 
   render() {
-    const core = this.core;
+    const engine = this.engine;
     const selectionSystem =
-      core.getSystemByName<SelectionSystem>("SelectionSystem");
-    const hoverSystem = core.getSystemByName<HoverSystem>("HoverSystem");
-    const clickSystem = core.getSystemByName<ClickSystem>("ClickSystem");
-    const dragSystem = core.getSystemByName<DragSystem>("DragSystem");
+      engine.getSystemByName<SelectionSystem>("SelectionSystem");
+    const hoverSystem = engine.getSystemByName<HoverSystem>("HoverSystem");
+    const clickSystem = engine.getSystemByName<ClickSystem>("ClickSystem");
+    const dragSystem = engine.getSystemByName<DragSystem>("DragSystem");
 
     if (!this.stateStore) return;
     if (hoverSystem) {
@@ -114,7 +114,7 @@ export class EventSystem extends System {
     this.offCtx = null;
     this.stateStore = null;
     this.entityManager = null as any;
-    this.core = null as any;
+    this.engine = null as any;
     this.ctx = null as any;
   }
 }

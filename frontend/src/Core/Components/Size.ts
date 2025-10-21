@@ -8,11 +8,4 @@ export class Size extends Base {
     this.width = width;
     this.height = height;
   }
-  setSize(width: number, height: number) {
-    this.width = width;
-    this.height = height;
-  }
-  getSize() {
-    return { width: this.width, height: this.height };
-  }
 }

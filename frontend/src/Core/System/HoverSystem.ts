@@ -1,19 +1,19 @@
-import type { Core } from "../Core";
+import type { Engine } from "../Core/Engine";
 import { Entity } from "../Entity/Entity";
 import { EventType } from "../enum";
 import type { PickEntity, StateStore } from "../types";
 import type { PickingSystem } from "./PickingSystem";
 import { System } from "./System";
 export class HoverSystem extends System {
-  core: Core;
+  engine: Engine;
   ctx: CanvasRenderingContext2D;
   entityManager: Entity = new Entity();
   stateStore: StateStore | null = null;
   isClearHover: boolean = false;
-  constructor(ctx: CanvasRenderingContext2D, core: Core) {
+  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
     super();
     this.ctx = ctx;
-    this.core = core;
+    this.engine = engine;
     // ctx.canvas.addEventListener("click", this.onClick.bind(this));
   }
 
@@ -63,7 +63,7 @@ export class HoverSystem extends System {
    */
   onHover() {
     const pickSystem =
-      this.core.getSystemByName<PickingSystem>("PickingSystem");
+      this.engine.getSystemByName<PickingSystem>("PickingSystem");
     if (!pickSystem) return;
     if (pickSystem.checkEventTypeIsMatch(EventType.MouseMove) === false) return;
     const pickEntity = pickSystem.getEntityByEvent(EventType.MouseMove);

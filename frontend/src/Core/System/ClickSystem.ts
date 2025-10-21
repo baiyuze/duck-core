@@ -1,18 +1,18 @@
-import type { Core } from "../Core";
+import type { Engine } from "../Core/Engine";
 import { Entity } from "../Entity/Entity";
 import { EventType } from "../enum";
 import type { PickEntity, StateStore } from "../types";
 import type { PickingSystem } from "./PickingSystem";
 import { System } from "./System";
 export class ClickSystem extends System {
-  core: Core;
+  engine: Engine;
   ctx: CanvasRenderingContext2D;
   entityManager: Entity = new Entity();
   stateStore: StateStore | null = null;
-  constructor(ctx: CanvasRenderingContext2D, core: Core) {
+  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
     super();
     this.ctx = ctx;
-    this.core = core;
+    this.engine = engine;
   }
 
   update(stateStore: StateStore) {
@@ -31,8 +31,7 @@ export class ClickSystem extends System {
     const { selected, entityId } = pickEntity;
     if (selected) selected.value = true;
     // 单选
-    console.log(this.core.multiple, "---this.core.multiple");
-    if (!this.core.multiple) {
+    if (!this.engine.core.multiple) {
       this.stateStore.selected.forEach((sel, id) => {
         if (id !== entityId) {
           sel.value = false;
@@ -60,7 +59,7 @@ export class ClickSystem extends System {
   onClick() {
     if (!this.stateStore) return;
     const pickSystem =
-      this.core.getSystemByName<PickingSystem>("PickingSystem");
+      this.engine.getSystemByName<PickingSystem>("PickingSystem");
     if (!pickSystem) return;
     if (pickSystem.checkEventTypeIsMatch(EventType.MouseDown) === false) return;
     const pickEntity = pickSystem.getEntityByEvent(EventType.MouseDown);

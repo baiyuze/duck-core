@@ -1,5 +1,5 @@
 import type { Color, Position, Size } from "../../Components";
-import type { Core } from "../../Core";
+import type { Engine } from "../../Core/Engine";
 import { DSL } from "../../DSL/DSL";
 import { Entity } from "../../Entity/Entity";
 import { ShapeType } from "../../enum";
@@ -8,7 +8,7 @@ import { System } from "../System";
 import renderRegistry from "./renderRegistry";
 
 export class RenderSystem extends System {
-  core: Core;
+  engine: Engine;
   ctx: CanvasRenderingContext2D;
   offCtx: CanvasRenderingContext2D | null = null;
   entityManager: Entity = new Entity();
@@ -22,16 +22,16 @@ export class RenderSystem extends System {
   private lastTime = performance.now();
   private showFPS = true; // 控制是否显示 FPS
 
-  constructor(ctx: CanvasRenderingContext2D, core: Core) {
+  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
     super();
-    this.core = core;
+    this.engine = engine;
     this.ctx = ctx;
     this.initRenderMap();
   }
 
   initRenderMap() {
     Object.entries(renderRegistry).forEach(([key, SystemClass]) => {
-      this.renderMap.set(key, new SystemClass(this.ctx, this.core));
+      this.renderMap.set(key, new SystemClass(this.ctx, this.engine));
     });
   }
 

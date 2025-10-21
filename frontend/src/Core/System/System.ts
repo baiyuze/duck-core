@@ -10,7 +10,7 @@ import type { EllipseRadius } from "../Components/EllipseRadius";
 import type { Img } from "../Components/Img";
 import type Polygon from "../Components/Polygon";
 import type Scale from "../Components/Scale";
-import type { Core } from "../Core";
+import type { Engine } from "../Core/Engine";
 import type { DSL } from "../DSL/DSL";
 import type { StateStore } from "../types";
 

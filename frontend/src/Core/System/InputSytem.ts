@@ -1,4 +1,4 @@
-import type { Core } from "../Core";
+import type { Engine } from "../Core/Engine";
 import type { StateStore } from "../types";
 import { System } from "./System";
 
@@ -7,16 +7,16 @@ import { System } from "./System";
  */
 export class InputSystem extends System {
   ctx: CanvasRenderingContext2D;
-  core: Core;
+  engine: Engine;
   entityManager: any;
   stateStore: StateStore | null = null;
   pressedKeys: Set<string> = new Set();
   isWindows: boolean = false;
 
-  constructor(ctx: CanvasRenderingContext2D, core: Core) {
+  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
     super();
     this.ctx = ctx;
-    this.core = core;
+    this.engine = engine;
 
     // 检测操作系统
     this.isWindows = navigator.userAgent.indexOf("Windows") !== -1;
@@ -82,7 +82,7 @@ export class InputSystem extends System {
   handleKeyEvent() {
     const keyString = this.getKeysName();
     // 处理多选修饰键状态
-    this.core.multiple = this.isMultiSelectModifierPressed();
+    this.engine.core.multiple = this.isMultiSelectModifierPressed();
 
     // 处理具体的组合键
     this.handleKeyboardShortcuts(keyString);
