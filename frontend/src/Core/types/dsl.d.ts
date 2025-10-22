@@ -23,5 +23,6 @@ export interface DSLParams {
   zIndex: ZIndex;
   scale?: Scale;
   polygon?: Polygon;
-  ellipseRadius?: EllipseRadius;
+  // ellipseRadius?: EllipseRadius;
+  radius?: Radius;
 }

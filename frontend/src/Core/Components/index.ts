@@ -8,5 +8,6 @@ export * from "./LineWidth";
 export * from "./Img";
 export * from "./Scale";
 export * from "./Polygon";
+export * from "./Radius";
 // const components =  import.meta.glob("./*", { eager: true });
 // export * from components;

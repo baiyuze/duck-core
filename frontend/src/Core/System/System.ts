@@ -3,6 +3,7 @@ import type {
   Font,
   LineWidth,
   Position,
+  Radius,
   Rotation,
   Size,
 } from "../Components";
@@ -34,9 +35,10 @@ export class System {
     const img = components.img.get(entityId) as Img;
     const scale = components.scale.get(entityId) as Scale;
     const polygon = components.polygon.get(entityId) as Polygon;
-    const ellipseRadius = components.ellipseRadius.get(
-      entityId
-    ) as EllipseRadius;
+    // const ellipseRadius = components.ellipseRadius.get(
+    //   entityId
+    // ) as EllipseRadius;
+    const radius = components.radius.get(entityId) as Radius;
 
     return {
       size,
@@ -49,7 +51,7 @@ export class System {
       img,
       scale,
       polygon,
-      ellipseRadius,
+      radius,
     };
   }
   /**

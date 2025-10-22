@@ -3,6 +3,7 @@ import type { EllipseRadius } from "../Components/EllipseRadius";
 import type { Font } from "../Components/Font";
 import type { Img } from "../Components/Img";
 import type Polygon from "../Components/Polygon";
+import type { Radius } from "../Components/Radius";
 import type Scale from "../Components/Scale";
 import { Selected } from "../Components/Selected";
 import { DSL } from "../DSL/DSL";
@@ -31,7 +32,7 @@ export class Core {
       img: new Map<string, Img>(),
       scale: new Map<string, Scale>(),
       polygon: new Map<string, Polygon>(),
-      ellipseRadius: new Map<string, EllipseRadius>(),
+      radius: new Map<string, Radius>(),
     };
   }
 

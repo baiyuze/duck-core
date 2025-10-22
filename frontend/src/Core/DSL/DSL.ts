@@ -17,6 +17,7 @@ import Scale from "../Components/Scale";
 import Polygon from "../Components/Polygon";
 import { EllipseRadius } from "../Components/EllipseRadius";
 import { Selected } from "../Components/Selected";
+import { Radius } from "../Components/Radius";
 
 export class DSL {
   type: string;
@@ -53,6 +54,8 @@ export class DSL {
 
   ellipseRadius: EllipseRadius = new EllipseRadius();
 
+  radius: Radius = new Radius();
+
   constructor({
     position,
     size,
@@ -69,7 +72,7 @@ export class DSL {
     zIndex,
     scale,
     polygon,
-    ellipseRadius,
+    radius,
   }: DSLParams) {
     this.position = new Position(position);
     this.size = new Size(size?.width, size?.height);
@@ -86,6 +89,7 @@ export class DSL {
     this.zIndex = new ZIndex(zIndex?.value);
     this.scale = new Scale(scale?.value);
     this.polygon = new Polygon(polygon);
-    this.ellipseRadius = new EllipseRadius(ellipseRadius);
+    // this.ellipseRadius = new EllipseRadius(ellipseRadius);
+    this.radius = new Radius(radius);
   }
 }

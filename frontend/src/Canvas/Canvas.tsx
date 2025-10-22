@@ -682,14 +682,9 @@ function Canvas(props: CanvasProps) {
       engineRef.current.update();
     }
   };
-  const handlerApplyCode = (code: string) => {
-    try {
-      const parsedCode = JSON.parse(code);
-      engineRef.current?.initComponents(parsedCode);
-      engineRef.current?.update();
-    } catch (error) {
-      console.error("Error applying code:", error);
-    }
+  const handlerApplyCode = (data: any[]) => {
+    engineRef.current?.initComponents(data);
+    engineRef.current?.update();
   };
   useEffect(() => {
     canvasRef.current = document.getElementById("canvas") as HTMLCanvasElement;

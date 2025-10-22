@@ -83,6 +83,12 @@ const MOCK_SESSION_LIST = [
 // AI 模型列表
 const AI_MODELS = [
   {
+    key: "deepseek-r1-0528",
+    label: "deepseek-r1-0528",
+    description: "0528为R1模型的小版本升级",
+    icon: <OpenAIFilled />,
+  },
+  {
     key: "deepseek-r1",
     label: "DeepSeek R1",
     description: "深度思考模型，适合复杂推理",
@@ -95,15 +101,9 @@ const AI_MODELS = [
     icon: <RobotOutlined />,
   },
   {
-    key: "gpt-4",
-    label: "GPT-4",
-    description: "OpenAI 最强模型",
-    icon: <OpenAIFilled />,
-  },
-  {
-    key: "gpt-3.5-turbo",
-    label: "GPT-3.5 Turbo",
-    description: "快速高效的对话模型",
+    key: "Moonshot-Kimi-K2-Instruct",
+    label: "Moonshot-Kimi-K2-Instruct",
+    description: "Kimi-K2是月之暗面提供的",
     icon: <OpenAIFilled />,
   },
   {
@@ -258,7 +258,7 @@ const useCopilotStyle = createStyles(({ token, css }) => {
 interface CopilotProps {
   copilotOpen: boolean;
   setCopilotOpen: (open: boolean) => void;
-  onApplyCode?: (code: string) => void; // 应用代码的回调函数
+  onApplyCode?: (data: any[]) => void; // 应用代码的回调函数
 }
 
 const Copilot = (props: CopilotProps) => {
@@ -312,14 +312,16 @@ const Copilot = (props: CopilotProps) => {
   /**
    * 应用代码块中的 JSON 数据
    */
-  const handleApplyCode = (code: string) => {
+  const handleApplyCode = async (code: string) => {
     if (onApplyCode) {
       // 如果外部传入了回调函数，使用外部的
       // 判断是否是html
       const isHtml = code.trim().startsWith("<");
       if (isHtml) {
-        help.init(code);
-        // onApplyCode(code);
+        help.clear();
+        const data = await help.init(code);
+
+        onApplyCode(data);
       }
     }
   };
@@ -889,7 +891,7 @@ const useWorkareaStyle = createStyles(({ token, css }) => {
   };
 });
 
-const CopilotDemo = (props: { onApplyCode: (code: string) => void }) => {
+const CopilotDemo = (props: { onApplyCode: (data: any[]) => void }) => {
   const { styles: workareaStyles } = useWorkareaStyle();
 
   // ==================== State =================
