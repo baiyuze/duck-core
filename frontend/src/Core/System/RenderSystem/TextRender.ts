@@ -19,7 +19,6 @@ export class TextRender extends System {
 
     // const { x, y } = state.position;
     const font = state.font;
-    console.log(font.size, state, "----=font.size");
     const parts = [
       font.style || "",
       font.variant || "",

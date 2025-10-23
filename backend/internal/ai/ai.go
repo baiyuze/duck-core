@@ -10,7 +10,7 @@ import (
 	"go.uber.org/dig"
 )
 
-func initModel(modelName string) *dto.AiModel {
+func initModel(modelName string) (*dto.AiModel, error) {
 	ctx := context.Background()
 	if len(modelName) == 0 {
 		modelName = "deepseek-r1"
@@ -23,31 +23,47 @@ func initModel(modelName string) *dto.AiModel {
 
 	if err != nil {
 		fmt.Printf("chatInit==%+v===", err)
+		return nil, fmt.Errorf("failed to initialize chat model %s: %w", modelName, err)
 	}
+
+	if chatModel == nil {
+		return nil, fmt.Errorf("chat model %s is nil", modelName)
+	}
+
 	tpl := DslDesignTpl()
 	return &dto.AiModel{
 		ChatModel: *chatModel,
 		ChatTpl:   tpl,
-		Ctx:       &ctx,
-	}
+	}, nil
 }
 
-func getModelByName() *dto.AiHandler {
+func getModelByName() (*dto.AiHandler, error) {
 	models := make(map[string]dto.AiModel)
 
 	AIModels := []string{
 		"deepseek-r1",
 		"deepseek-v3",
-		"gpt-4",
-		"gpt-3.5-turbo",
+		"deepseek-r1-0528",
+		"Moonshot-Kimi-K2-Instruct",
 		"qwen3-max",
 	}
 
 	for _, name := range AIModels {
-		models[name] = *initModel(name) // 这里假设 initModel 返回 dto.AiModel
+		model, err := initModel(name)
+		if err != nil {
+			fmt.Printf("Failed to initialize model %s: %v\n", name, err)
+			continue // 跳过失败的模型，继续初始化其他模型
+		}
+		if model != nil {
+			models[name] = *model
+		}
 	}
 
-	return &dto.AiHandler{Models: models}
+	if len(models) == 0 {
+		return nil, fmt.Errorf("no AI models were successfully initialized")
+	}
+
+	return &dto.AiHandler{Models: models}, nil
 }
 
 func Provide(contanier *dig.Container) {

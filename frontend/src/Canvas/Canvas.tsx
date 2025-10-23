@@ -683,7 +683,7 @@ function Canvas(props: CanvasProps) {
     }
   };
   const handlerApplyCode = (data: any[]) => {
-    engineRef.current?.initComponents(data);
+    engineRef.current?.core.initComponents(data);
     engineRef.current?.update();
   };
   useEffect(() => {

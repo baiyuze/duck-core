@@ -376,6 +376,16 @@ const Copilot = (props: CopilotProps) => {
           // 尝试解析后端返回的数据
           const data = JSON.parse(chunk?.data);
 
+          // // 检查是否是取消状态
+          // if (data?.status === "cancelled") {
+          //   // 对于取消状态，停止处理后续消息
+          //   return {
+          //     content: originMessage?.content || "",
+          //     role: "stopped",
+          //     thinking: (originMessage as any)?.thinking || undefined,
+          //   };
+          // }
+
           // 根据后端实际返回格式调整
           // 如果后端直接返回文本内容
           if (typeof data === "string") {

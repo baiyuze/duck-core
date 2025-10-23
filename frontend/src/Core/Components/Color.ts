@@ -1,8 +1,18 @@
 export class Color {
   fillColor?: string = "";
   strokeColor?: string = "";
-  constructor(fillColor?: string, strokeColor?: string) {
-    this.fillColor = fillColor;
-    this.strokeColor = strokeColor;
+  strokeTColor?: string = "";
+  strokeBColor?: string = "";
+  strokeLColor?: string = "";
+  strokeRColor?: string = "";
+  constructor(data?: Partial<Color>) {
+    if (data) {
+      this.fillColor = data.fillColor;
+      this.strokeColor = data.strokeColor;
+      this.strokeTColor = data.strokeTColor;
+      this.strokeBColor = data.strokeBColor;
+      this.strokeLColor = data.strokeLColor;
+      this.strokeRColor = data.strokeRColor;
+    }
   }
 }

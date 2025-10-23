@@ -43,7 +43,6 @@ export class Core {
   initComponents(dsls: any[] = []) {
     this.resetState();
     this.dsls = dsls.map((dsl) => new DSL(dsl));
-
     this.dsls.forEach((dsl: DSL) => {
       for (const key in dsl) {
         if (key === "selected") {

@@ -1,3 +1,4 @@
+import { Canvg } from "canvg";
 import type { Engine } from "../../Core/Engine";
 import type { DSL } from "../../DSL/DSL";
 import type { StateStore } from "../../types";
@@ -14,6 +15,12 @@ export class ImgRender extends System {
     this.ctx = ctx;
   }
 
+  async drawSvg(state: DSL) {
+    if (!state.img?.svgContent) return;
+    const canvg = await Canvg.fromString(this.ctx, state.img.svgContent);
+    await canvg.render();
+  }
+
   draw(entityId: string) {
     this.stateStore = this.engine.stateStore;
     if (!this.stateStore) return;
@@ -23,6 +30,9 @@ export class ImgRender extends System {
     // const { x, y } = state.position;
     const { width, height } = state.size;
     const imgComponent = state.img;
+    if (imgComponent.svgContent) {
+      return this.drawSvg(state as DSL);
+    }
     if (!imgComponent || !imgComponent.src) return;
     if (this.imgCache.has(imgComponent.src)) {
       const cachedImg = this.imgCache.get(imgComponent.src);

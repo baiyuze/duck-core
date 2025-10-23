@@ -63,7 +63,11 @@ func DslDesignTpl() *prompt.DefaultChatTemplate {
    - 如果svg不满足，可以采用图片替代，如果图片不存在，可以使用矩形或者圆形代替.
    ### 10. 不要使用伪类元素
    - 使用div或者其他元素模拟，不要使用伪类
-   ### 11. 不要使用position
+	 ### 11. css要求
+   - 不要使用position
+	 - 不要使用渐变色，使用rgb或者Hex Color
+	 ### 12. DOM要求
+	
 
 ⸻
 ## 🧩 用户输入格式（示例）

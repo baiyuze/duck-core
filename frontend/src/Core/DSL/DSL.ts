@@ -42,7 +42,7 @@ export class DSL {
 
   name: Name;
 
-  lineWidth: LineWidth = new LineWidth(0);
+  lineWidth: LineWidth = new LineWidth();
 
   img: Img = new Img();
 
@@ -76,7 +76,7 @@ export class DSL {
   }: DSLParams) {
     this.position = new Position(position);
     this.size = new Size(size?.width, size?.height);
-    this.color = new Color(color?.fillColor, color?.strokeColor);
+    this.color = new Color(color);
     this.rotation = new Rotation(rotation?.value || 0);
     this.id = id;
     this.selected = new Selected(selected);
@@ -84,7 +84,7 @@ export class DSL {
     this.type = type;
     this.font = new Font(font);
     this.name = new Name(name);
-    this.lineWidth = new LineWidth(lineWidth?.value || 0);
+    this.lineWidth = new LineWidth(lineWidth);
     this.img = new Img(img);
     this.zIndex = new ZIndex(zIndex?.value);
     this.scale = new Scale(scale?.value);

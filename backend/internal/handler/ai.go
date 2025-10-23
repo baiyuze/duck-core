@@ -6,6 +6,7 @@ import (
 	"app/internal/dto"
 	"app/internal/grpc/container"
 	"app/internal/service"
+	"fmt"
 	"net/http"
 
 	"github.com/cloudwego/eino/schema"
@@ -74,12 +75,47 @@ func (h *AiHandler) Chat(c *gin.Context) {
 	if len(modelName) == 0 {
 		modelName = "deepseek-r1"
 	}
-	aiModel := (h.aiHandler.Models)[modelName]
+
+	// 检查 aiHandler 是否为 nil
+	if h.aiHandler == nil {
+		err := fmt.Errorf("AI handler not initialized")
+		logger.Error(err.Error())
+		errs.FailWithJSON(c, err)
+		return
+	}
+
+	// 检查 Models 是否为 nil
+	if h.aiHandler.Models == nil {
+		err := fmt.Errorf("AI models not initialized")
+		logger.Error(err.Error())
+		errs.FailWithJSON(c, err)
+		return
+	}
+
+	// 检查指定的模型是否存在
+	aiModel, exists := h.aiHandler.Models[modelName]
+	if !exists {
+		err := fmt.Errorf("model %s not found", modelName)
+		logger.Error(err.Error())
+		errs.FailWithJSON(c, err)
+		return
+	}
+
 	chatModel := aiModel.ChatModel
 	template := aiModel.ChatTpl
-	ctx := *aiModel.Ctx
 
-	messages, err := template.Format(ctx, map[string]any{
+	// 检查 template 是否为 nil
+	if template == nil {
+		err := fmt.Errorf("chat template for model %s is nil", modelName)
+		logger.Error(err.Error())
+		errs.FailWithJSON(c, err)
+		return
+	}
+
+	// 使用请求的上下文，这样当客户端取消请求时，AI模型的stream也会被取消
+	requestCtx := c.Request.Context()
+
+	messages, err := template.Format(requestCtx, map[string]any{
 		"role":         "专业资深网页UI设计师和资深前端开发专家",
 		"chat_history": []*schema.Message{},
 	})
@@ -96,11 +132,12 @@ func (h *AiHandler) Chat(c *gin.Context) {
 			messages = append(messages, schema.AssistantMessage(v.Content, nil))
 		}
 	}
-	streamResult, err := chatModel.Stream(ctx, messages)
+	streamResult, err := chatModel.Stream(requestCtx, messages)
 	if err != nil {
 		logger.Error(err.Error())
 		errs.FailWithJSON(c, err)
 		return
 	}
-	h.service.ReportStream(c, streamResult)
+
+	h.service.ReportStream(c, requestCtx, streamResult)
 }

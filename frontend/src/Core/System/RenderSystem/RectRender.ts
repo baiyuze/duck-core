@@ -13,6 +13,17 @@ export class RectRender extends System {
     this.ctx = ctx;
   }
 
+  /**
+   * 计算像素对齐偏移量
+   * 对于奇数线宽（特别是1px），需要0.5像素偏移以避免抗锯齿导致的模糊
+   * @param lineWidth 线条宽度
+   * @returns 偏移量
+   */
+  private getPixelOffset(lineWidth: number): number {
+    // 奇数线宽需要0.5偏移，偶数线宽不需要
+    return lineWidth % 2 === 1 ? 0.5 : 0;
+  }
+
   /** 绘制填充圆角矩形 */
   fillRoundRect(
     width: number,
@@ -132,38 +143,43 @@ export class RectRender extends System {
 
     // 上边
     if (lw.top > 0 && sc.top !== "transparent") {
+      const offset = this.getPixelOffset(lw.top);
       ctx.beginPath();
       ctx.lineWidth = lw.top;
       ctx.strokeStyle = sc.top;
-      ctx.moveTo(r.lt, 0);
-      ctx.lineTo(width - r.rt, 0);
+      ctx.moveTo(r.lt, offset);
+      ctx.lineTo(width - r.rt, offset);
       ctx.stroke();
     }
     // 右边
     if (lw.right > 0 && sc.right !== "transparent") {
+      const offset = this.getPixelOffset(lw.right);
       ctx.beginPath();
       ctx.lineWidth = lw.right;
       ctx.strokeStyle = sc.right;
-      ctx.moveTo(width, r.rt);
-      ctx.lineTo(width, height - r.rb);
+      ctx.moveTo(width - offset, r.rt);
+      ctx.lineTo(width - offset, height - r.rb);
       ctx.stroke();
     }
     // 下边
     if (lw.bottom > 0 && sc.bottom !== "transparent") {
+      const offset = this.getPixelOffset(lw.bottom);
       ctx.beginPath();
       ctx.lineWidth = lw.bottom;
       ctx.strokeStyle = sc.bottom;
-      ctx.moveTo(width - r.rb, height);
-      ctx.lineTo(r.lb, height);
+      console.log(sc.bottom, "sc.bottom1111");
+      ctx.moveTo(width - r.rb, height - offset);
+      ctx.lineTo(r.lb, height - offset);
       ctx.stroke();
     }
     // 左边
     if (lw.left > 0 && sc.left !== "transparent") {
+      const offset = this.getPixelOffset(lw.left);
       ctx.beginPath();
       ctx.lineWidth = lw.left;
       ctx.strokeStyle = sc.left;
-      ctx.moveTo(0, height - r.lb);
-      ctx.lineTo(0, r.lt);
+      ctx.moveTo(offset, height - r.lb);
+      ctx.lineTo(offset, r.lt);
       ctx.stroke();
     }
 
@@ -215,10 +231,16 @@ export class RectRender extends System {
     const state = this.getComponentsByEntityId(this.stateStore, entityId);
 
     const { width, height } = state.size;
-    const { fillColor, strokeColor } = state.color;
+    const {
+      fillColor,
+      strokeColor,
+      strokeBColor,
+      strokeLColor,
+      strokeRColor,
+      strokeTColor,
+    } = state.color;
     const lineWidth = state.lineWidth;
     const radius = state.radius;
-
     // 绘制填充
     if (fillColor && fillColor !== "transparent") {
       this.fillRoundRect(width, height, radius, fillColor);
@@ -227,7 +249,9 @@ export class RectRender extends System {
     // 绘制描边
     if (lineWidth) {
       const radiusObj = this.normalizeRadius(radius);
-
+      // 判断是否有对应四边描边颜色
+      const hasStrokeColor =
+        strokeTColor || strokeBColor || strokeLColor || strokeRColor;
       // 如果 strokeColor 是字符串（统一颜色），转换为四边对象
       let strokeObj:
         | {
@@ -237,7 +261,7 @@ export class RectRender extends System {
             right?: string;
           }
         | string = {};
-      if (typeof strokeColor === "string") {
+      if (strokeColor && typeof strokeColor === "string" && !hasStrokeColor) {
         strokeObj = {
           top: strokeColor,
           bottom: strokeColor,
@@ -245,8 +269,15 @@ export class RectRender extends System {
           right: strokeColor,
         };
       } else {
-        if (strokeColor) strokeObj = strokeColor;
+        if (strokeColor)
+          strokeObj = {
+            top: strokeTColor,
+            bottom: strokeBColor,
+            left: strokeLColor,
+            right: strokeRColor,
+          };
       }
+      console.log(strokeObj, "strokeObj");
 
       // 统一线宽 value 转四边
       let lwObj: {
@@ -255,8 +286,8 @@ export class RectRender extends System {
         left?: number;
         right?: number;
       } = {};
+
       if (
-        lineWidth.value &&
         !lineWidth.top &&
         !lineWidth.bottom &&
         !lineWidth.left &&

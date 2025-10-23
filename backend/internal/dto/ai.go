@@ -1,8 +1,6 @@
 package dto
 
 import (
-	"context"
-
 	"github.com/cloudwego/eino-ext/components/model/openai"
 	"github.com/cloudwego/eino/components/prompt"
 )
@@ -10,7 +8,6 @@ import (
 type AiModel struct {
 	ChatModel openai.ChatModel
 	ChatTpl   *prompt.DefaultChatTemplate
-	Ctx       *context.Context
 }
 
 type Message struct {

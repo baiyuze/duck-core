@@ -13,10 +13,13 @@ export class Help {
   public init(html: string) {
     return new Promise<any[]>((resolve) => {
       const iframe = (this.iframe = document.createElement("iframe"));
-      iframe.style.visibility = "hidden";
-      iframe.style.width = "100px";
-      iframe.style.height = "100px";
-      iframe.style.position = "absolute";
+      // iframe.style.visibility = "hidden";
+      iframe.style.width = "370px";
+      iframe.style.height = "800px";
+      iframe.style.position = "fixed";
+      iframe.style.right = "425px";
+      iframe.style.top = "0px";
+      iframe.style.border = "1px solid #ccc";
       // 将 HTML 内容写入 iframe
       iframe.onload = () => {
         if (iframe.contentDocument) {
@@ -25,6 +28,7 @@ export class Help {
 
           iframe.contentDocument.close();
           this.transform(iframe);
+          console.log(this.dsls, "this.dsls");
           resolve(this.dsls);
         }
       };
@@ -63,6 +67,19 @@ export class Help {
         const childElement = this.transformElement(child);
         elementData.children.push(childElement);
       }
+    } else if (element.childNodes.length > 0) {
+      // 处理文本节点
+      for (let i = 0; i < element.childNodes.length; i++) {
+        const node = element.childNodes[i];
+        if (node.nodeType === Node.TEXT_NODE && node.textContent?.trim()) {
+          const textElement = {
+            ...this.getStyleConfig(element),
+            domChildType: "text",
+            children: [],
+          };
+          elementData.children.push(textElement);
+        }
+      }
     }
 
     return elementData;
@@ -98,15 +115,28 @@ export class Help {
       // const tagName = style.dom.tagName.toLowerCase();
       let type = "rect";
       let src = "";
+      let svgContent = "";
 
       if (dom.nodeType === Node.ELEMENT_NODE) {
         const tagName = dom.tagName.toLowerCase();
 
         // 判断dom是否是圆形
-
-        const borderRadius = parseFloat(style.borderTopLeftRadius) || 0;
         const width = rect.width;
         const height = rect.height;
+
+        // 处理 borderRadius，支持百分比和像素值
+        let borderRadius = 0;
+        const borderRadiusValue = style.borderTopLeftRadius;
+
+        if (borderRadiusValue.includes("%")) {
+          // 百分比情况：相对于元素自身的尺寸
+          const percentage = parseFloat(borderRadiusValue) / 100;
+          // 圆角百分比是相对于宽高中较小的那个
+          borderRadius = Math.min(width, height) * percentage;
+        } else {
+          // 像素值情况
+          borderRadius = parseFloat(borderRadiusValue) || 0;
+        }
 
         // 只有当圆角半径接近宽高的一半，且宽高相等时，才认为是圆形
         if (borderRadius > 0 && Math.abs(width - height) < 1) {
@@ -118,11 +148,21 @@ export class Help {
         }
 
         if (dom.children.length === 0 && dom.childNodes[0]) {
+          type = "rect";
+        }
+
+        if (style.domChildType === "text") {
           type = "text";
         }
         if (tagName === "img") {
           type = "img";
           src = (dom as HTMLImageElement).src;
+        }
+
+        if (tagName === "svg") {
+          type = "img";
+          src = "";
+          svgContent = dom.outerHTML;
         }
       } else if (dom.nodeType === Node.TEXT_NODE) {
         type = "text";
@@ -135,26 +175,44 @@ export class Help {
           style.borderBottomWidth ||
           style.borderLeftWidth
         ) {
-          strokeColor = style.borderColor;
+          // 处理color为多个情况，分别取对应边的颜色
+          // 需要判断当前边框宽度是否大于0
+          const bordersColorMap: { [key: string]: string } = {};
+          if (parseFloat(style.borderTopWidth) > 0) {
+            bordersColorMap["strokeTColor"] = style.borderTopColor;
+          }
+          if (parseFloat(style.borderRightWidth) > 0) {
+            bordersColorMap["strokeRColor"] = style.borderRightColor;
+          }
+          if (parseFloat(style.borderBottomWidth) > 0) {
+            bordersColorMap["strokeBColor"] = style.borderBottomColor;
+          }
+          if (parseFloat(style.borderLeftWidth) > 0) {
+            bordersColorMap["strokeLColor"] = style.borderLeftColor;
+          }
+          // 优先取第一个边框颜色作为strokeColor
+          const colors = style.borderColor.split(" rgb");
+          if (colors.length === 1) {
+            strokeColor = style.borderColor;
+          } else {
+            strokeColor = bordersColorMap["strokeTColor"] || "";
+          }
         }
       }
       // 抽象构建 dsl 对象，便于后续维护与扩展
+      // 不需要计算margin，因为getBoundingClientRect已经包含margin了
       const position = {
-        x: rect.left + window.scrollX + (parseFloat(style.marginLeft) || 0),
-        y: rect.top + window.scrollY + (parseFloat(style.marginTop) || 0),
+        x: rect.left + window.scrollX,
+        y: rect.top + window.scrollY,
       };
-
+      // paddingtop和paddingleft不能计算进去，因为宽高不包括padding
       const size = {
         width:
           rect.width +
-          (parseFloat(style.paddingLeft) || 0) +
-          (parseFloat(style.paddingRight) || 0) +
           (parseFloat(style.borderLeftWidth) || 0) +
           (parseFloat(style.borderRightWidth) || 0),
         height:
           rect.height +
-          (parseFloat(style.paddingTop) || 0) +
-          (parseFloat(style.paddingBottom) || 0) +
           (parseFloat(style.borderTopWidth) || 0) +
           (parseFloat(style.borderBottomWidth) || 0),
       };
@@ -165,10 +223,13 @@ export class Help {
         fontFamily: style.fontFamily,
         text: type === "text" ? (dom as any).innerText || "" : "",
       };
-
       const color = {
         fillColor: style.backgroundColor,
         strokeColor: strokeColor || null,
+        strokeTColor: style.borderTopColor,
+        strokeBColor: style.borderBottomColor,
+        strokeLColor: style.borderLeftColor,
+        strokeRColor: style.borderRightColor,
       };
 
       const radius = {
@@ -189,7 +250,6 @@ export class Help {
         left: hasBorder ? parseFloat(style["borderLeftWidth"]) || 0 : 0,
         right: hasBorder ? parseFloat(style["borderRightWidth"]) || 0 : 0,
       };
-
       const dsl = {
         position,
         size,

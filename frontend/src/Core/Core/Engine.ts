@@ -55,35 +55,7 @@ export class Engine implements EngineContext {
    */
   initComponents(dsls: any[] = []) {
     this.core.resetState();
-    this.dsls = dsls.map((dsl) => new DSL(dsl));
-
-    this.dsls.forEach((dsl: DSL) => {
-      for (const key in dsl) {
-        if (key == "selected") {
-          dsl.selected = new Selected();
-        }
-        const value = (dsl as any)[key];
-
-        if (value === undefined) {
-          throw new Error(`DSL属性${key}未定义`);
-        }
-
-        if (
-          (typeof value === "object" &&
-            value !== null &&
-            !Array.isArray(value)) ||
-          key === "type"
-        ) {
-          const map = this.stateStore[key as keyof StateStore] as Map<
-            string,
-            DSL[keyof DSL]
-          >;
-          if (map && map instanceof Map) {
-            map.set(dsl.id, value);
-          }
-        }
-      }
-    });
+    this.core.initComponents(dsls);
   }
 
   // resetState() {
