@@ -81,6 +81,8 @@ func DslDesignTpl() *prompt.DefaultChatTemplate {
 	 - 行高等于字体大小
 	 ### 16. 禁止使用弹性盒
 	 - 不允许使用flex属性或者grid进行布局
+	 ### 17. 输入框要求
+	 - 输入框要通过div等元素模拟，不能使用<input>、<textarea>等原生表单元素
 
 ⸻
 ## 🧩 用户输入格式（示例）
