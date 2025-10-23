@@ -1,8 +1,8 @@
 export class Img {
   src?: string;
-  svgContent?: string;
+  path?: string;
   constructor(data?: Partial<Img>) {
     this.src = data?.src || "";
-    this.svgContent = data?.svgContent || "";
+    this.path = data?.path || "";
   }
 }

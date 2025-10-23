@@ -22,7 +22,6 @@ export class EllipseRender extends System {
     // const { rx, ry } = state.ellipseRadius;
     const { width, height } = state.size;
     const { fillColor, strokeColor } = state.color;
-    console.log(this.stateStore, entityId, fillColor, strokeColor, "---1");
     this.ctx.beginPath();
     this.ctx.ellipse(
       width / 2,

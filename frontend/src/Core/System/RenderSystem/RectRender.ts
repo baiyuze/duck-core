@@ -167,7 +167,6 @@ export class RectRender extends System {
       ctx.beginPath();
       ctx.lineWidth = lw.bottom;
       ctx.strokeStyle = sc.bottom;
-      console.log(sc.bottom, "sc.bottom1111");
       ctx.moveTo(width - r.rb, height - offset);
       ctx.lineTo(r.lb, height - offset);
       ctx.stroke();
@@ -269,17 +268,13 @@ export class RectRender extends System {
           right: strokeColor,
         };
       } else {
-        if (strokeColor)
-          strokeObj = {
-            top: strokeTColor,
-            bottom: strokeBColor,
-            left: strokeLColor,
-            right: strokeRColor,
-          };
+        strokeObj = {
+          top: strokeTColor,
+          bottom: strokeBColor,
+          left: strokeLColor,
+          right: strokeRColor,
+        };
       }
-      console.log(strokeObj, "strokeObj");
-
-      // 统一线宽 value 转四边
       let lwObj: {
         top?: number;
         bottom?: number;

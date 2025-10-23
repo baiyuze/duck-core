@@ -115,7 +115,9 @@ export class Help {
       // const tagName = style.dom.tagName.toLowerCase();
       let type = "rect";
       let src = "";
-      let svgContent = "";
+      let path = "";
+      let fillColor = style.backgroundColor;
+      let strokeColor = "";
 
       if (dom.nodeType === Node.ELEMENT_NODE) {
         const tagName = dom.tagName.toLowerCase();
@@ -162,12 +164,31 @@ export class Help {
         if (tagName === "svg") {
           type = "img";
           src = "";
-          svgContent = dom.outerHTML;
+          const pathElement = dom.querySelector("path");
+          path = pathElement ? pathElement.getAttribute("d") || "" : "";
+          const pathElementFill = pathElement
+            ? pathElement.getAttribute("fill") || ""
+            : "";
+          if (pathElementFill && pathElementFill !== "none") {
+            fillColor = pathElementFill;
+          } else {
+            fillColor = style.fill || "transparent";
+          }
+          const pathElementStroke = pathElement
+            ? pathElement.getAttribute("stroke") || ""
+            : "";
+          if (pathElementStroke && pathElementStroke !== "none") {
+            strokeColor = pathElementStroke;
+          } else {
+            strokeColor =
+              style.stroke && style.stroke !== "none"
+                ? style.stroke
+                : "transparent";
+          }
         }
       } else if (dom.nodeType === Node.TEXT_NODE) {
         type = "text";
       }
-      let strokeColor = "";
       if (style.borderStyle !== "none") {
         if (
           style.borderTopWidth ||
@@ -175,27 +196,11 @@ export class Help {
           style.borderBottomWidth ||
           style.borderLeftWidth
         ) {
-          // 处理color为多个情况，分别取对应边的颜色
-          // 需要判断当前边框宽度是否大于0
-          const bordersColorMap: { [key: string]: string } = {};
-          if (parseFloat(style.borderTopWidth) > 0) {
-            bordersColorMap["strokeTColor"] = style.borderTopColor;
-          }
-          if (parseFloat(style.borderRightWidth) > 0) {
-            bordersColorMap["strokeRColor"] = style.borderRightColor;
-          }
-          if (parseFloat(style.borderBottomWidth) > 0) {
-            bordersColorMap["strokeBColor"] = style.borderBottomColor;
-          }
-          if (parseFloat(style.borderLeftWidth) > 0) {
-            bordersColorMap["strokeLColor"] = style.borderLeftColor;
-          }
-          // 优先取第一个边框颜色作为strokeColor
           const colors = style.borderColor.split(" rgb");
           if (colors.length === 1) {
             strokeColor = style.borderColor;
           } else {
-            strokeColor = bordersColorMap["strokeTColor"] || "";
+            strokeColor = style["strokeTColor"] || "";
           }
         }
       }
@@ -219,13 +224,13 @@ export class Help {
       const font = {
         size: parseFloat(style.fontSize) || 16,
         fillColor: style.color,
-        fontWeight: style.fontWeight,
-        fontFamily: style.fontFamily,
+        weight: style.fontWeight,
+        family: style.fontFamily,
         text: type === "text" ? (dom as any).innerText || "" : "",
       };
       const color = {
-        fillColor: style.backgroundColor,
-        strokeColor: strokeColor || null,
+        fillColor,
+        strokeColor,
         strokeTColor: style.borderTopColor,
         strokeBColor: style.borderBottomColor,
         strokeLColor: style.borderLeftColor,
@@ -257,7 +262,7 @@ export class Help {
         color,
         selected: { value: false, hovered: false },
         radius,
-        img: src ? { src } : null,
+        img: src || path ? { src, path } : null,
         id: this.id.toString(),
         rotation: { value: 0 },
         zIndex: 30,
@@ -265,6 +270,7 @@ export class Help {
         eventQueue: [],
         type,
       };
+
       this.dsls.push(dsl);
       if (style.children && style.children.length > 0) {
         this.transformToDSL(style.children);
