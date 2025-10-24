@@ -85,6 +85,7 @@ export class SelectionSystem extends System {
     const selected = stateStore.selected.get(entityId);
     const position = stateStore.position.get(entityId);
     const size = stateStore.size.get(entityId);
+    const font = stateStore.font.get(entityId);
     if (position && size) {
       if (!selected?.value) {
         this.shapeRect({

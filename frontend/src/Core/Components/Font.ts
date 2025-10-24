@@ -8,6 +8,15 @@ export class Font {
   text: string = "Text";
   fillColor: string = "#000000";
   strokeColor?: string;
+  textDecoration?: "underline" | "overline" | "line-through";
+  textAlign?: "left" | "right" | "center" | "start" | "end";
+  textBaseline?:
+    | "top"
+    | "hanging"
+    | "middle"
+    | "alphabetic"
+    | "ideographic"
+    | "bottom";
   constructor(data?: Partial<Font>) {
     this.family = data?.family || this.family;
     this.size = data?.size || this.size;
@@ -18,5 +27,8 @@ export class Font {
     this.text = data?.text || this.text;
     this.fillColor = data?.fillColor || this.fillColor;
     this.strokeColor = data?.strokeColor;
+    this.textAlign = data?.textAlign;
+    this.textBaseline = data?.textBaseline;
+    this.textDecoration = data?.textDecoration;
   }
 }

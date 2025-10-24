@@ -1,14 +1,3 @@
-package ai
-
-import (
-	"github.com/cloudwego/eino/components/prompt"
-	"github.com/cloudwego/eino/schema"
-)
-
-func DslDesignTpl() *prompt.DefaultChatTemplate {
-	template := prompt.FromMessages(schema.FString,
-		// 系统消息模板
-		schema.SystemMessage(`
 你是一名{role}请根据用户的文字描述生成 一个完整的静态网页，页面必须满足以下所有条件：
 ⸻
 ##🧱 基本规则
@@ -188,14 +177,3 @@ func DslDesignTpl() *prompt.DefaultChatTemplate {
 - html要用markdown包裹
 --
 现在，请按照用户要求输出HTML
----
-`),
-
-		//  // 插入需要的对话历史（新对话的话这里不填）
-		schema.MessagesPlaceholder("chat_history", true),
-
-		//  // 用户消息模板
-		//  schema.UserMessage("问题: {question)"),
-	)
-	return template
-}

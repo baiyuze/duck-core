@@ -15,11 +15,15 @@ export class ImgRender extends System {
     this.ctx = ctx;
   }
 
-  getSvgSize(path: string): { width: number; height: number } {
-    const bounds = svgPathBounds(path);
-    const width = bounds[2] - bounds[0];
-    const height = bounds[3] - bounds[1];
-    return { width, height };
+  getSvgSize(path: string): { width: number; height: number } | null {
+    try {
+      const bounds = svgPathBounds(path);
+      const width = bounds[2] - bounds[0];
+      const height = bounds[3] - bounds[1];
+      return { width, height };
+    } catch (error) {
+      return null;
+    }
   }
 
   getScale(
@@ -27,10 +31,12 @@ export class ImgRender extends System {
     nowHeight: number,
     svgWidth: number,
     svgHeight: number
-  ): number {
+  ): { scaleX: number; scaleY: number; scale: number } {
     const scaleX = nowWidth / svgWidth;
     const scaleY = nowHeight / svgHeight;
-    return Math.min(scaleX, scaleY);
+    const minScale = Math.min(scaleX, scaleY) - 0.2;
+    const scale = minScale <= 0 ? Math.min(scaleX, scaleY) : minScale;
+    return { scaleX, scaleY, scale };
   }
 
   async drawSvg(state: DSL) {
@@ -43,11 +49,18 @@ export class ImgRender extends System {
     if (state.color.strokeColor) {
       this.ctx.strokeStyle = state.color.strokeColor;
     }
-    const { width, height } = this.getSvgSize(state.img.path);
-    const scale = this.getScale(nowWidth, nowHeight, width, height);
-    this.ctx.scale(scale, scale);
-    this.ctx.fill(p2d);
-    this.ctx.stroke(p2d);
+    const size = this.getSvgSize(state.img.path);
+    if (size) {
+      const { scale } = this.getScale(
+        nowWidth,
+        nowHeight,
+        size.width,
+        size.height
+      );
+      this.ctx.scale(scale, scale);
+      this.ctx.fill(p2d);
+      this.ctx.stroke(p2d);
+    }
   }
 
   draw(entityId: string) {
@@ -56,7 +69,6 @@ export class ImgRender extends System {
     const state = this.getComponentsByEntityId(this.stateStore, entityId);
 
     if (!state) return;
-    // const { x, y } = state.position;
     const { width, height } = state.size;
     const imgComponent = state.img;
     if (imgComponent.path) {
