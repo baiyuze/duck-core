@@ -22,7 +22,6 @@ func initModel(modelName string) (*dto.AiModel, error) {
 	})
 
 	if err != nil {
-		fmt.Printf("chatInit==%+v===", err)
 		return nil, fmt.Errorf("failed to initialize chat model %s: %w", modelName, err)
 	}
 
