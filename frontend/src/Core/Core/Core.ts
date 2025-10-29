@@ -40,9 +40,18 @@ export class Core {
     this.initComponents(dsls);
   }
 
+  sortDSLByZIndex(dsls: any[] = this.dsls) {
+    return dsls.sort((a, b) => {
+      const zIndexA = a.zIndex.value || 0;
+      const zIndexB = b.zIndex.value || 0;
+      return zIndexA - zIndexB;
+    });
+  }
+
   initComponents(dsls: any[] = []) {
     this.resetState();
-    this.dsls = dsls.map((dsl) => new DSL(dsl));
+    const sortedDSLS = this.sortDSLByZIndex(dsls);
+    this.dsls = sortedDSLS.map((dsl) => new DSL(dsl));
     this.dsls.forEach((dsl: DSL) => {
       for (const key in dsl) {
         if (key === "selected") {

@@ -7,6 +7,9 @@ import type { StateStore } from "../types";
 
 // Engine Context 接口定义
 export interface EngineContext {
+  isFirstInit: boolean;
+  dirtyRender: boolean;
+  dirtyOverlay: boolean;
   defaultSize: Size;
 
   SystemMap: Map<string, System>;

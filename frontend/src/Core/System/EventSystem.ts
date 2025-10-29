@@ -7,6 +7,7 @@ import type { HoverSystem } from "./HoverSystem";
 import type { SelectionSystem } from "./SelectionSystem";
 import { System } from "./System";
 import { throttle } from "lodash";
+import type { ZoomSystem } from "./ZoomSystem";
 
 export class EventSystem extends System {
   engine: Engine;
@@ -15,6 +16,7 @@ export class EventSystem extends System {
   entityManager: Entity = new Entity();
   stateStore: StateStore | null = null;
   throttledMouseMove: ReturnType<typeof throttle>;
+  throttledWheel: ReturnType<typeof throttle> | null = null;
 
   constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
     super();
@@ -22,38 +24,49 @@ export class EventSystem extends System {
     this.engine = engine;
     this.dispose();
     this.throttledMouseMove = throttle(this.onMouseMove.bind(this), 16);
-    ctx.canvas.addEventListener("click", this.onClick.bind(this));
+    // this.throttledWheel = throttle(this.onWheel.bind(this), 16);
+    // ctx.canvas.addEventListener("click", this.onClick.bind(this));
     ctx.canvas.addEventListener("mouseup", this.onMouseUp.bind(this));
     ctx.canvas.addEventListener("mousedown", this.onMouseDown.bind(this));
     document.addEventListener("mousemove", this.throttledMouseMove);
+    // Listen for wheel events to support zooming. passive:false so we can preventDefault()
+    this.ctx.canvas.addEventListener("wheel", this.onWheel.bind(this), {
+      passive: false,
+    });
   }
 
   dispose() {
-    this.ctx.canvas.removeEventListener("click", this.onClick.bind(this));
+    // this.ctx.canvas.removeEventListener("click", this.onClick.bind(this));
     document.removeEventListener("mousemove", this.throttledMouseMove);
     this.ctx.canvas.removeEventListener("mouseup", this.onMouseUp.bind(this));
     this.ctx.canvas.removeEventListener(
       "mousedown",
       this.onMouseDown.bind(this)
     );
+    this.ctx.canvas.removeEventListener("wheel", this.onWheel.bind(this));
     this.throttledMouseMove?.cancel();
+    this.throttledWheel?.cancel();
   }
 
   onMouseUp(event: MouseEvent) {
     if (!this.stateStore) return;
-    this.stateStore.eventQueue.push({
-      type: "mouseup",
-      event,
-    });
-    this.render();
+    this.stateStore.eventQueue = [
+      {
+        type: "mouseup",
+        event,
+      },
+    ];
+    this.engine.requestFrame();
   }
   onMouseDown(event: MouseEvent) {
     if (!this.stateStore) return;
-    this.stateStore.eventQueue.push({
-      type: "mousedown",
-      event,
-    });
-    this.render();
+    this.stateStore.eventQueue = [
+      {
+        type: "mousedown",
+        event,
+      },
+    ];
+    this.engine.requestFrame();
   }
 
   nextTick(cb: () => void) {
@@ -62,30 +75,6 @@ export class EventSystem extends System {
 
   update(stateStore: StateStore) {
     this.stateStore = stateStore;
-  }
-
-  render() {
-    const engine = this.engine;
-    const selectionSystem =
-      engine.getSystemByName<SelectionSystem>("SelectionSystem");
-    const hoverSystem = engine.getSystemByName<HoverSystem>("HoverSystem");
-    const clickSystem = engine.getSystemByName<ClickSystem>("ClickSystem");
-    const dragSystem = engine.getSystemByName<DragSystem>("DragSystem");
-
-    if (!this.stateStore) return;
-    if (hoverSystem) {
-      hoverSystem.update(this.stateStore);
-    }
-    if (clickSystem) {
-      clickSystem.update(this.stateStore);
-    }
-    if (selectionSystem) {
-      selectionSystem.update(this.stateStore);
-    }
-    if (dragSystem) {
-      dragSystem.update(this.stateStore);
-    }
-    this.stateStore.eventQueue = [];
   }
   /**
    * 点击
@@ -100,13 +89,31 @@ export class EventSystem extends System {
         event,
       },
     ];
-    this.render();
+    this.engine.requestFrame();
   }
   onMouseMove(event: MouseEvent) {
+    // 只有数据进行变化的时候，才需要调用renderSystem，其他只需要render其他系统即可
     if (!this.stateStore) return;
-    if (this.stateStore.eventQueue.length) return;
     this.stateStore.eventQueue = [{ type: "mousemove", event }];
-    this.render();
+    this.engine.dirtyRender = true;
+    this.engine.requestFrame();
+  }
+
+  /**
+   * Wheel event: used for zoom in/out
+   */
+  onWheel(event: WheelEvent) {
+    if (!this.stateStore) return;
+    // prevent page from scrolling when wheel over canvas
+    try {
+      event.preventDefault();
+    } catch (e) {
+      // ignore if preventDefault not allowed
+    }
+    console.log("Wheel event detected:", event.deltaY);
+    // cast to any to satisfy current StateStore typing (eventQueue expects MouseEvent)
+    this.stateStore.eventQueue = [{ type: "wheel", event: event as any }];
+    this.engine.requestFrame();
   }
 
   destroyed(): void {

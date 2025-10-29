@@ -27,21 +27,6 @@ export class DragSystem extends System {
     this.onDrag();
   }
 
-  render() {
-    const renderSystem =
-      this.engine.getSystemByName<RenderSystem>("RenderSystem");
-
-    const pickSystem =
-      this.engine.getSystemByName<PickingSystem>("PickingSystem");
-    const selectionSystem =
-      this.engine.getSystemByName<SelectionSystem>("SelectionSystem");
-    if (this.stateStore) {
-      renderSystem?.update(this.stateStore);
-      pickSystem?.update(this.stateStore);
-      selectionSystem?.update(this.stateStore);
-    }
-  }
-
   onDrag() {
     const pickSystem =
       this.engine.getSystemByName<PickingSystem>("PickingSystem");
@@ -132,7 +117,6 @@ export class DragSystem extends System {
         position.y = canvasY - this.offset.y;
       }
     });
-    this.render();
   }
 
   onDragEnd() {
@@ -161,8 +145,6 @@ export class DragSystem extends System {
 
     // 触发拖拽结束事件（可以用于历史记录、撤销重做等）
     this.onDragEndEvent(selectedEntitys, finalPositions);
-
-    this.render();
   }
 
   /**

@@ -2,12 +2,16 @@ import type { Size } from "../Components";
 import { Selected } from "../Components/Selected";
 import { DSL } from "../DSL/DSL";
 import { Entity } from "../Entity/Entity";
+import type { EventSystem } from "../System/EventSystem";
 import { System } from "../System/System";
 import type { StateStore } from "../types";
 import type { Core } from "./Core";
 import type { EngineContext } from "./EngineContext";
 
 export class Engine implements EngineContext {
+  isFirstInit: boolean = true;
+  dirtyRender = false;
+  dirtyOverlay = false;
   /**
    * 是否多选
    */
@@ -16,6 +20,8 @@ export class Engine implements EngineContext {
   SystemMap: Map<string, System> = new Map();
   system: System[] = [];
   entityManager = new Entity();
+
+  needsFrame: boolean = false;
 
   // ctx: CanvasRenderingContext2D | null;
   constructor(public core: Core) {
@@ -76,8 +82,39 @@ export class Engine implements EngineContext {
     return this.SystemMap.get(name) as T | undefined;
   }
 
+  requestFrame() {
+    if (!this.needsFrame) {
+      this.needsFrame = true;
+      requestAnimationFrame(() => this.tick());
+    }
+  }
+
+  tick() {
+    this.isFirstInit = false;
+    this.needsFrame = false;
+    this.update();
+  }
+
+  systemUpdate(systemName: string) {
+    const systemMap: { [key: string]: (system: System) => void } = {
+      RenderSystem: (system: System) => {
+        // 只有有脏数据时，才进行处理
+        if (this.dirtyRender || this.isFirstInit) {
+          system.update(this.stateStore);
+        }
+      },
+    };
+    return systemMap[systemName];
+  }
+
   update() {
     this.system.forEach((sys) => {
+      const fn = this.systemUpdate(sys.constructor.name);
+      if (fn) {
+        fn(sys);
+        return;
+      }
+
       sys.update(this.stateStore);
     });
   }

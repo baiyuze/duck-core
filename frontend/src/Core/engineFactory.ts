@@ -11,6 +11,7 @@ import { RenderSystem } from "./System/RenderSystem/RenderSystem";
 import { PickingSystem } from "./System/PickingSystem";
 import { DragSystem } from "./System/DragSystem";
 import type { Size } from "./Components";
+import { ZoomSystem } from "./System/ZoomSystem";
 
 export function createEngine(
   dsls: any[],
@@ -31,6 +32,7 @@ export function createEngine(
   engine.addSystem(new EventSystem(ctx, engine));
   engine.addSystem(new InputSystem(ctx, engine));
   engine.addSystem(new DragSystem(ctx, engine));
+  engine.addSystem(new ZoomSystem(ctx, engine));
 
   return engine;
 }

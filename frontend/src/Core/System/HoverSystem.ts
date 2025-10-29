@@ -3,6 +3,7 @@ import { Entity } from "../Entity/Entity";
 import { EventType } from "../enum";
 import type { PickEntity, StateStore } from "../types";
 import type { PickingSystem } from "./PickingSystem";
+import type { SelectionSystem } from "./SelectionSystem";
 import { System } from "./System";
 export class HoverSystem extends System {
   engine: Engine;

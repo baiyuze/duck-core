@@ -25,8 +25,7 @@ export class ClickSystem extends System {
    * @param event
    * @returns
    */
-  setSelected(pickEntity: PickEntity | null) {
-    if (!pickEntity) return;
+  setSelected(pickEntity: PickEntity) {
     if (!this.stateStore) return;
     const { selected, entityId } = pickEntity;
     if (selected) selected.value = true;

@@ -437,7 +437,7 @@ function Canvas(props: CanvasProps) {
       img: {
         src: "https://cdn.pixabay.com/photo/2025/05/13/07/47/skyscrapers-9596809_1280.jpg",
       },
-      zIndex: { value: 0 },
+      zIndex: { value: 99 },
       scale: null,
       polygon: null,
     },
