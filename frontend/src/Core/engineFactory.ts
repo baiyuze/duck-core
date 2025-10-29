@@ -24,7 +24,6 @@ export function createEngine(
   // 初始化 canvas
   const ctx = engine.initCanvas(canvas, defaultSize);
 
-  engine.addSystem(new RenderSystem(ctx, engine));
   engine.addSystem(new PickingSystem(ctx, engine));
   engine.addSystem(new HoverSystem(ctx, engine));
   engine.addSystem(new ClickSystem(ctx, engine));
@@ -33,6 +32,7 @@ export function createEngine(
   engine.addSystem(new InputSystem(ctx, engine));
   engine.addSystem(new DragSystem(ctx, engine));
   engine.addSystem(new ZoomSystem(ctx, engine));
+  engine.addSystem(new RenderSystem(ctx, engine));
 
   return engine;
 }

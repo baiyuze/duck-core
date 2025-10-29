@@ -3,10 +3,12 @@ import type { DSL } from "../DSL/DSL";
 import type { Entity } from "../Entity/Entity";
 import type { System } from "../System/System";
 import type { StateStore } from "../types";
+import type { Camera } from "./Camera";
 // import { Engine } from "./Engine";
 
 // Engine Context 接口定义
 export interface EngineContext {
+  camera: Camera;
   isFirstInit: boolean;
   dirtyRender: boolean;
   dirtyOverlay: boolean;

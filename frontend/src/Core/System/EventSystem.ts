@@ -26,7 +26,7 @@ export class EventSystem extends System {
     this.throttledMouseMove = throttle(this.onMouseMove.bind(this), 16);
     // this.throttledWheel = throttle(this.onWheel.bind(this), 16);
     // ctx.canvas.addEventListener("click", this.onClick.bind(this));
-    ctx.canvas.addEventListener("mouseup", this.onMouseUp.bind(this));
+    document.addEventListener("mouseup", this.onMouseUp.bind(this));
     ctx.canvas.addEventListener("mousedown", this.onMouseDown.bind(this));
     document.addEventListener("mousemove", this.throttledMouseMove);
     // Listen for wheel events to support zooming. passive:false so we can preventDefault()
@@ -38,7 +38,7 @@ export class EventSystem extends System {
   dispose() {
     // this.ctx.canvas.removeEventListener("click", this.onClick.bind(this));
     document.removeEventListener("mousemove", this.throttledMouseMove);
-    this.ctx.canvas.removeEventListener("mouseup", this.onMouseUp.bind(this));
+    document.removeEventListener("mouseup", this.onMouseUp.bind(this));
     this.ctx.canvas.removeEventListener(
       "mousedown",
       this.onMouseDown.bind(this)
@@ -95,7 +95,9 @@ export class EventSystem extends System {
     // 只有数据进行变化的时候，才需要调用renderSystem，其他只需要render其他系统即可
     if (!this.stateStore) return;
     this.stateStore.eventQueue = [{ type: "mousemove", event }];
-    this.engine.dirtyRender = true;
+    if (this.engine.core.isDragging) {
+      this.engine.dirtyRender = true;
+    }
     this.engine.requestFrame();
   }
 
@@ -112,7 +114,7 @@ export class EventSystem extends System {
     }
     console.log("Wheel event detected:", event.deltaY);
     // cast to any to satisfy current StateStore typing (eventQueue expects MouseEvent)
-    this.stateStore.eventQueue = [{ type: "wheel", event: event as any }];
+    this.stateStore.eventQueue = [{ type: "zoom", event: event as any }];
     this.engine.requestFrame();
   }
 

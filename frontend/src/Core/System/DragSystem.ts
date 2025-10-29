@@ -30,6 +30,7 @@ export class DragSystem extends System {
   onDrag() {
     const pickSystem =
       this.engine.getSystemByName<PickingSystem>("PickingSystem");
+
     if (!pickSystem) return;
     if (
       pickSystem.checkEventTypeIsMatch([
@@ -162,9 +163,8 @@ export class DragSystem extends System {
     // 3. 网格吸附
     // 4. 碰撞检测
     // 5. 触发自定义事件等
-
     // 示例：边界检查（确保元素不会拖拽到画布外）
-    this.checkBoundaries(finalPositions);
+    // this.checkBoundaries(finalPositions);
   }
 
   /**

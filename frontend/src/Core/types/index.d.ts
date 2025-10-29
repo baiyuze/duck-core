@@ -11,7 +11,7 @@ export type StateStore = {
   size: Map<string, Size>;
   color: Map<string, Color>;
   selected: Map<string, Selected>;
-  eventQueue: { type: string; event: MouseEvent }[];
+  eventQueue: { type: string; event: MouseEvent | WheelEvent }[];
   rotation: Map<string, { value: number }>;
   type: Map<string, string>;
   font: Map<string, Font>;

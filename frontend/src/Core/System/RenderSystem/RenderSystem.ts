@@ -126,6 +126,7 @@ export class RenderSystem extends System {
   }
 
   update(stateStore: StateStore) {
+    console.log("RenderSystem update called");
     this.scheduleRender(stateStore);
   }
 

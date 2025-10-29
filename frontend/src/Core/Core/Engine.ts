@@ -5,10 +5,12 @@ import { Entity } from "../Entity/Entity";
 import type { EventSystem } from "../System/EventSystem";
 import { System } from "../System/System";
 import type { StateStore } from "../types";
+import { Camera } from "./Camera";
 import type { Core } from "./Core";
 import type { EngineContext } from "./EngineContext";
 
 export class Engine implements EngineContext {
+  camera = new Camera();
   isFirstInit: boolean = true;
   dirtyRender = false;
   dirtyOverlay = false;
@@ -93,6 +95,7 @@ export class Engine implements EngineContext {
     this.isFirstInit = false;
     this.needsFrame = false;
     this.update();
+    this.dirtyRender = false;
   }
 
   systemUpdate(systemName: string) {
