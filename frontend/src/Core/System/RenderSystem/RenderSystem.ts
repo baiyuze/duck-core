@@ -87,6 +87,9 @@ export class RenderSystem extends System {
   render(stateStore: StateStore, ctx: CanvasRenderingContext2D) {
     // 每帧先清空画布
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.save();
+    ctx.translate(this.engine.camera.translateX, this.engine.camera.translateY);
+    ctx.scale(this.engine.camera.zoom, this.engine.camera.zoom);
 
     // 遍历所有 position 组件的实体
     stateStore.position.forEach((pos, entityId) => {
@@ -97,6 +100,7 @@ export class RenderSystem extends System {
       this.drawShape(stateStore, entityId);
       ctx.restore();
     });
+    ctx.restore();
   }
 
   /**
@@ -126,7 +130,6 @@ export class RenderSystem extends System {
   }
 
   update(stateStore: StateStore) {
-    console.log("RenderSystem update called");
     this.scheduleRender(stateStore);
   }
 

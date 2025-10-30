@@ -24,13 +24,14 @@ export class EventSystem extends System {
     this.engine = engine;
     this.dispose();
     this.throttledMouseMove = throttle(this.onMouseMove.bind(this), 16);
+    this.throttledWheel = throttle(this.onWheel.bind(this), 3);
     // this.throttledWheel = throttle(this.onWheel.bind(this), 16);
     // ctx.canvas.addEventListener("click", this.onClick.bind(this));
     document.addEventListener("mouseup", this.onMouseUp.bind(this));
     ctx.canvas.addEventListener("mousedown", this.onMouseDown.bind(this));
     document.addEventListener("mousemove", this.throttledMouseMove);
     // Listen for wheel events to support zooming. passive:false so we can preventDefault()
-    this.ctx.canvas.addEventListener("wheel", this.onWheel.bind(this), {
+    this.ctx.canvas.addEventListener("wheel", this.throttledWheel, {
       passive: false,
     });
   }
@@ -43,7 +44,10 @@ export class EventSystem extends System {
       "mousedown",
       this.onMouseDown.bind(this)
     );
-    this.ctx.canvas.removeEventListener("wheel", this.onWheel.bind(this));
+    this.ctx.canvas.removeEventListener(
+      "wheel",
+      this.throttledWheel as EventListener
+    );
     this.throttledMouseMove?.cancel();
     this.throttledWheel?.cancel();
   }
@@ -106,15 +110,21 @@ export class EventSystem extends System {
    */
   onWheel(event: WheelEvent) {
     if (!this.stateStore) return;
-    // prevent page from scrolling when wheel over canvas
     try {
       event.preventDefault();
     } catch (e) {
-      // ignore if preventDefault not allowed
+      console.error(e);
     }
-    console.log("Wheel event detected:", event.deltaY);
-    // cast to any to satisfy current StateStore typing (eventQueue expects MouseEvent)
-    this.stateStore.eventQueue = [{ type: "zoom", event: event as any }];
+
+    let eventType: string;
+    if (event.ctrlKey) {
+      eventType = "zoom";
+    } else {
+      eventType = "scroll";
+    }
+    console.log("EventSystem onWheel eventType:", eventType, event.ctrlKey);
+
+    this.stateStore.eventQueue = [{ type: eventType, event: event as any }];
     this.engine.requestFrame();
   }
 

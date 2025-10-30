@@ -9,6 +9,8 @@ export class SelectionSystem extends System {
   ctx: CanvasRenderingContext2D;
   selectionCtx: CanvasRenderingContext2D | null = null;
   stateStore?: StateStore;
+  isZoomChange: boolean = false;
+  oldZoom: number = 1;
   constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
     super();
     this.ctx = ctx;
@@ -74,7 +76,7 @@ export class SelectionSystem extends System {
 
     ctx.strokeStyle = color;
 
-    ctx.lineWidth = 2;
+    ctx.lineWidth = 1;
     ctx.strokeRect(-2, -2, size.width + 4, size.height + 4);
     ctx.restore();
   }
@@ -98,7 +100,7 @@ export class SelectionSystem extends System {
         this.shapeRect({
           position,
           size,
-          color: "rgba(90, 132, 255)",
+          color: "rgba(6, 66, 247)",
           dash: [],
         });
       }
@@ -119,7 +121,7 @@ export class SelectionSystem extends System {
         ctx.shadowColor = "rgba(0,0,0,0)"; // 禁用阴影
         ctx.fillStyle = "white";
         ctx.strokeStyle = "rgb(90, 132, 255)";
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 1;
         for (const [x, y] of corners) {
           ctx.fillRect(x - half, y - half, handleSize, handleSize);
           // ctx.fillStyle = "#fff";
@@ -141,10 +143,9 @@ export class SelectionSystem extends System {
   }
 
   update(stateStore: StateStore) {
+    if (!this.selectionCtx) return;
     this.clearCanvas();
-    // 渲染之前应该清理之前的选中状态，而不是清理画布
     this.stateStore = stateStore;
-
     stateStore.selected.forEach((selected, entityId) => {
       if (!selected.value) return;
       this.render(stateStore, entityId);

@@ -563,114 +563,114 @@ function Canvas(props: CanvasProps) {
       scale: null,
       polygon: null,
     },
-    {
-      position: {
-        x: 100,
-        y: 80,
-      },
-      size: {
-        width: 175,
-        height: 175,
-      },
-      color: {
-        fillColor: "#ff6b6b",
-        strokeColor: "#d63031",
-      },
-      lineWidth: {
-        value: 2,
-      },
-      id: "44",
-      selected: {
-        value: false,
-        hovered: false,
-      },
-      eventQueue: [],
-      type: "polygon",
-      rotation: {
-        value: 0,
-      },
-      font: {},
-      name: null,
-      img: null,
-      zIndex: {
-        value: 30,
-      },
-      scale: null,
-      polygon: {
-        vertexs: [
-          {
-            type: "M",
-            point: {
-              x: 87.5,
-              y: 0,
-            },
-          },
-          {
-            type: "L",
-            point: {
-              x: 112.5,
-              y: 62.5,
-            },
-          },
-          {
-            type: "L",
-            point: {
-              x: 175,
-              y: 62.5,
-            },
-          },
-          {
-            type: "L",
-            point: {
-              x: 127.5,
-              y: 100,
-            },
-          },
-          {
-            type: "L",
-            point: {
-              x: 142.5,
-              y: 175,
-            },
-          },
-          {
-            type: "L",
-            point: {
-              x: 87.5,
-              y: 137.5,
-            },
-          },
-          {
-            type: "L",
-            point: {
-              x: 32.5,
-              y: 175,
-            },
-          },
-          {
-            type: "L",
-            point: {
-              x: 47.5,
-              y: 100,
-            },
-          },
-          {
-            type: "L",
-            point: {
-              x: 0,
-              y: 62.5,
-            },
-          },
-          {
-            type: "L",
-            point: {
-              x: 62.5,
-              y: 62.5,
-            },
-          },
-        ],
-      },
-    },
+    // {
+    //   position: {
+    //     x: 100,
+    //     y: 80,
+    //   },
+    //   size: {
+    //     width: 175,
+    //     height: 175,
+    //   },
+    //   color: {
+    //     fillColor: "#ff6b6b",
+    //     strokeColor: "#d63031",
+    //   },
+    //   lineWidth: {
+    //     value: 2,
+    //   },
+    //   id: "44",
+    //   selected: {
+    //     value: false,
+    //     hovered: false,
+    //   },
+    //   eventQueue: [],
+    //   type: "polygon",
+    //   rotation: {
+    //     value: 0,
+    //   },
+    //   font: {},
+    //   name: null,
+    //   img: null,
+    //   zIndex: {
+    //     value: 30,
+    //   },
+    //   scale: null,
+    //   polygon: {
+    //     vertexs: [
+    //       {
+    //         type: "M",
+    //         point: {
+    //           x: 87.5,
+    //           y: 0,
+    //         },
+    //       },
+    //       {
+    //         type: "L",
+    //         point: {
+    //           x: 112.5,
+    //           y: 62.5,
+    //         },
+    //       },
+    //       {
+    //         type: "L",
+    //         point: {
+    //           x: 175,
+    //           y: 62.5,
+    //         },
+    //       },
+    //       {
+    //         type: "L",
+    //         point: {
+    //           x: 127.5,
+    //           y: 100,
+    //         },
+    //       },
+    //       {
+    //         type: "L",
+    //         point: {
+    //           x: 142.5,
+    //           y: 175,
+    //         },
+    //       },
+    //       {
+    //         type: "L",
+    //         point: {
+    //           x: 87.5,
+    //           y: 137.5,
+    //         },
+    //       },
+    //       {
+    //         type: "L",
+    //         point: {
+    //           x: 32.5,
+    //           y: 175,
+    //         },
+    //       },
+    //       {
+    //         type: "L",
+    //         point: {
+    //           x: 47.5,
+    //           y: 100,
+    //         },
+    //       },
+    //       {
+    //         type: "L",
+    //         point: {
+    //           x: 0,
+    //           y: 62.5,
+    //         },
+    //       },
+    //       {
+    //         type: "L",
+    //         point: {
+    //           x: 62.5,
+    //           y: 62.5,
+    //         },
+    //       },
+    //     ],
+    //   },
+    // },
   ];
   const engineRef = useRef<Engine | null>(null);
   const initCanvas = () => {
@@ -684,7 +684,10 @@ function Canvas(props: CanvasProps) {
   };
   const handlerApplyCode = (data: any[]) => {
     engineRef.current?.core.initComponents(data);
-    engineRef.current?.update();
+    if (engineRef.current) {
+      engineRef.current.dirtyRender = true;
+      engineRef.current?.update();
+    }
   };
   useEffect(() => {
     canvasRef.current = document.getElementById("canvas") as HTMLCanvasElement;
