@@ -1,4 +1,3 @@
-import { extend } from "lodash";
 import type { Position, Size } from "../Components";
 import type { Engine } from "../Core/Engine";
 import type { StateStore } from "../types";
@@ -87,7 +86,6 @@ export class SelectionSystem extends System {
     const selected = stateStore.selected.get(entityId);
     const position = stateStore.position.get(entityId);
     const size = stateStore.size.get(entityId);
-    const font = stateStore.font.get(entityId);
     if (position && size) {
       if (!selected?.value) {
         this.shapeRect({
@@ -143,18 +141,28 @@ export class SelectionSystem extends System {
   }
 
   update(stateStore: StateStore) {
+    if (!stateStore) return;
     if (!this.selectionCtx) return;
+
     this.clearCanvas();
+    // 缩放过程中不进行selection渲染，避免卡顿
+    if (this.engine.core.isDragging) return;
+    if (this.engine.camera.isZooming) return;
     this.stateStore = stateStore;
+    const camera = this.engine.camera;
+    // 你应该不进行缩放，而是重新算出来坐标值，进行绘制。
+    this.selectionCtx.save();
+    this.selectionCtx.translate(camera.translateX, camera.translateY);
+    this.selectionCtx.scale(camera.zoom, camera.zoom);
     stateStore.selected.forEach((selected, entityId) => {
       if (!selected.value) return;
       this.render(stateStore, entityId);
     });
-    if (this.engine.core.isDragging) return;
     stateStore.selected.forEach((selected, entityId) => {
       if (!selected.hovered) return;
       this.render(stateStore, entityId, true);
     });
+    this.selectionCtx.restore();
   }
 
   destroyed(): void {

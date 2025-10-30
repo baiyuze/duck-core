@@ -85,15 +85,17 @@ export class DragSystem extends System {
 
     // 获取画布坐标（不是屏幕坐标）
     const rect = this.ctx.canvas.getBoundingClientRect();
+    const { zoom, translateX, translateY } = this.engine.camera;
     const canvasX = lastEvent.event.clientX - rect.left;
     const canvasY = lastEvent.event.clientY - rect.top;
-
+    // worldX = (ScreenX - TranslateX) / Zoom
+    // $$\text{WorldX} = \frac{\text{ScreenX} - \text{TranslateX}}{\text{Zoom}}$$
     selectedEntitys.forEach((pickEntity) => {
       const position = this.stateStore!.position.get(pickEntity.entityId);
       if (position) {
-        // 计算鼠标在元素内的偏移量
-        this.offset.x = canvasX - position.x;
-        this.offset.y = canvasY - position.y;
+        // 计算鼠标在元素内的偏移量 translateX 不参与后续的scale计算，先要减去translate
+        this.offset.x = (canvasX - translateX) / zoom - position.x;
+        this.offset.y = (canvasY - translateY) / zoom - position.y;
       }
     });
   }
@@ -106,16 +108,18 @@ export class DragSystem extends System {
 
     // 获取当前鼠标的画布坐标
     const rect = this.ctx.canvas.getBoundingClientRect();
+
+    const { zoom, translateX, translateY } = this.engine.camera;
     const canvasX = lastEvent.event.clientX - rect.left;
     const canvasY = lastEvent.event.clientY - rect.top;
-
     selectedEntitys.forEach((pickEntity) => {
       const position = this.stateStore!.position.get(pickEntity.entityId);
 
       if (position) {
+        // 计算鼠标在元素内的偏移量 translateX 不参与后续的scale计算，先要减去translate
         // 新位置 = 当前鼠标在画布位置 - 初始偏移量
-        position.x = canvasX - this.offset.x;
-        position.y = canvasY - this.offset.y;
+        position.x = (canvasX - translateX) / zoom - this.offset.x;
+        position.y = (canvasY - translateY) / zoom - this.offset.y;
       }
     });
   }

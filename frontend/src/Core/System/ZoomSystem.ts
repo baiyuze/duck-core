@@ -17,6 +17,7 @@ export class ZoomSystem extends System {
 
   update(stateStore: StateStore) {
     if (stateStore.eventQueue.length === 0) return;
+    this.engine.camera.isZooming = false;
 
     const { type, event } =
       stateStore.eventQueue[stateStore.eventQueue.length - 1];
@@ -25,13 +26,14 @@ export class ZoomSystem extends System {
     if (type !== "zoom" || !(event instanceof WheelEvent)) return;
 
     const camera = this.engine.camera;
-
+    const rect = this.ctx.canvas.getBoundingClientRect();
     const { deltaY, x, y } = event; // x,y: 鼠标坐标
     const delta = deltaY ?? 0;
     const prevZoom = camera.zoom;
     const sensitivity = Math.max(0.1, 1 - prevZoom * 0.05);
-    const scale = 1 - delta * 0.009 * sensitivity;
-
+    const scale = 1 - delta * 0.001 * sensitivity;
+    const canvasX = x - rect.left;
+    const canvasY = y - rect.top;
     // 限制 zoom 范围
     const newZoom = Math.min(
       camera.maxZoom,
@@ -39,13 +41,16 @@ export class ZoomSystem extends System {
     );
 
     if (newZoom === prevZoom) {
-      this.engine.camera.isZooming = true;
+      this.engine.camera.isZooming = false;
       return;
     }
 
     // 缩放围绕鼠标点
-    camera.translateX = x - (x - camera.translateX) * (newZoom / prevZoom);
-    camera.translateY = y - (y - camera.translateY) * (newZoom / prevZoom);
+    camera.translateX =
+      // canvas x，减去 当前坐标原点在画布上的位置 乘以 新旧缩放比
+      canvasX - (canvasX - camera.translateX) * (newZoom / prevZoom);
+    camera.translateY =
+      canvasY - (canvasY - camera.translateY) * (newZoom / prevZoom);
 
     camera.zoom = newZoom;
 

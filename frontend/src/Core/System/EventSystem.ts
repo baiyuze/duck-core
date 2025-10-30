@@ -122,8 +122,6 @@ export class EventSystem extends System {
     } else {
       eventType = "scroll";
     }
-    console.log("EventSystem onWheel eventType:", eventType, event.ctrlKey);
-
     this.stateStore.eventQueue = [{ type: eventType, event: event as any }];
     this.engine.requestFrame();
   }
