@@ -35,7 +35,7 @@ export class Help {
 
           iframe.contentDocument.close();
           this.transform(iframe);
-          console.log(this.dsls, "this.dsls");
+          // console.log(this.dsls, "this.dsls");
           resolve(this.dsls);
         }
       };
