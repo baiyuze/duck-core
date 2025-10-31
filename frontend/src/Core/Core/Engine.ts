@@ -99,13 +99,14 @@ export class Engine implements EngineContext {
   }
 
   systemUpdate(systemName: string) {
+    const update = (system: System) => {
+      // 只有有脏数据时，才进行处理
+      if (this.dirtyRender || this.isFirstInit) {
+        system.update(this.stateStore);
+      }
+    };
     const systemMap: { [key: string]: (system: System) => void } = {
-      RenderSystem: (system: System) => {
-        // 只有有脏数据时，才进行处理
-        if (this.dirtyRender || this.isFirstInit) {
-          system.update(this.stateStore);
-        }
-      },
+      RenderSystem: update,
     };
     return systemMap[systemName];
   }

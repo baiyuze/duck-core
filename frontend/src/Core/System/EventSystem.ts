@@ -117,7 +117,10 @@ export class EventSystem extends System {
     }
 
     let eventType: string;
-    if (event.ctrlKey) {
+    const eventKey = window.navigator.userAgent.toLowerCase().includes("mac")
+      ? "metaKey"
+      : "ctrlKey";
+    if (event[eventKey] || event.ctrlKey) {
       eventType = "zoom";
     } else {
       eventType = "scroll";

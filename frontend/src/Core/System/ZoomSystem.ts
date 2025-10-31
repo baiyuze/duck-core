@@ -25,13 +25,16 @@ export class ZoomSystem extends System {
     // 确保只有缩放事件会触发缩放逻辑
     if (type !== "zoom" || !(event instanceof WheelEvent)) return;
 
+    // 判断是否是触摸板的双指缩放，获取的deltaY不是整数
+    const isTouchPad = !Number.isInteger(Math.abs(event.deltaY));
     const camera = this.engine.camera;
     const rect = this.ctx.canvas.getBoundingClientRect();
     const { deltaY, x, y } = event; // x,y: 鼠标坐标
     const delta = deltaY ?? 0;
     const prevZoom = camera.zoom;
     const sensitivity = Math.max(0.1, 1 - prevZoom * 0.05);
-    const scale = 1 - delta * 0.001 * sensitivity;
+    const scaleFactor = isTouchPad ? 0.008 : 0.003;
+    const scale = 1 - delta * scaleFactor * sensitivity;
     const canvasX = x - rect.left;
     const canvasY = y - rect.top;
     // 限制 zoom 范围
