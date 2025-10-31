@@ -8,6 +8,7 @@ import type { DefaultConfig, StateStore } from "../types";
 import { Camera } from "./Camera";
 import type { Core } from "./Core";
 import type { EngineContext } from "./EngineContext";
+import { Application, Container, Graphics, Sprite } from "pixi.js";
 
 export class Engine implements EngineContext {
   camera = new Camera();
@@ -22,8 +23,9 @@ export class Engine implements EngineContext {
   SystemMap: Map<string, System> = new Map();
   system: System[] = [];
   entityManager = new Entity();
-
+  app: Application = new Application();
   needsFrame: boolean = false;
+  ctx: CanvasRenderingContext2D | null = null;
 
   // ctx: CanvasRenderingContext2D | null;
   constructor(public core: Core) {
@@ -47,11 +49,25 @@ export class Engine implements EngineContext {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;
     ctx.scale(dpr, dpr);
+    this.ctx = ctx;
     return ctx;
+  }
+
+  async createRenderEngine(defaultConfig: DefaultConfig) {
+    await this.app.init({
+      width: defaultConfig.width,
+      height: defaultConfig.height,
+      autoStart: false,
+      backgroundAlpha: 0,
+      antialias: true, // 抗锯齿
+      resolution: window.devicePixelRatio || 1,
+    });
+    defaultConfig.container.appendChild(this.app.canvas);
   }
 
   initCanvas(defaultConfig: DefaultConfig) {
     const ctx = this.createCanvas(defaultConfig);
+    this.createRenderEngine(defaultConfig);
     return ctx;
   }
 
@@ -61,6 +77,13 @@ export class Engine implements EngineContext {
   initComponents(dsls: any[] = []) {
     this.core.resetState();
     this.core.initComponents(dsls);
+  }
+  /**
+   * 添加到舞台
+   * @param graphics
+   */
+  addChild(graphics: Container) {
+    this.app.stage.addChild(graphics);
   }
 
   addSystem(system: System) {
@@ -80,7 +103,17 @@ export class Engine implements EngineContext {
     if (!this.needsFrame) {
       this.needsFrame = true;
       requestAnimationFrame(() => this.tick());
+      this.ticker();
     }
+  }
+
+  ticker() {
+    if (!this.app.renderer) return;
+    this.isFirstInit = false;
+    this.needsFrame = false;
+    this.update();
+    this.app.renderer.render(this.app.stage);
+    this.dirtyRender = false;
   }
 
   tick() {
@@ -124,6 +157,21 @@ export class Engine implements EngineContext {
     this.system = [];
     this.SystemMap.clear();
     this.core.resetState();
+    this.ctx?.canvas.remove();
+    this.app.destroy(
+      { removeView: true },
+      {
+        children: true,
+        texture: true,
+        textureSource: true,
+        context: true,
+      }
+    );
+
+    // 如果 Canvas DOM 没被移除
+    // if (this.app.view.parentNode) {
+    //   this.app.view.parentNode.removeChild(this.app.view);
+    // }
   }
 
   // initDSL(dsls: DSL[]) {

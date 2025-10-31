@@ -1,3 +1,4 @@
+import type { Application } from "pixi.js";
 import type { Size } from "../Components";
 import type { DSL } from "../DSL/DSL";
 import type { Entity } from "../Entity/Entity";
@@ -9,6 +10,7 @@ import type { Camera } from "./Camera";
 // Engine Context 接口定义
 export interface EngineContext {
   camera: Camera;
+  app: Application;
   isFirstInit: boolean;
   dirtyRender: boolean;
   dirtyOverlay: boolean;

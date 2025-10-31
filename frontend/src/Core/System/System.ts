@@ -1,3 +1,4 @@
+import type { Graphics } from "pixi.js";
 import type {
   Color,
   Font,
@@ -18,6 +19,7 @@ import type { StateStore } from "../types";
 export class System {
   update(components: StateStore) {}
   draw(entityId: string) {}
+  draw1(entityId: string) {}
   /**
    * 根据 entityId 获取组件信息
    * @param components
@@ -35,6 +37,7 @@ export class System {
     const img = components.img.get(entityId) as Img;
     const scale = components.scale.get(entityId) as Scale;
     const polygon = components.polygon.get(entityId) as Polygon;
+    const graphics = components.graphics.get(entityId) as Graphics;
     // const ellipseRadius = components.ellipseRadius.get(
     //   entityId
     // ) as EllipseRadius;
@@ -52,6 +55,7 @@ export class System {
       scale,
       polygon,
       radius,
+      graphics,
     };
   }
   /**

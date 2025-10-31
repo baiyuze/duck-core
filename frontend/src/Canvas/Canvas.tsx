@@ -449,7 +449,7 @@ function Canvas(props: CanvasProps) {
       id: "2",
       selected: { value: false, hovered: false },
       eventQueue: [],
-      type: "rect",
+      type: "ellipse",
       rotation: { value: 0 },
       font: {},
       name: null,
@@ -673,12 +673,12 @@ function Canvas(props: CanvasProps) {
     // },
   ];
   const engineRef = useRef<Engine | null>(null);
-  const initCanvas = () => {
+  const initCanvas = async () => {
     const container = document.querySelector(
       `.${styles.canvas}`
     ) as HTMLDivElement;
     // if (canvasRef.current) {
-    engineRef.current = createEngine(dsls, {
+    engineRef.current = await createEngine(dsls, {
       width: 800,
       height: 800,
       container,

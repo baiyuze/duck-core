@@ -14,12 +14,12 @@ import { ZoomSystem } from "./System/ZoomSystem";
 import { ScrollSystem } from "./System/ScrollSystem";
 import type { DefaultConfig } from "./types";
 
-export function createEngine(dsls: any[], defaultConfig: DefaultConfig) {
+export async function createEngine(dsls: any[], defaultConfig: DefaultConfig) {
   const core = new Core(dsls);
   const engine = new Engine(core);
 
   // 初始化 canvas
-  const ctx = engine.initCanvas(defaultConfig);
+  const ctx = await engine.initCanvas(defaultConfig);
 
   engine.addSystem(new PickingSystem(ctx, engine));
   engine.addSystem(new HoverSystem(ctx, engine));

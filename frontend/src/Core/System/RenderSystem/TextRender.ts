@@ -1,3 +1,4 @@
+import { Text, TextStyle } from "pixi.js";
 import type { Engine } from "../../Core/Engine";
 import type { StateStore } from "../../types";
 import { System } from "../System";
@@ -54,5 +55,54 @@ export class TextRender extends System {
 
     if (font.strokeColor) this.ctx.strokeText(font.text, offsetX, offsetY);
     this.ctx.fillText(font.text, offsetX, offsetY);
+  }
+  draw1(entityId: string) {
+    this.stateStore = this.engine.stateStore;
+    const state = this.getComponentsByEntityId(this.stateStore, entityId);
+    const font = state.font;
+    const graphics = state.graphics;
+    const size = state.size;
+    let textAlign = font.textAlign || "left";
+    let textBaseline = font.textBaseline || "top";
+    if (textAlign === "start") textAlign = "left";
+    if (textAlign === "end") textAlign = "right";
+
+    if (textBaseline === "alphabetic") textBaseline = "bottom";
+    const style = new TextStyle({
+      fontFamily: font.family || "Arial",
+      fontSize: font.size || 16,
+      fill: font.fillColor || "#000",
+      stroke: font.strokeColor || "transparent",
+      align: textAlign,
+    });
+    const textGraphic = new Text({
+      text: font.text,
+      style,
+    });
+    textGraphic.anchor.set(0, 0);
+
+    // 根据 textAlign 和 textBaseline 调整位置
+    let offsetX = 0;
+    let offsetY = 0;
+    if (textAlign === "center") {
+      offsetX = size.width / 2;
+      textGraphic.anchor.x = 0.5;
+    } else if (textAlign === "right") {
+      offsetX = size.width;
+      textGraphic.anchor.x = 1;
+    }
+
+    if (textBaseline === "middle") {
+      offsetY = size.height / 2;
+      textGraphic.anchor.y = 0.5;
+    } else if (textBaseline === "bottom") {
+      offsetY = size.height;
+      textGraphic.anchor.y = 1;
+    }
+
+    textGraphic.x = offsetX;
+    textGraphic.y = offsetY;
+    textGraphic.position.set(state.position.x, state.position.y);
+    this.engine.addChild(textGraphic);
   }
 }

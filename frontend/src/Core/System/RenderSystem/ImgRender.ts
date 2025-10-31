@@ -1,3 +1,4 @@
+import { Assets, Sprite, Texture } from "pixi.js";
 import type { Engine } from "../../Core/Engine";
 import type { DSL } from "../../DSL/DSL";
 import type { StateStore } from "../../types";
@@ -65,14 +66,14 @@ export class ImgRender extends System {
 
   draw(entityId: string) {
     this.stateStore = this.engine.stateStore;
-    if (!this.stateStore) return;
+    // if (!this.stateStore) return;
     const state = this.getComponentsByEntityId(this.stateStore, entityId);
 
     if (!state) return;
     const { width, height } = state.size;
     const imgComponent = state.img;
     if (imgComponent.path) {
-      return this.drawSvg(state as DSL);
+      return this.drawSvg(state as any);
     }
     if (!imgComponent || !imgComponent.src) return;
     if (this.imgCache.has(imgComponent.src)) {
@@ -88,5 +89,28 @@ export class ImgRender extends System {
       this.ctx.drawImage(img, 0, 0, width, height);
       this.imgCache.set(img.src, img);
     };
+  }
+
+  async draw1(entityId: string) {
+    this.stateStore = this.engine.stateStore;
+    // if (!this.stateStore) return;
+    const { img, size, graphics } = this.getComponentsByEntityId(
+      this.stateStore,
+      entityId
+    );
+    // SVG渲染
+    if (img.svg) {
+      graphics.svg(img.svg);
+      this.engine.addChild(graphics);
+      return;
+    }
+    // 图片
+    if (img.src) {
+      const texture = await Assets.load(img.src);
+      const sprite = new Sprite(texture);
+      sprite.width = size.width;
+      sprite.height = size.height;
+      this.engine.addChild(sprite);
+    }
   }
 }

@@ -1,3 +1,4 @@
+import type { Graphics } from "pixi.js";
 import type { Color, Font, Position, Size, Img } from "../Components";
 import type { EllipseRadius } from "../Components/EllipseRadius";
 import type {} from "../Components/Img";
@@ -21,6 +22,7 @@ export type StateStore = {
   polygon: Map<string, Polygon>;
   // ellipseRadius: Map<string, EllipseRadius>;
   radius: Map<string, Radius>;
+  graphics: Map<string, Graphics>;
 };
 
 export type PickEntity = {

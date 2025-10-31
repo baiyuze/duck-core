@@ -228,7 +228,7 @@ export class Help {
   getSvgData(
     dom: HTMLElement,
     style: Style
-  ): { path: string; fill: string; stroke: string } {
+  ): { path: string; svg: string; fill: string; stroke: string } {
     let path = "";
     let fillColor = "";
     let strokeColor = "";
@@ -247,7 +247,7 @@ export class Help {
       fillColor = style.fill || "transparent";
       strokeColor = this.getValidColor("", style.stroke);
     }
-    return { path, fill: fillColor, stroke: strokeColor };
+    return { path, svg: dom.outerHTML, fill: fillColor, stroke: strokeColor };
   }
   /**
    * 获取边框颜色，仅限于单一颜色边框，如果有多边，默认取上边框颜色

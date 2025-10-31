@@ -1,3 +1,4 @@
+import { Graphics } from "pixi.js";
 import type { Color, Position, Size } from "../Components";
 import type { EllipseRadius } from "../Components/EllipseRadius";
 import type { Font } from "../Components/Font";
@@ -33,6 +34,7 @@ export class Core {
       scale: new Map<string, Scale>(),
       polygon: new Map<string, Polygon>(),
       radius: new Map<string, Radius>(),
+      graphics: new Map<string, Graphics>(),
     };
   }
 
@@ -78,6 +80,8 @@ export class Core {
           }
         }
       }
+      // 为每个实体创建一个 Graphics 实例
+      this.stateStore.graphics.set(dsl.id, new Graphics());
     });
   }
 
