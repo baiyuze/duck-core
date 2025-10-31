@@ -674,13 +674,17 @@ function Canvas(props: CanvasProps) {
   ];
   const engineRef = useRef<Engine | null>(null);
   const initCanvas = () => {
-    if (canvasRef.current) {
-      engineRef.current = createEngine(dsls, canvasRef.current, {
-        width: 800,
-        height: 800,
-      });
-      engineRef.current.update();
-    }
+    const container = document.querySelector(
+      `.${styles.canvas}`
+    ) as HTMLDivElement;
+    // if (canvasRef.current) {
+    engineRef.current = createEngine(dsls, {
+      width: 800,
+      height: 800,
+      container,
+    });
+    engineRef.current.update();
+    // }
   };
   const handlerApplyCode = (data: any[]) => {
     engineRef.current?.core.initComponents(data);
@@ -704,7 +708,7 @@ function Canvas(props: CanvasProps) {
       {/* <div className={styles.top}></div> */}
       <div className={styles.left}></div>
       <div className={styles.canvas}>
-        <canvas id="canvas" width={800} height={800}></canvas>
+        {/* <canvas id="canvas" width={800} height={800}></canvas> */}
       </div>
       <div className={styles.controls}>
         <CopilotDemo onApplyCode={handlerApplyCode} />

@@ -10,20 +10,16 @@ import { Engine } from "./Core/Engine";
 import { RenderSystem } from "./System/RenderSystem/RenderSystem";
 import { PickingSystem } from "./System/PickingSystem";
 import { DragSystem } from "./System/DragSystem";
-import type { Size } from "./Components";
 import { ZoomSystem } from "./System/ZoomSystem";
 import { ScrollSystem } from "./System/ScrollSystem";
+import type { DefaultConfig } from "./types";
 
-export function createEngine(
-  dsls: any[],
-  canvas: HTMLCanvasElement,
-  defaultSize: Size
-) {
+export function createEngine(dsls: any[], defaultConfig: DefaultConfig) {
   const core = new Core(dsls);
   const engine = new Engine(core);
 
   // 初始化 canvas
-  const ctx = engine.initCanvas(canvas, defaultSize);
+  const ctx = engine.initCanvas(defaultConfig);
 
   engine.addSystem(new PickingSystem(ctx, engine));
   engine.addSystem(new HoverSystem(ctx, engine));

@@ -2,7 +2,7 @@ import type { Size } from "../Components";
 import type { DSL } from "../DSL/DSL";
 import type { Entity } from "../Entity/Entity";
 import type { System } from "../System/System";
-import type { StateStore } from "../types";
+import type { DefaultConfig, StateStore } from "../types";
 import type { Camera } from "./Camera";
 // import { Engine } from "./Engine";
 
@@ -21,10 +21,8 @@ export interface EngineContext {
   system: System[];
 
   entityManager: Entity;
-  initCanvas: (
-    canvas: HTMLCanvasElement,
-    size: { width: number; height: number }
-  ) => CanvasRenderingContext2D | null;
+  createCanvas: (defaultConfig: DefaultConfig) => CanvasRenderingContext2D;
+  initCanvas: (defaultConfig: DefaultConfig) => CanvasRenderingContext2D | null;
   update: () => void;
   destroyed: () => void;
   addSystem: (system: any) => void;

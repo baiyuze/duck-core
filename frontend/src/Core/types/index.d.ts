@@ -27,3 +27,9 @@ export type PickEntity = {
   selected: Selected;
   entityId: string;
 };
+
+export type DefaultConfig = {
+  width: number;
+  height: number;
+  container: HTMLDivElement;
+};

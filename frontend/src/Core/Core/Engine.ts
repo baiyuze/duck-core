@@ -4,7 +4,7 @@ import { DSL } from "../DSL/DSL";
 import { Entity } from "../Entity/Entity";
 import type { EventSystem } from "../System/EventSystem";
 import { System } from "../System/System";
-import type { StateStore } from "../types";
+import type { DefaultConfig, StateStore } from "../types";
 import { Camera } from "./Camera";
 import type { Core } from "./Core";
 import type { EngineContext } from "./EngineContext";
@@ -35,26 +35,23 @@ export class Engine implements EngineContext {
     return this.core.stateStore;
   }
 
-  initCanvas(
-    canvas: HTMLCanvasElement,
-    size: { width: number; height: number }
-  ) {
-    this.defaultSize = size;
+  createCanvas(defaultConfig: DefaultConfig) {
+    const canvas = document.createElement("canvas");
     const dpr = window.devicePixelRatio || 1;
-    canvas.style.width = size.width + "px";
-    canvas.style.height = size.height + "px";
-    // canvas.style.position = "absolute";
-    // canvas.style.top = "0";
-    // canvas.style.left = "0";
-
-    canvas.width = size.width * dpr;
-    canvas.height = size.height * dpr;
-
+    canvas.style.width = defaultConfig.width + "px";
+    canvas.style.height = defaultConfig.height + "px";
+    canvas.width = defaultConfig.width * dpr;
+    canvas.height = defaultConfig.height * dpr;
+    defaultConfig.container.appendChild(canvas);
     const ctx = canvas.getContext("2d", {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;
     ctx.scale(dpr, dpr);
+    return ctx;
+  }
 
+  initCanvas(defaultConfig: DefaultConfig) {
+    const ctx = this.createCanvas(defaultConfig);
     return ctx;
   }
 
@@ -65,11 +62,6 @@ export class Engine implements EngineContext {
     this.core.resetState();
     this.core.initComponents(dsls);
   }
-
-  // resetState() {
-  //   this.stateStore = Engine.getStateStore();
-  //   this.entityManager = new Entity();
-  // }
 
   addSystem(system: System) {
     this.system.push(system);
