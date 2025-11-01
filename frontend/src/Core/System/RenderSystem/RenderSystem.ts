@@ -38,7 +38,6 @@ export class RenderSystem extends System {
   drawShape(stateStore: StateStore, entityId: string) {
     const type = stateStore.type.get(entityId);
     if (!type) return;
-    console.log(type, "type---->");
     this.renderMap.get(type)?.draw(entityId);
     this.renderMap.get(type)?.draw1(entityId);
   }
@@ -99,8 +98,6 @@ export class RenderSystem extends System {
       const { x, y } = pos as Position;
       ctx.translate(x, y);
       // 中心原点应该是图形的中心点
-      const graphics = stateStore.graphics.get(entityId);
-      graphics?.position.set(x, y);
       this.drawShape(stateStore, entityId);
       ctx.restore();
     });

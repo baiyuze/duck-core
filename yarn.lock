@@ -25,6 +25,11 @@ canvg@^4.0.3:
     stackblur-canvas "^2.0.0"
     svg-pathdata "^6.0.3"
 
+fast-deep-equal@^3.1.3:
+  version "3.1.3"
+  resolved "https://registry.yarnpkg.com/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz#3a7d56b559d6cbc3eb512325244e619a65c6c525"
+  integrity sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==
+
 performance-now@^2.1.0:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
@@ -41,6 +46,11 @@ rgbcolor@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/rgbcolor/-/rgbcolor-1.0.1.tgz#d6505ecdb304a6595da26fa4b43307306775945d"
   integrity sha512-9aZLIrhRaD97sgVhtJOW6ckOEh6/GnvQtdVNfdZ6s67+3/XwLS9lBcQYzEEhYVeUowN7pRzMLsyGhK2i/xvWbw==
+
+stable-hash@^0.0.6:
+  version "0.0.6"
+  resolved "https://registry.yarnpkg.com/stable-hash/-/stable-hash-0.0.6.tgz#7dd2cb7c71c2526b0d089b6bf0d1fcef38a6f97e"
+  integrity sha512-0afH4mobqTybYZsXImQRLOjHV4gvOW+92HdUIax9t7a8d9v54KWykEuMVIcXhD9BCi+w3kS4x7O6fmZQ3JlG/g==
 
 stackblur-canvas@^2.0.0:
   version "2.7.0"

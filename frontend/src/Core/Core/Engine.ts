@@ -58,6 +58,7 @@ export class Engine implements EngineContext {
       width: defaultConfig.width,
       height: defaultConfig.height,
       autoStart: false,
+      autoDensity: true,
       backgroundAlpha: 0,
       antialias: true, // 抗锯齿
       resolution: window.devicePixelRatio || 1,
@@ -83,6 +84,11 @@ export class Engine implements EngineContext {
    * @param graphics
    */
   addChild(graphics: Container) {
+    // 检查 graphics 的父级是否是 this.app.stage
+    if (graphics.parent === this.app.stage) {
+      return;
+    }
+    // 仅当父级不是 stage 时才添加
     this.app.stage.addChild(graphics);
   }
 
@@ -98,6 +104,12 @@ export class Engine implements EngineContext {
   getSystemByName<T extends System>(name: string): T | undefined {
     return this.SystemMap.get(name) as T | undefined;
   }
+  /**
+   * 清空引擎画布
+   */
+  clearEngineCanvas() {
+    this.app.stage.removeChildren();
+  }
 
   requestFrame() {
     if (!this.needsFrame) {
@@ -111,9 +123,11 @@ export class Engine implements EngineContext {
     if (!this.app.renderer) return;
     this.isFirstInit = false;
     this.needsFrame = false;
-    this.update();
+    // 这里的update和下面的update多执行了一次
+    // this.update();
+    console.log("Render", "====>>>>>>");
     this.app.renderer.render(this.app.stage);
-    this.dirtyRender = false;
+    // this.dirtyRender = false;
   }
 
   tick() {

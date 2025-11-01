@@ -101,8 +101,8 @@ export class EventSystem extends System {
     this.stateStore.eventQueue = [{ type: "mousemove", event }];
     if (this.engine.core.isDragging) {
       this.engine.dirtyRender = true;
+      this.engine.requestFrame();
     }
-    this.engine.requestFrame();
   }
 
   /**

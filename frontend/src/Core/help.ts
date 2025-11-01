@@ -302,6 +302,7 @@ export class Help {
       let type = "rect";
       let src = "";
       let path = "";
+      let svg = "";
       let fillColor = style.backgroundColor;
       let strokeColor = "";
       switch (dom.nodeType) {
@@ -320,6 +321,7 @@ export class Help {
             fillColor = svgData.fill;
             strokeColor = svgData.stroke;
             path = svgData.path;
+            svg = svgData.svg;
           }
           break;
         }
@@ -375,7 +377,7 @@ export class Help {
         color,
         selected: { value: false, hovered: false },
         radius,
-        img: src || path ? { src, path } : null,
+        img: src || path || svg ? { src, path, svg } : null,
         id: this.id.toString(),
         rotation: { value: 0 },
         zIndex: 30,

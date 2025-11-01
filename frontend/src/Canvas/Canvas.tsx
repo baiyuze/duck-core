@@ -16,6 +16,7 @@ import { createEngine } from "../Core/engineFactory";
 
 function Canvas(props: CanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [length, setLength] = useState(0);
   // const dsls: any[] = [
   //   {
   //     position: { x: 0, y: 0 },
@@ -688,8 +689,10 @@ function Canvas(props: CanvasProps) {
   };
   const handlerApplyCode = (data: any[]) => {
     engineRef.current?.core.initComponents(data);
+    setLength(data.length);
     if (engineRef.current) {
       engineRef.current.dirtyRender = true;
+      engineRef.current.clearEngineCanvas();
       engineRef.current?.update();
     }
   };
@@ -699,12 +702,12 @@ function Canvas(props: CanvasProps) {
     return () => {
       engineRef.current?.destroyed();
       engineRef.current = null;
-      canvasRef.current = null;
     };
   }, []);
 
   return (
     <div className={styles.canvasContainer}>
+      {length}
       {/* <div className={styles.top}></div> */}
       <div className={styles.left}></div>
       <div className={styles.canvas}>

@@ -1,4 +1,4 @@
-import { Assets, Sprite, Texture } from "pixi.js";
+import { Assets, Graphics, Sprite, Texture } from "pixi.js";
 import type { Engine } from "../../Core/Engine";
 import type { DSL } from "../../DSL/DSL";
 import type { StateStore } from "../../types";
@@ -94,23 +94,43 @@ export class ImgRender extends System {
   async draw1(entityId: string) {
     this.stateStore = this.engine.stateStore;
     // if (!this.stateStore) return;
-    const { img, size, graphics } = this.getComponentsByEntityId(
-      this.stateStore,
-      entityId
-    );
+    const state = this.getComponentsByEntityId(this.stateStore, entityId);
+    const { img, size } = state;
+    let graphics;
+
     // SVG渲染
     if (img.svg) {
+      graphics = this.graphicsMap.get(entityId) as Graphics;
+      if (!graphics) {
+        graphics = new Graphics();
+        this.graphicsMap.set(entityId, graphics);
+      }
+
+      if (!this.isPositionDirty(entityId, state)) return;
+      graphics.position.set(state.position.x, state.position.y);
+
+      if (!this.isGeometryDirty(entityId, state)) return;
       graphics.svg(img.svg);
+      graphics.width = size.width;
+      graphics.height = size.height;
       this.engine.addChild(graphics);
       return;
     }
     // 图片
     if (img.src) {
-      const texture = await Assets.load(img.src);
-      const sprite = new Sprite(texture);
-      sprite.width = size.width;
-      sprite.height = size.height;
-      this.engine.addChild(sprite);
+      graphics = this.graphicsMap.get(entityId) as Sprite;
+      if (!graphics) {
+        const texture = await Assets.load(img.src);
+        graphics = new Sprite(texture);
+        this.graphicsMap.set(entityId, graphics);
+      }
+      if (!this.isPositionDirty(entityId, state)) return;
+      graphics.position.set(state.position.x, state.position.y);
+
+      if (!this.isGeometryDirty(entityId, state)) return;
+      graphics.width = size.width;
+      graphics.height = size.height;
+      this.engine.addChild(graphics);
     }
   }
 }

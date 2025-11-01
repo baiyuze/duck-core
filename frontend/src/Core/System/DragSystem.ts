@@ -48,12 +48,8 @@ export class DragSystem extends System {
     }
     if (pickSystem.checkEventTypeIsMatch(EventType.MouseMove)) {
       this.isMouseMove = true;
-      if (this.isMouseDown) {
-        this.engine.core.isDragging = true;
-      }
     }
     if (pickSystem.checkEventTypeIsMatch(EventType.MouseUp)) {
-      this.engine.core.isDragging = false;
       this.isMouseUp = true;
       this.isMouseDown = false;
       this.isMouseMove = false;
@@ -82,6 +78,7 @@ export class DragSystem extends System {
     if (!this.stateStore || !selectedEntitys) return;
     const eventQueue = this.stateStore.eventQueue;
     const lastEvent = eventQueue[eventQueue.length - 1];
+    this.engine.core.isDragging = true;
 
     // 获取画布坐标（不是屏幕坐标）
     const rect = this.ctx.canvas.getBoundingClientRect();
@@ -105,6 +102,7 @@ export class DragSystem extends System {
     if (!this.stateStore || !selectedEntitys) return;
     const eventQueue = this.stateStore.eventQueue;
     const lastEvent = eventQueue[eventQueue.length - 1];
+    this.engine.core.isDragging = true;
 
     // 获取当前鼠标的画布坐标
     const rect = this.ctx.canvas.getBoundingClientRect();
@@ -128,6 +126,7 @@ export class DragSystem extends System {
     const pickSystem =
       this.engine.getSystemByName<PickingSystem>("PickingSystem");
     if (!pickSystem) return;
+    this.engine.core.isDragging = false;
 
     const selectedEntitys = pickSystem.getCurrentPickSelectedEntitys();
     if (!this.stateStore || !selectedEntitys) return;

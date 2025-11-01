@@ -1,7 +1,8 @@
-import { Text, TextStyle } from "pixi.js";
+import { Text, TextStyle, type TextStyleFontWeight } from "pixi.js";
 import type { Engine } from "../../Core/Engine";
 import type { StateStore } from "../../types";
 import { System } from "../System";
+import type { Font } from "../../Components";
 
 export class TextRender extends System {
   engine: Engine;
@@ -56,31 +57,49 @@ export class TextRender extends System {
     if (font.strokeColor) this.ctx.strokeText(font.text, offsetX, offsetY);
     this.ctx.fillText(font.text, offsetX, offsetY);
   }
-  draw1(entityId: string) {
-    this.stateStore = this.engine.stateStore;
-    const state = this.getComponentsByEntityId(this.stateStore, entityId);
-    const font = state.font;
-    const graphics = state.graphics;
-    const size = state.size;
+
+  getTextStyle(font: Font): TextStyle {
     let textAlign = font.textAlign || "left";
-    let textBaseline = font.textBaseline || "top";
+
     if (textAlign === "start") textAlign = "left";
     if (textAlign === "end") textAlign = "right";
 
-    if (textBaseline === "alphabetic") textBaseline = "bottom";
     const style = new TextStyle({
       fontFamily: font.family || "Arial",
       fontSize: font.size || 16,
       fill: font.fillColor || "#000",
       stroke: font.strokeColor || "transparent",
       align: textAlign,
+      fontWeight: (font.weight.toString() || "normal") as TextStyleFontWeight,
     });
-    const textGraphic = new Text({
-      text: font.text,
-      style,
-    });
-    textGraphic.anchor.set(0, 0);
+    return style;
+  }
+  draw1(entityId: string) {
+    this.stateStore = this.engine.stateStore;
+    const state = this.getComponentsByEntityId(this.stateStore, entityId);
 
+    const size = state.size;
+    let textGraphic = this.graphicsMap.get(entityId) as Text;
+    if (!textGraphic) {
+      const style = this.getTextStyle(state.font);
+      textGraphic = new Text({
+        text: state.font.text,
+        style,
+      });
+      this.graphicsMap.set(entityId, textGraphic);
+    }
+    if (!this.isPositionDirty(entityId, state)) return;
+    textGraphic.position.set(state.position.x, state.position.y);
+
+    if (!this.isGeometryDirty(entityId, state)) return;
+
+    const style = this.getTextStyle(state.font);
+    let textBaseline = state.font.textBaseline || "top";
+    if (textBaseline === "alphabetic") textBaseline = "bottom";
+    textGraphic.style = style;
+    textGraphic.anchor.set(0, 0);
+    textGraphic.resolution = window.devicePixelRatio;
+    const textAlign = style.align;
     // 根据 textAlign 和 textBaseline 调整位置
     let offsetX = 0;
     let offsetY = 0;

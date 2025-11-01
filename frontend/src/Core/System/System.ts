@@ -1,4 +1,4 @@
-import type { Graphics } from "pixi.js";
+import type { Container, Graphics, Sprite, Texture } from "pixi.js";
 import type {
   Color,
   Font,
@@ -13,10 +13,15 @@ import type { Img } from "../Components/Img";
 import type Polygon from "../Components/Polygon";
 import type Scale from "../Components/Scale";
 import type { Engine } from "../Core/Engine";
-import type { DSL } from "../DSL/DSL";
+import { DSL } from "../DSL/DSL";
 import type { StateStore } from "../types";
+import type { DSLParams } from "../types/dsl";
+import hash from "stable-hash";
+import equal from "fast-deep-equal";
 
 export class System {
+  hashMap: Map<string, string | any> = new Map();
+  graphicsMap: Map<string, Container | Graphics | Texture | Sprite> = new Map();
   update(components: StateStore) {}
   draw(entityId: string) {}
   draw1(entityId: string) {}
@@ -37,13 +42,28 @@ export class System {
     const img = components.img.get(entityId) as Img;
     const scale = components.scale.get(entityId) as Scale;
     const polygon = components.polygon.get(entityId) as Polygon;
-    const graphics = components.graphics.get(entityId) as Graphics;
+    const id = entityId;
+    // const graphics = components.graphics.get(entityId) as Graphics;
     // const ellipseRadius = components.ellipseRadius.get(
     //   entityId
     // ) as EllipseRadius;
     const radius = components.radius.get(entityId) as Radius;
 
-    return {
+    // return {
+    //   size,
+    //   position,
+    //   color,
+    //   rotation,
+    //   type,
+    //   lineWidth,
+    //   font,
+    //   img,
+    //   scale,
+    //   polygon,
+    //   radius,
+    //   graphics,
+    // } as DSLParams;
+    return new DSL({
       size,
       position,
       color,
@@ -55,8 +75,61 @@ export class System {
       scale,
       polygon,
       radius,
-      graphics,
-    };
+      id,
+    } as DSLParams);
+  }
+  /**
+   * 获取状态的哈希值
+   * @param state
+   * @returns
+   */
+  getHash(state: DSL): string {
+    return hash(state);
+  }
+  /**
+   * 比较两个状态是否相等
+   * @param state1
+   * @param state2
+   * @returns
+   */
+  isEqual(state1: DSL, state2: DSL): boolean {
+    const hash1 = this.getHash(state1);
+    const hash2 = this.getHash(state2);
+    return hash1 === hash2;
+  }
+  /**
+   * 判断状态是否脏
+   * @param state1
+   * @param state2
+   * @returns
+   */
+  isDirty(entityId: string, newState: DSL): boolean {
+    // const oldHash = this.hashMap.get(entityId);
+    // if (oldHash === hash(newState)) return false;
+    if (!this.isPositionDirty(entityId, newState)) return false;
+    if (!this.isGeometryDirty(entityId, newState)) return false;
+
+    // this.hashMap.set(entityId, this.getHash(newState));
+    return true;
+  }
+  isPositionDirty(entityId: string, state: DSL): boolean {
+    const oldPosition = this.hashMap.get(entityId + "_position");
+    if (
+      oldPosition &&
+      oldPosition.x === state.position.x &&
+      oldPosition.y === state.position.y
+    )
+      return false;
+    this.hashMap.set(entityId + "_position", state.position);
+    return true;
+  }
+  isGeometryDirty(entityId: string, state: DSL): boolean {
+    const old = this.hashMap.get(entityId + "_geometry");
+    const data: any = { ...state };
+    delete data.position;
+    if (equal(data, old)) return false;
+    this.hashMap.set(entityId + "_geometry", data);
+    return true;
   }
   /**
    * 销毁
