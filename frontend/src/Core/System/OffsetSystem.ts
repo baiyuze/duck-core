@@ -16,8 +16,9 @@ export class RenderSystem extends System {
   }
 
   render(stateStore: StateStore, ctx: CanvasRenderingContext2D) {
+    const size = this.engine.defaultConfig;
     // 每帧先清空画布
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.clearRect(0, 0, size.width, size.height);
 
     // 遍历所有 position 组件的实体
     stateStore.position.forEach((pos, entityId) => {

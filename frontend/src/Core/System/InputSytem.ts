@@ -43,7 +43,6 @@ export class InputSystem extends System {
 
     document.addEventListener("keyup", (e) => {
       if (e.key) {
-        console.log(e.key, "keyup");
         let keyName = e.key;
         // 在 Windows 系统下，特别处理左侧 Ctrl 键
         if (

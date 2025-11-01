@@ -23,13 +23,13 @@ export class EventSystem extends System {
     this.ctx = ctx;
     this.engine = engine;
     this.dispose();
-    this.throttledMouseMove = throttle(this.onMouseMove.bind(this), 16);
+    this.throttledMouseMove = throttle(this.onMouseMove.bind(this), 30);
     this.throttledWheel = throttle(this.onWheel.bind(this), 3);
     // this.throttledWheel = throttle(this.onWheel.bind(this), 16);
     // ctx.canvas.addEventListener("click", this.onClick.bind(this));
-    document.addEventListener("mouseup", this.onMouseUp.bind(this));
+    window.addEventListener("mouseup", this.onMouseUp.bind(this));
     ctx.canvas.addEventListener("mousedown", this.onMouseDown.bind(this));
-    document.addEventListener("mousemove", this.throttledMouseMove);
+    window.addEventListener("mousemove", this.throttledMouseMove);
     // Listen for wheel events to support zooming. passive:false so we can preventDefault()
     this.ctx.canvas.addEventListener("wheel", this.throttledWheel, {
       passive: false,
@@ -38,8 +38,8 @@ export class EventSystem extends System {
 
   dispose() {
     // this.ctx.canvas.removeEventListener("click", this.onClick.bind(this));
-    document.removeEventListener("mousemove", this.throttledMouseMove);
-    document.removeEventListener("mouseup", this.onMouseUp.bind(this));
+    window.removeEventListener("mousemove", this.throttledMouseMove);
+    window.removeEventListener("mouseup", this.onMouseUp.bind(this));
     this.ctx.canvas.removeEventListener(
       "mousedown",
       this.onMouseDown.bind(this)

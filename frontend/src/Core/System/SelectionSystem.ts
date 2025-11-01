@@ -34,8 +34,8 @@ export class SelectionSystem extends System {
 
     const dpr = window.devicePixelRatio || 1;
 
-    const width = this.engine.defaultSize.width;
-    const height = this.engine.defaultSize.height;
+    const width = this.engine.defaultConfig.width;
+    const height = this.engine.defaultConfig.height;
     selectionCanvas.style.width = width + "px";
     selectionCanvas.style.height = height + "px";
 
@@ -132,12 +132,9 @@ export class SelectionSystem extends System {
 
   clearCanvas() {
     if (!this.selectionCtx) return;
-    this.selectionCtx.clearRect(
-      0,
-      0,
-      this.selectionCtx.canvas.width,
-      this.selectionCtx.canvas.height
-    );
+    const width = this.engine.defaultConfig.width;
+    const height = this.engine.defaultConfig.height;
+    this.selectionCtx.clearRect(0, 0, width, height);
   }
 
   update(stateStore: StateStore) {

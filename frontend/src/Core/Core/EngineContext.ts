@@ -14,7 +14,7 @@ export interface EngineContext {
   isFirstInit: boolean;
   dirtyRender: boolean;
   dirtyOverlay: boolean;
-  defaultSize: Size;
+  defaultConfig: Size;
 
   SystemMap: Map<string, System>;
 

@@ -20,7 +20,7 @@ export class Engine implements EngineContext {
   /**
    * 是否多选
    */
-  defaultSize: Size = { width: 800, height: 800 };
+  defaultConfig: Size = { width: 800, height: 800 };
   dsls: DSL[] = [];
   SystemMap: Map<string, System> = new Map();
   system: System[] = [];
@@ -44,6 +44,7 @@ export class Engine implements EngineContext {
     const dpr = window.devicePixelRatio || 1;
     canvas.style.width = defaultConfig.width + "px";
     canvas.style.height = defaultConfig.height + "px";
+    canvas.setAttribute("id", "engine-canvas");
     canvas.width = defaultConfig.width * dpr;
     canvas.height = defaultConfig.height * dpr;
     defaultConfig.container.appendChild(canvas);
@@ -70,6 +71,7 @@ export class Engine implements EngineContext {
   }
 
   initCanvas(defaultConfig: DefaultConfig) {
+    this.defaultConfig = defaultConfig;
     const ctx = this.createCanvas(defaultConfig);
     this.createRenderEngine(defaultConfig);
     return ctx;

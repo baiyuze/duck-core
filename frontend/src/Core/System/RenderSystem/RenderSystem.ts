@@ -87,7 +87,8 @@ export class RenderSystem extends System {
 
   render(stateStore: StateStore, ctx: CanvasRenderingContext2D) {
     // 每帧先清空画布
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    const size = this.engine.defaultConfig;
+    ctx.clearRect(0, 0, size.width, size.height);
     ctx.save();
     ctx.translate(this.engine.camera.translateX, this.engine.camera.translateY);
     ctx.scale(this.engine.camera.zoom, this.engine.camera.zoom);

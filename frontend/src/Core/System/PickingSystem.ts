@@ -39,8 +39,9 @@ export class PickingSystem extends System {
     ctx.save();
     ctx.translate(this.engine.camera.translateX, this.engine.camera.translateY);
     ctx.scale(this.engine.camera.zoom, this.engine.camera.zoom);
+    const size = this.engine.defaultConfig;
     // 每帧先清空画布
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.clearRect(0, 0, size.width, size.height);
 
     // 遍历所有 position 组件的实体
     stateStore.position.forEach((pos, entityId) => {

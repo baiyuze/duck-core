@@ -57,8 +57,8 @@ export class DragSystem extends System {
 
     // 鼠标按下但还没有移动时，初始化拖拽
     if (this.isMouseDown && !this.dragStarted) {
-      this.onDragStart(pickSystem);
       this.dragStarted = true;
+      this.onDragStart(pickSystem);
     }
 
     // 鼠标按下并移动时，执行拖拽
@@ -131,7 +131,6 @@ export class DragSystem extends System {
     const selectedEntitys = pickSystem.getCurrentPickSelectedEntitys();
     if (!this.stateStore || !selectedEntitys) return;
 
-    // 记录拖拽结束时的最终位置
     const finalPositions: { entityId: string; x: number; y: number }[] = [];
     selectedEntitys.forEach((pickEntity) => {
       const position = this.stateStore!.position.get(pickEntity.entityId);
