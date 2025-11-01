@@ -419,35 +419,51 @@ export class RectRender extends System {
 
         // 顶部描边 (Top Line + Top-Right Corner)
         // 使用 strokeTColor；如果 strokeTColor 为 null/undefined，则使用 strokeColor
-        g.stroke({ width: strokeWidth, color: strokeTColor ?? strokeColor });
+        g.stroke({
+          alignment: 1,
+          width: strokeWidth,
+          color: strokeTColor ?? strokeColor,
+        });
         g.moveTo(x + rTL, y);
         g.lineTo(x + width - rTR, y);
         g.arcTo(x + width, y, x + width, y + rTR, rTR);
         g.stroke();
 
         // 右侧描边 (Right Line + Bottom-Right Corner)
-        g.stroke({ width: strokeWidth, color: strokeRColor ?? strokeColor });
+        g.stroke({
+          alignment: 1,
+          width: strokeWidth,
+          color: strokeRColor ?? strokeColor,
+        });
         g.moveTo(x + width, y + rTR);
         g.lineTo(x + width, y + height - rBR);
         g.arcTo(x + width, y + height, x + width - rBR, y + height, rBR);
         g.stroke();
 
         // 底部描边 (Bottom Line + Bottom-Left Corner)
-        g.stroke({ width: strokeWidth, color: strokeBColor ?? strokeColor });
+        g.stroke({
+          alignment: 1,
+          width: strokeWidth,
+          color: strokeBColor ?? strokeColor,
+        });
         g.moveTo(x + width - rBR, y + height);
         g.lineTo(x + rBL, y + height);
         g.arcTo(x, y + height, x, y + height - rBL, rBL);
         g.stroke();
 
         // 左侧描边 (Left Line + Top-Left Corner)
-        g.stroke({ width: strokeWidth, color: strokeLColor ?? strokeColor });
+        g.stroke({
+          alignment: 1,
+          width: strokeWidth,
+          color: strokeLColor ?? strokeColor,
+        });
         g.moveTo(x, y + height - rBL);
         g.lineTo(x, y + rTL);
         g.arcTo(x, y, x + rTL, y, rTL);
         g.stroke();
       } else if (strokeColor) {
         // --- 整体描边：只有通用 strokeColor 有值，且没有单独设置的颜色时 ---
-        g.stroke({ width: strokeWidth, color: strokeColor });
+        g.stroke({ alignment: 1, width: strokeWidth, color: strokeColor });
         this.drawCustomRoundedPath(g, x, y, width, height, radius);
         g.stroke();
       }

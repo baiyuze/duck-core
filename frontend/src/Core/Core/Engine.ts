@@ -1,6 +1,7 @@
 import type { Size } from "../Components";
 import { Selected } from "../Components/Selected";
 import { DSL } from "../DSL/DSL";
+import { EngineHelp } from "../engineHelp";
 import { Entity } from "../Entity/Entity";
 import type { EventSystem } from "../System/EventSystem";
 import { System } from "../System/System";
@@ -9,6 +10,7 @@ import { Camera } from "./Camera";
 import type { Core } from "./Core";
 import type { EngineContext } from "./EngineContext";
 import { Application, Container, Graphics, Sprite } from "pixi.js";
+const engineHelp = new EngineHelp();
 
 export class Engine implements EngineContext {
   camera = new Camera();
@@ -54,6 +56,7 @@ export class Engine implements EngineContext {
   }
 
   async createRenderEngine(defaultConfig: DefaultConfig) {
+    const resolution = engineHelp.getOptimalResolution();
     await this.app.init({
       width: defaultConfig.width,
       height: defaultConfig.height,
@@ -61,7 +64,7 @@ export class Engine implements EngineContext {
       autoDensity: true,
       backgroundAlpha: 0,
       antialias: true, // 抗锯齿
-      resolution: window.devicePixelRatio || 1,
+      resolution,
     });
     defaultConfig.container.appendChild(this.app.canvas);
   }
