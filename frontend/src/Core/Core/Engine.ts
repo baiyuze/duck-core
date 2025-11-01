@@ -22,7 +22,7 @@ export class Engine implements EngineContext {
   SystemMap: Map<string, System> = new Map();
   system: System[] = [];
   entityManager = new Entity();
-
+  ctx: CanvasRenderingContext2D | null = null;
   needsFrame: boolean = false;
 
   // ctx: CanvasRenderingContext2D | null;
@@ -47,6 +47,7 @@ export class Engine implements EngineContext {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;
     ctx.scale(dpr, dpr);
+    this.ctx = ctx;
     return ctx;
   }
 
@@ -121,6 +122,7 @@ export class Engine implements EngineContext {
     this.system.forEach((sys) => {
       sys.destroyed();
     });
+    this.ctx?.canvas.remove();
     this.system = [];
     this.SystemMap.clear();
     this.core.resetState();
