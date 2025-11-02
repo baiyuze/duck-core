@@ -70,10 +70,10 @@ export class Engine implements EngineContext {
     defaultConfig.container.appendChild(this.app.canvas);
   }
 
-  initCanvas(defaultConfig: DefaultConfig) {
+  async initCanvas(defaultConfig: DefaultConfig) {
     this.defaultConfig = defaultConfig;
     const ctx = this.createCanvas(defaultConfig);
-    this.createRenderEngine(defaultConfig);
+    await this.createRenderEngine(defaultConfig);
     return ctx;
   }
 
