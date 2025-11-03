@@ -16,7 +16,7 @@ import type { Engine } from "../Core/Engine";
 import { DSL } from "../DSL/DSL";
 import type { StateStore } from "../types";
 import type { DSLParams } from "../types/dsl";
-import hash from "stable-hash";
+import { hash } from "stable-hash-x";
 import equal from "fast-deep-equal";
 
 export class System {

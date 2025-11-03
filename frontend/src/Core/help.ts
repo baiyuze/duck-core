@@ -60,6 +60,7 @@ export class Help {
       const childElement = this.transformElement(child);
       rootElement.children.push(childElement);
     }
+
     this.transformToDSL([rootElement]);
   }
 
@@ -70,6 +71,7 @@ export class Help {
    */
   transformElement(element: HTMLElement): Style {
     const style = this.getStyleConfig(element);
+
     const elementData = {
       ...style,
       children: [] as Style[],
@@ -106,11 +108,14 @@ export class Help {
    */
   getStyleConfig(dom: HTMLElement) {
     const styleConfig = window.getComputedStyle(dom);
-    // 只保留有value的样式属性
-    const filteredStyles = Object.entries(styleConfig).filter(([key]) => {
-      const isNumericKey = !isNaN(Number(key));
-      return !isNumericKey;
-    });
+    const filteredStyles: [string, string][] = [];
+
+    for (const key in styleConfig) {
+      if (isNaN(Number(key))) {
+        filteredStyles.push([key, styleConfig[key]]);
+      }
+    }
+
     const style = {} as Style;
     for (let i = 0; i < filteredStyles.length; i++) {
       const [key, value]: [string, string] = filteredStyles[i];
