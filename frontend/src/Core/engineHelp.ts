@@ -1,7 +1,9 @@
 export class EngineHelp {
+  oldFps: number = 0;
+
   /**
    * 计算并返回渲染的最佳分辨率（DPR）。
-   * 该方法考虑了“高分屏低报 DPR”的特殊情况，以确保在这些设备上仍能获得良好的视觉效果。
+   * 该方法考虑了"高分屏低报 DPR"的特殊情况，以确保在这些设备上仍能获得良好的视觉效果。
    * @param minClarityThreshold 最低清晰度阈值
    * @param highResWidthThreshold 高分辨率宽度阈值
    * @returns 最佳分辨率
@@ -13,7 +15,7 @@ export class EngineHelp {
     // 1. 获取浏览器报告的原始 DPR 值
     const actualDPR = window.devicePixelRatio || 1;
 
-    // 2. 检查是否符合“高分屏低报 DPR”的特殊情况
+    // 2. 检查是否符合"高分屏低报 DPR"的特殊情况
     // (a) 浏览器报告 DPR 为 1 AND
     // (b) 屏幕物理宽度超过了高分屏阈值
     const isHighResLowReporting =

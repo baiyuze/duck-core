@@ -1,9 +1,7 @@
 import type { Size } from "../Components";
-import { Selected } from "../Components/Selected";
 import { DSL } from "../DSL/DSL";
 import { EngineHelp } from "../engineHelp";
 import { Entity } from "../Entity/Entity";
-import type { EventSystem } from "../System/EventSystem";
 import { System } from "../System/System";
 import type { DefaultConfig, StateStore } from "../types";
 import { Camera } from "./Camera";
@@ -17,9 +15,6 @@ export class Engine implements EngineContext {
   isFirstInit: boolean = true;
   dirtyRender = false;
   dirtyOverlay = false;
-  /**
-   * 是否多选
-   */
   defaultConfig: Size = { width: 800, height: 800 };
   dsls: DSL[] = [];
   SystemMap: Map<string, System> = new Map();
@@ -28,33 +23,17 @@ export class Engine implements EngineContext {
   app: Application = new Application();
   needsFrame: boolean = false;
   ctx: CanvasRenderingContext2D | null = null;
+  fpsText: string = "";
+  showFPS: boolean = false;
 
-  // ctx: CanvasRenderingContext2D | null;
-  constructor(public core: Core) {
-    // this.ctx = ctx;
-    // this.initComponents(dsls);
+  constructor(public core: Core, { showFPS = false } = {}) {
+    this.core = core;
+    this.showFPS = showFPS;
   }
 
   get stateStore() {
     return this.core.stateStore;
   }
-
-  // createCanvas(defaultConfig: DefaultConfig) {
-  //   const canvas = document.createElement("canvas");
-  //   const dpr = window.devicePixelRatio || 1;
-  //   canvas.style.width = defaultConfig.width + "px";
-  //   canvas.style.height = defaultConfig.height + "px";
-  //   canvas.setAttribute("id", "engine-canvas");
-  //   canvas.width = defaultConfig.width * dpr;
-  //   canvas.height = defaultConfig.height * dpr;
-  //   defaultConfig.container.appendChild(canvas);
-  //   const ctx = canvas.getContext("2d", {
-  //     willReadFrequently: true,
-  //   }) as CanvasRenderingContext2D;
-  //   ctx.scale(dpr, dpr);
-  //   this.ctx = ctx;
-  //   return ctx;
-  // }
 
   async createRenderEngine(defaultConfig: DefaultConfig) {
     const resolution = engineHelp.getOptimalResolution();
@@ -67,6 +46,7 @@ export class Engine implements EngineContext {
       antialias: true, // 抗锯齿
       resolution,
     });
+    this.app.ticker.maxFPS = defaultConfig.fps || 60;
     defaultConfig.container.appendChild(this.app.canvas);
   }
 
@@ -75,6 +55,21 @@ export class Engine implements EngineContext {
     // const ctx = this.createCanvas(defaultConfig);
     await this.createRenderEngine(defaultConfig);
     // return ctx;
+  }
+
+  /**
+   * 画布静止帧率
+   */
+  setStaticFps() {
+    this.app.ticker.minFPS = 1;
+  }
+
+  /**
+   * 设置最大帧率
+   * @param fps
+   */
+  setMaxFps(fps: number) {
+    this.app.ticker.maxFPS = fps;
   }
 
   /**
@@ -117,23 +112,21 @@ export class Engine implements EngineContext {
   }
 
   requestFrame() {
-    if (!this.needsFrame) {
-      this.needsFrame = true;
-      requestAnimationFrame(() => this.ticker());
-    }
+    // if (!this.needsFrame) {
+    //   this.needsFrame = true;
+    //   requestAnimationFrame(() => this.ticker());
+    // }
   }
 
   ticker() {
     // if (!this.app.renderer) return;
     this.isFirstInit = true;
     this.needsFrame = false;
-    // this.app.ticker.add((ticker) => {
-    //   // console.log("Ticker", "====>>>>>>");
-    //   // bunny.rotation += ticker.deltaTime * 0.1;
-    //   this.update();
-    // });
+    this.app.ticker.add((ticker) => {
+      this.update();
+    });
     this.update();
-    this.app.renderer.render(this.app.stage);
+    // this.app.renderer.render(this.app.stage);
     this.dirtyRender = false;
   }
 

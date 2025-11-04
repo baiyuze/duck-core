@@ -1912,6 +1912,8 @@ function Canvas(props: CanvasProps) {
       width: 800,
       height: 800,
       container,
+      showFPS: true,
+      fps: 60,
     });
     // engineRef.current.update();
     setTimeout(() => {

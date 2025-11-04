@@ -13,14 +13,18 @@ import { DragSystem } from "./System/DragSystem";
 import { ZoomSystem } from "./System/ZoomSystem";
 import { ScrollSystem } from "./System/ScrollSystem";
 import type { DefaultConfig } from "./types";
+import { FpsSystem } from "./System/FpsSystem";
 
 export async function createEngine(dsls: any[], defaultConfig: DefaultConfig) {
   const core = new Core(dsls);
-  const engine = new Engine(core);
+  const engine = new Engine(core, defaultConfig);
 
   // 初始化 canvas
   await engine.createRenderEngine(defaultConfig);
 
+  if (defaultConfig.showFPS) {
+    engine.addSystem(new FpsSystem(engine));
+  }
   engine.addSystem(new PickingSystem(engine));
   engine.addSystem(new HoverSystem(engine));
   engine.addSystem(new ClickSystem(engine));

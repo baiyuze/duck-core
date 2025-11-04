@@ -34,4 +34,6 @@ export type DefaultConfig = {
   width: number;
   height: number;
   container: HTMLDivElement;
+  showFPS?: boolean;
+  fps?: number; // 帧率
 };
