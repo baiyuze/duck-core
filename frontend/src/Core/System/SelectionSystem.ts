@@ -5,21 +5,19 @@ import { System } from "./System";
 
 export class SelectionSystem extends System {
   engine: Engine;
-  ctx: CanvasRenderingContext2D;
   selectionCtx: CanvasRenderingContext2D | null = null;
   stateStore?: StateStore;
   isZoomChange: boolean = false;
   oldZoom: number = 1;
-  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
+  constructor(engine: Engine) {
     super();
-    this.ctx = ctx;
     this.engine = engine;
     this.initSelectionCanvas();
   }
 
   initSelectionCanvas() {
     // 清理之前的selectionCtx
-    const canvasDom = this.ctx.canvas;
+    const canvasDom = this.engine.app.canvas;
     const parent = canvasDom.parentElement;
     if (!parent) return;
 
@@ -165,7 +163,7 @@ export class SelectionSystem extends System {
   destroyed(): void {
     this.clearCanvas();
     // 移除selection canvas
-    const canvasDom = this.ctx.canvas;
+    const canvasDom = this.engine.app.canvas;
     const parent = canvasDom.parentElement;
     if (!parent) return;
     const selectionCanvas = parent.querySelector("#selection-canvas");
@@ -175,6 +173,5 @@ export class SelectionSystem extends System {
     this.selectionCtx = null;
     this.stateStore = undefined;
     this.engine = null as any;
-    this.ctx = null as any;
   }
 }

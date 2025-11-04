@@ -19,18 +19,18 @@ export async function createEngine(dsls: any[], defaultConfig: DefaultConfig) {
   const engine = new Engine(core);
 
   // 初始化 canvas
-  const ctx = await engine.initCanvas(defaultConfig);
+  await engine.createRenderEngine(defaultConfig);
 
-  engine.addSystem(new PickingSystem(ctx, engine));
-  engine.addSystem(new HoverSystem(ctx, engine));
-  engine.addSystem(new ClickSystem(ctx, engine));
-  engine.addSystem(new EventSystem(ctx, engine));
-  engine.addSystem(new InputSystem(ctx, engine));
-  engine.addSystem(new DragSystem(ctx, engine));
-  engine.addSystem(new ZoomSystem(ctx, engine));
-  engine.addSystem(new ScrollSystem(ctx, engine));
-  engine.addSystem(new RenderSystem(ctx, engine));
-  engine.addSystem(new SelectionSystem(ctx, engine));
+  engine.addSystem(new PickingSystem(engine));
+  engine.addSystem(new HoverSystem(engine));
+  engine.addSystem(new ClickSystem(engine));
+  engine.addSystem(new EventSystem(engine));
+  engine.addSystem(new InputSystem(engine));
+  engine.addSystem(new DragSystem(engine));
+  engine.addSystem(new ZoomSystem(engine));
+  engine.addSystem(new ScrollSystem(engine));
+  engine.addSystem(new RenderSystem(engine));
+  engine.addSystem(new SelectionSystem(engine));
 
   return engine;
 }

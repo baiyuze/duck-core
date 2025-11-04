@@ -7,13 +7,11 @@ import type { SelectionSystem } from "./SelectionSystem";
 import { System } from "./System";
 export class HoverSystem extends System {
   engine: Engine;
-  ctx: CanvasRenderingContext2D;
   entityManager: Entity = new Entity();
   stateStore: StateStore | null = null;
   isClearHover: boolean = false;
-  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
+  constructor(engine: Engine) {
     super();
-    this.ctx = ctx;
     this.engine = engine;
     // ctx.canvas.addEventListener("click", this.onClick.bind(this));
   }

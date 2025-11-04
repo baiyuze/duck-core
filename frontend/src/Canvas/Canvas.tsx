@@ -1913,7 +1913,7 @@ function Canvas(props: CanvasProps) {
       height: 800,
       container,
     });
-    engineRef.current.update();
+    // engineRef.current.update();
     setTimeout(() => {
       engineRef.current!.ticker();
     }, 0);

@@ -6,13 +6,11 @@ import { System } from "./System";
 
 export class ScrollSystem extends System {
   engine: Engine;
-  ctx: CanvasRenderingContext2D;
   offCtx: CanvasRenderingContext2D | null = null;
   entityManager: Entity = new Entity();
-  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
+  constructor(engine: Engine) {
     super();
     this.engine = engine;
-    this.ctx = ctx;
   }
 
   update(stateStore: StateStore) {

@@ -9,7 +9,6 @@ import renderRegistry from "./renderRegistry";
 
 export class RenderSystem extends System {
   engine: Engine;
-  ctx: CanvasRenderingContext2D;
   offCtx: CanvasRenderingContext2D | null = null;
   entityManager: Entity = new Entity();
   renderMap = new Map<string, System>();
@@ -22,24 +21,23 @@ export class RenderSystem extends System {
   private lastTime = performance.now();
   private showFPS = true; // 控制是否显示 FPS
 
-  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
+  constructor(engine: Engine) {
     super();
     this.engine = engine;
-    this.ctx = ctx;
     this.initRenderMap();
   }
 
   initRenderMap() {
     Object.entries(renderRegistry).forEach(([key, SystemClass]) => {
-      this.renderMap.set(key, new SystemClass(this.ctx, this.engine));
+      this.renderMap.set(key, new SystemClass(this.engine));
     });
   }
 
   drawShape(stateStore: StateStore, entityId: string) {
     const type = stateStore.type.get(entityId);
     if (!type) return;
+    // this.renderMap.get(type)?.draw(entityId);
     this.renderMap.get(type)?.draw(entityId);
-    this.renderMap.get(type)?.draw1(entityId);
   }
 
   /**
@@ -85,24 +83,25 @@ export class RenderSystem extends System {
     ctx.restore();
   }
 
-  render(stateStore: StateStore, ctx: CanvasRenderingContext2D) {
+  render(stateStore: StateStore) {
     // 每帧先清空画布
-    const size = this.engine.defaultConfig;
-    ctx.clearRect(0, 0, size.width, size.height);
-    ctx.save();
-    ctx.translate(this.engine.camera.translateX, this.engine.camera.translateY);
-    ctx.scale(this.engine.camera.zoom, this.engine.camera.zoom);
+    // const size = this.engine.defaultConfig;
+    // ctx.clearRect(0, 0, size.width, size.height);
+    // ctx.save();
+    // ctx.translate(this.engine.camera.translateX, this.engine.camera.translateY);
+    // ctx.scale(this.engine.camera.zoom, this.engine.camera.zoom);
 
     // 遍历所有 position 组件的实体
+
     stateStore.position.forEach((pos, entityId) => {
-      ctx.save();
-      const { x, y } = pos as Position;
-      ctx.translate(x, y);
+      // ctx.save();
+      // const { x, y } = pos as Position;
+      // ctx.translate(x, y);
       // 中心原点应该是图形的中心点
       this.drawShape(stateStore, entityId);
-      ctx.restore();
+      // ctx.restore();
     });
-    ctx.restore();
+    // ctx.restore();
   }
 
   /**
@@ -116,10 +115,10 @@ export class RenderSystem extends System {
     this.pendingRender = true;
     this.animationId = requestAnimationFrame(() => {
       // 计算 FPS
-      this.calculateFPS();
-      this.render(stateStore, this.ctx);
+      // this.calculateFPS();
+      this.render(stateStore);
       // 绘制 FPS 显示
-      this.drawFPS(this.ctx);
+      // this.drawFPS(this.ctx);
       this.pendingRender = false;
     });
   };

@@ -6,12 +6,10 @@ import type { PickingSystem } from "./PickingSystem";
 import { System } from "./System";
 export class ClickSystem extends System {
   engine: Engine;
-  ctx: CanvasRenderingContext2D;
   entityManager: Entity = new Entity();
   stateStore: StateStore | null = null;
-  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
+  constructor(engine: Engine) {
     super();
-    this.ctx = ctx;
     this.engine = engine;
   }
 

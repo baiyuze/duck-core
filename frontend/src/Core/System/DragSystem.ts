@@ -8,7 +8,6 @@ import type { SelectionSystem } from "./SelectionSystem";
 import { System } from "./System";
 export class DragSystem extends System {
   engine: Engine;
-  ctx: CanvasRenderingContext2D;
   entityManager: Entity = new Entity();
   stateStore: StateStore | null = null;
   isMouseDown: boolean = false;
@@ -16,9 +15,8 @@ export class DragSystem extends System {
   isMouseUp: boolean = false;
   offset: { x: number; y: number } = { x: 0, y: 0 };
   dragStarted: boolean = false; // 标记是否已经开始拖拽
-  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
+  constructor(engine: Engine) {
     super();
-    this.ctx = ctx;
     this.engine = engine;
   }
 
@@ -81,7 +79,7 @@ export class DragSystem extends System {
     this.engine.core.isDragging = true;
 
     // 获取画布坐标（不是屏幕坐标）
-    const rect = this.ctx.canvas.getBoundingClientRect();
+    const rect = this.engine.app.canvas.getBoundingClientRect();
     const { zoom, translateX, translateY } = this.engine.camera;
     const canvasX = lastEvent.event.clientX - rect.left;
     const canvasY = lastEvent.event.clientY - rect.top;
@@ -105,7 +103,7 @@ export class DragSystem extends System {
     this.engine.core.isDragging = true;
 
     // 获取当前鼠标的画布坐标
-    const rect = this.ctx.canvas.getBoundingClientRect();
+    const rect = this.engine.app.canvas.getBoundingClientRect();
 
     const { zoom, translateX, translateY } = this.engine.camera;
     const canvasX = lastEvent.event.clientX - rect.left;
@@ -177,8 +175,8 @@ export class DragSystem extends System {
   ) {
     if (!this.stateStore) return;
 
-    const canvasWidth = this.ctx.canvas.width;
-    const canvasHeight = this.ctx.canvas.height;
+    const canvasWidth = this.engine.app.canvas.width;
+    const canvasHeight = this.engine.app.canvas.height;
 
     finalPositions.forEach(({ entityId, x, y }) => {
       const position = this.stateStore!.position.get(entityId);

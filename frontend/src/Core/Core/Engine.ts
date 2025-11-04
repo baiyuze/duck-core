@@ -39,29 +39,29 @@ export class Engine implements EngineContext {
     return this.core.stateStore;
   }
 
-  createCanvas(defaultConfig: DefaultConfig) {
-    const canvas = document.createElement("canvas");
-    const dpr = window.devicePixelRatio || 1;
-    canvas.style.width = defaultConfig.width + "px";
-    canvas.style.height = defaultConfig.height + "px";
-    canvas.setAttribute("id", "engine-canvas");
-    canvas.width = defaultConfig.width * dpr;
-    canvas.height = defaultConfig.height * dpr;
-    defaultConfig.container.appendChild(canvas);
-    const ctx = canvas.getContext("2d", {
-      willReadFrequently: true,
-    }) as CanvasRenderingContext2D;
-    ctx.scale(dpr, dpr);
-    this.ctx = ctx;
-    return ctx;
-  }
+  // createCanvas(defaultConfig: DefaultConfig) {
+  //   const canvas = document.createElement("canvas");
+  //   const dpr = window.devicePixelRatio || 1;
+  //   canvas.style.width = defaultConfig.width + "px";
+  //   canvas.style.height = defaultConfig.height + "px";
+  //   canvas.setAttribute("id", "engine-canvas");
+  //   canvas.width = defaultConfig.width * dpr;
+  //   canvas.height = defaultConfig.height * dpr;
+  //   defaultConfig.container.appendChild(canvas);
+  //   const ctx = canvas.getContext("2d", {
+  //     willReadFrequently: true,
+  //   }) as CanvasRenderingContext2D;
+  //   ctx.scale(dpr, dpr);
+  //   this.ctx = ctx;
+  //   return ctx;
+  // }
 
   async createRenderEngine(defaultConfig: DefaultConfig) {
     const resolution = engineHelp.getOptimalResolution();
     await this.app.init({
       width: defaultConfig.width,
       height: defaultConfig.height,
-      autoStart: false,
+      // autoStart: false,
       autoDensity: true,
       backgroundAlpha: 0,
       antialias: true, // 抗锯齿
@@ -72,9 +72,9 @@ export class Engine implements EngineContext {
 
   async initCanvas(defaultConfig: DefaultConfig) {
     this.defaultConfig = defaultConfig;
-    const ctx = this.createCanvas(defaultConfig);
+    // const ctx = this.createCanvas(defaultConfig);
     await this.createRenderEngine(defaultConfig);
-    return ctx;
+    // return ctx;
   }
 
   /**
@@ -119,20 +119,22 @@ export class Engine implements EngineContext {
   requestFrame() {
     if (!this.needsFrame) {
       this.needsFrame = true;
-      requestAnimationFrame(() => this.tick());
-      this.ticker();
+      requestAnimationFrame(() => this.ticker());
     }
   }
 
   ticker() {
-    if (!this.app.renderer) return;
-    this.isFirstInit = false;
+    // if (!this.app.renderer) return;
+    this.isFirstInit = true;
     this.needsFrame = false;
-    // 这里的update和下面的update多执行了一次
-    // this.update();
-    console.log("Render", "====>>>>>>");
+    // this.app.ticker.add((ticker) => {
+    //   // console.log("Ticker", "====>>>>>>");
+    //   // bunny.rotation += ticker.deltaTime * 0.1;
+    //   this.update();
+    // });
+    this.update();
     this.app.renderer.render(this.app.stage);
-    // this.dirtyRender = false;
+    this.dirtyRender = false;
   }
 
   tick() {
@@ -144,7 +146,6 @@ export class Engine implements EngineContext {
 
   systemUpdate(systemName: string) {
     const update = (system: System) => {
-      // 只有有脏数据时，才进行处理
       if (this.dirtyRender || this.isFirstInit) {
         system.update(this.stateStore);
       }
