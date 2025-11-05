@@ -25,7 +25,6 @@ export interface EngineContext {
   entityManager: Entity;
   // createCanvas: (defaultConfig: DefaultConfig) => CanvasRenderingContext2D;
   createRenderEngine: (defaultConfig: DefaultConfig) => Promise<void>;
-  initCanvas: (defaultConfig: DefaultConfig) => Promise<void>;
   update: () => void;
   destroyed: () => void;
   addSystem: (system: any) => void;

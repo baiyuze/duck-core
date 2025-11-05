@@ -1909,7 +1909,7 @@ function Canvas(props: CanvasProps) {
     ) as HTMLDivElement;
     // if (canvasRef.current) {
     engineRef.current = await createEngine(dsls, {
-      width: 800,
+      width: 1600,
       height: 800,
       container,
       showFPS: true,

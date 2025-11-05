@@ -15,7 +15,7 @@ export class Engine implements EngineContext {
   isFirstInit: boolean = true;
   dirtyRender = false;
   dirtyOverlay = false;
-  defaultConfig: Size = { width: 800, height: 800 };
+  defaultConfig: Size = { width: 800, height: 600 };
   dsls: DSL[] = [];
   SystemMap: Map<string, System> = new Map();
   system: System[] = [];
@@ -36,11 +36,12 @@ export class Engine implements EngineContext {
   }
 
   async createRenderEngine(defaultConfig: DefaultConfig) {
+    this.defaultConfig = defaultConfig;
     const resolution = engineHelp.getOptimalResolution();
     await this.app.init({
       width: defaultConfig.width,
       height: defaultConfig.height,
-      // autoStart: false,
+      autoStart: false,
       autoDensity: true,
       backgroundAlpha: 0,
       antialias: true, // 抗锯齿
@@ -48,13 +49,6 @@ export class Engine implements EngineContext {
     });
     this.app.ticker.maxFPS = defaultConfig.fps || 60;
     defaultConfig.container.appendChild(this.app.canvas);
-  }
-
-  async initCanvas(defaultConfig: DefaultConfig) {
-    this.defaultConfig = defaultConfig;
-    // const ctx = this.createCanvas(defaultConfig);
-    await this.createRenderEngine(defaultConfig);
-    // return ctx;
   }
 
   /**
@@ -112,21 +106,21 @@ export class Engine implements EngineContext {
   }
 
   requestFrame() {
-    // if (!this.needsFrame) {
-    //   this.needsFrame = true;
-    //   requestAnimationFrame(() => this.ticker());
-    // }
+    if (!this.needsFrame) {
+      this.needsFrame = true;
+      requestAnimationFrame(() => this.ticker());
+    }
   }
 
   ticker() {
     // if (!this.app.renderer) return;
     this.isFirstInit = true;
     this.needsFrame = false;
-    this.app.ticker.add((ticker) => {
-      this.update();
-    });
+    // this.app.ticker.add((ticker) => {
+    //   this.update();
+    // });
     this.update();
-    // this.app.renderer.render(this.app.stage);
+    this.app.renderer.render(this.app.stage);
     this.dirtyRender = false;
   }
 

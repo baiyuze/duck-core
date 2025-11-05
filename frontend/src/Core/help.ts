@@ -21,7 +21,7 @@ export class Help {
   public init(html: string) {
     return new Promise<DSL[]>((resolve) => {
       const iframe = (this.iframe = document.createElement("iframe"));
-      // iframe.style.visibility = "hidden";
+      iframe.style.visibility = "hidden";
       iframe.style.width = "370px";
       iframe.style.height = "800px";
       iframe.style.position = "fixed";

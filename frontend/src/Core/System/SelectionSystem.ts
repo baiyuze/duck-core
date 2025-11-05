@@ -34,6 +34,12 @@ export class SelectionSystem extends System {
 
     const width = this.engine.defaultConfig.width;
     const height = this.engine.defaultConfig.height;
+    console.log(
+      "Selection canvas size:",
+      width,
+      height,
+      this.engine.defaultConfig
+    );
     selectionCanvas.style.width = width + "px";
     selectionCanvas.style.height = height + "px";
 
