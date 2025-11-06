@@ -26,18 +26,22 @@ export class ScrollSystem extends System {
     if (event.shiftKey) {
       // 按住shift键时，纵向滚动变为横向滚动
       if (deltaY !== 0) {
-        camera.translateX -= deltaY * scrollSensitivity;
+        camera.translateX -= Math.round(deltaY * scrollSensitivity);
       }
     } else {
       if (deltaY !== 0) {
         // 支持X轴和Y轴滚动
-        camera.translateY -= deltaY * scrollSensitivity;
+        camera.translateY -= Math.round(deltaY * scrollSensitivity);
       }
       if (deltaX !== 0) {
-        camera.translateX -= deltaX * scrollSensitivity;
+        camera.translateX -= Math.round(deltaX * scrollSensitivity);
       }
     }
-
-    this.engine.dirtyRender = true;
+    // 总容器变换
+    this.engine.scheduler.container.position.set(
+      camera.translateX,
+      camera.translateY
+    );
+    this.engine.dirtyRender = false;
   }
 }
