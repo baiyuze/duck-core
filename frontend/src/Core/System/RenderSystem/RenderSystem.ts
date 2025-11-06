@@ -38,7 +38,6 @@ export class RenderSystem extends System {
   }
 
   update(stateStore: StateStore) {
-    console.log("Updating render system");
     this.render(stateStore);
   }
 
