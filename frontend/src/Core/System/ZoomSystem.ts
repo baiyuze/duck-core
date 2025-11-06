@@ -8,6 +8,7 @@ export class ZoomSystem extends System {
   engine: Engine;
   offCtx: CanvasRenderingContext2D | null = null;
   entityManager: Entity = new Entity();
+  t: NodeJS.Timeout | null = null;
   constructor(engine: Engine) {
     super();
     this.engine = engine;
@@ -16,7 +17,7 @@ export class ZoomSystem extends System {
   update(stateStore: StateStore) {
     if (stateStore.eventQueue.length === 0) return;
     this.engine.camera.isZooming = false;
-
+    const scheduler = this.engine.scheduler;
     const { type, event } =
       stateStore.eventQueue[stateStore.eventQueue.length - 1];
 
@@ -40,23 +41,47 @@ export class ZoomSystem extends System {
       camera.maxZoom,
       Math.max(camera.minZoom, prevZoom * scale)
     );
-
     if (newZoom === prevZoom) {
       this.engine.camera.isZooming = false;
       return;
     }
 
     // 缩放围绕鼠标点
-    camera.translateX =
+    const translateX =
       // canvas x，减去 当前坐标原点在画布上的位置 乘以 新旧缩放比
       canvasX - (canvasX - camera.translateX) * (newZoom / prevZoom);
-    camera.translateY =
+    const translateY =
       canvasY - (canvasY - camera.translateY) * (newZoom / prevZoom);
-
+    camera.translateX = Math.round(translateX);
+    camera.translateY = Math.round(translateY);
     camera.zoom = newZoom;
 
-    // 标记需要渲染
     this.engine.camera.isZooming = true;
-    this.engine.dirtyRender = true;
+    scheduler.container.position.set(camera.translateX, camera.translateY);
+    scheduler.container.scale.set(camera.zoom);
+    if (!scheduler.isCached()) {
+      scheduler.cacheAsTexture();
+    }
+    if (this.t) {
+      clearTimeout(this.t);
+    }
+    this.t = setTimeout(() => {
+      // 先释放缓存，以防缩放时画面模糊
+      // 总容器缩放
+
+      if (camera.zoom > 1) {
+        this.engine.camera.isZooming = false;
+        this.engine.app.renderer.resolution =
+          camera.zoom * this.engine.resolution;
+        scheduler.container.position.set(camera.translateX, camera.translateY);
+        scheduler.container.scale.set(camera.zoom);
+        scheduler.releaseCache();
+        scheduler.cacheAsTexture();
+        // 有延迟，需要手动再更新一次
+        this.t = null;
+        this.engine.ticker();
+      }
+    }, 150);
+    this.engine.dirtyRender = false;
   }
 }
