@@ -1907,7 +1907,7 @@ function Canvas(props: CanvasProps) {
     const container = document.querySelector(
       `.${styles.canvas}`
     ) as HTMLDivElement;
-    // if (canvasRef.current) {
+
     engineRef.current = await createEngine(dsls, {
       width: 1600,
       height: 800,
@@ -1915,10 +1915,7 @@ function Canvas(props: CanvasProps) {
       showFPS: true,
       fps: 60,
     });
-    // engineRef.current.update();
-    setTimeout(() => {
-      engineRef.current!.ticker();
-    }, 0);
+    engineRef.current.render();
   };
   const handlerApplyCode = (data: any[]) => {
     engineRef.current?.core.initComponents(data);
