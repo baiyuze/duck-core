@@ -9,7 +9,7 @@ export class EngineHelp {
    * @returns 最佳分辨率
    */
   getOptimalResolution(
-    minClarityThreshold: number = 2,
+    minClarityThreshold: number = 1.5,
     highResWidthThreshold: number = 1920
   ): number {
     // 1. 获取浏览器报告的原始 DPR 值
@@ -29,7 +29,7 @@ export class EngineHelp {
     } else {
       // 正常情况：采用 Math.max 逻辑。
       // - 如果实际 DPR 很高 (例如 3)，使用 3 (性能准确)。
-      // - 如果实际 DPR 低 (例如 1)，则使用 minClarityThreshold (例如 2)，以消除锯齿。
+      // - 如果实际 DPR 低 (例如 1)，则使用 minClarityThreshold (例如 1)，以消除锯齿。
       finalResolution = Math.max(actualDPR, minClarityThreshold);
     }
 
