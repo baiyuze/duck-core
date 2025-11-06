@@ -18,6 +18,7 @@ export class Core {
   dsls: DSL[] = [];
   entityManager = new Entity();
   stateStore: StateStore = Core.createStateStore();
+  shapeLength: number = 0;
 
   static createStateStore(): StateStore {
     return {
@@ -83,6 +84,7 @@ export class Core {
       // 为每个实体创建一个 Graphics 实例
       this.stateStore.graphics.set(dsl.id, new Graphics());
     });
+    this.shapeLength = this.dsls.length;
   }
 
   resetState() {
