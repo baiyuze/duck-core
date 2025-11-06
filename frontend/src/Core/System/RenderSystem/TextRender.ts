@@ -1,4 +1,9 @@
-import { Text, TextStyle, type TextStyleFontWeight } from "pixi.js";
+import {
+  SCALE_MODES,
+  Text,
+  TextStyle,
+  type TextStyleFontWeight,
+} from "pixi.js";
 import type { Engine } from "../../Core/Engine";
 import type { StateStore } from "../../types";
 import { System } from "../System";
