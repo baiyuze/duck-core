@@ -1,362 +1,725 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>淘宝网首页</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
-        }
-        
-        body {
-            background-color: #f5f5f5;
-            color: #333;
-        }
-        
-        /* 顶部导航栏 */
-        .top-bar {
-            height: 30px;
-            background-color: #ff0036;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-            color: white;
-            font-size: 12px;
-        }
-        
-        .top-bar-left {
-            display: flex;
-            gap: 15px;
-        }
-        
-        .top-bar-right {
-            display: flex;
-            gap: 15px;
-        }
-        
-        /* 主导航栏 */
-        .main-nav {
-            height: 100px;
-            background-color: white;
-            display: flex;
-            align-items: center;
-            padding: 0 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            position: relative;
-            z-index: 10;
-        }
-        
-        .logo {
-            font-size: 28px;
-            font-weight: bold;
-            color: #ff0036;
-            margin-right: 40px;
-        }
-        
-        .search-container {
-            flex: 1;
-            max-width: 600px;
-            display: flex;
-            margin: 0 30px;
-        }
-        
-        .search-input {
-            flex: 1;
-            height: 36px;
-            border: 2px solid #ff0036;
-            border-radius: 20px 0 0 20px;
-            padding: 0 15px;
-            font-size: 14px;
-        }
-        
-        .search-button {
-            width: 80px;
-            height: 40px;
-            background-color: #ff0036;
-            color: white;
-            border: none;
-            border-radius: 0 20px 20px 0;
-            font-size: 14px;
-            cursor: pointer;
-        }
-        
-        .cart-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .cart-icon {
-            width: 30px;
-            height: 30px;
-            background-color: #ff0036;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-weight: bold;
-        }
-        
-        /* Banner区域 */
-        .banner {
-            height: 300px;
-            background: linear-gradient(to right, #ff6b6b, #ff8e8e);
-            position: relative;
-            overflow: hidden;
-            z-index: 20;
-        }
-        
-        .banner-content {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: white;
-        }
-        
-        .banner-title {
-            font-size: 36px;
-            font-weight: bold;
-            margin-bottom: 20px;
-        }
-        
-        .banner-subtitle {
-            font-size: 18px;
-            margin-bottom: 30px;
-        }
-        
-        .banner-button {
-            display: inline-block;
-            padding: 10px 30px;
-            background-color: white;
-            color: #ff0036;
-            border-radius: 20px;
-            font-weight: bold;
-            text-decoration: none;
-        }
-        
-        /* 分类导航 */
-        .category-nav {
-            height: 50px;
-            background-color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 30px;
-            margin-top: -2px;
-            z-index: 21;
-            position: relative;
-        }
-        
-        .category-item {
-            font-size: 16px;
-            color: #333;
-            text-decoration: none;
-        }
-        
-        /* 商品推荐区 */
-        .product-section {
-            padding: 30px 20px;
-            background-color: #f5f5f5;
-            z-index: 30;
-            position: relative;
-        }
-        
-        .section-title {
-            font-size: 24px;
-            font-weight: bold;
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        
-        .products-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        .product-card {
-            background-color: white;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: transform 0.3s;
-        }
-        
-        .product-card:hover {
-            transform: translateY(-5px);
-        }
-        
-        .product-image {
-            height: 200px;
-            background-color: #f0f0f0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: #999;
-        }
-        
-        .product-info {
-            padding: 15px;
-        }
-        
-        .product-title {
-            font-size: 14px;
-            margin-bottom: 10px;
-            color: #333;
-        }
-        
-        .product-price {
-            font-size: 18px;
-            font-weight: bold;
-            color: #ff0036;
-        }
-        
-        /* 页脚 */
-        .footer {
-            height: 200px;
-            background-color: #333;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            z-index: 0;
-        }
-        
-        .footer-content {
-            max-width: 1200px;
-            width: 100%;
-            padding: 0 20px;
-        }
-        
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-bottom: 20px;
-        }
-        
-        .footer-link {
-            color: #ccc;
-            text-decoration: none;
-        }
-        
-        .copyright {
-            color: #999;
-            font-size: 12px;
-        }
-    </style>
+   
+  <meta charset="UTF-8">
+   
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CanvasKit 缩放画布演示 (已修复中文显示)</title>
+    <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #f0f0f0;
+    }
+
+    #container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    #canvas-container {
+      background: white;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      margin: 20px 0;
+      overflow: hidden;
+      position: relative;
+    }
+
+    canvas {
+      display: block;
+      cursor: grab;
+    }
+
+    canvas:active {
+      cursor: grabbing;
+    }
+
+    .controls {
+      background: white;
+      padding: 15px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      margin-bottom: 20px;
+    }
+
+    button {
+      padding: 8px 16px;
+      margin: 0 5px;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover {
+      background: #45a049;
+    }
+
+    .info {
+      display: inline-block;
+      margin: 0 15px;
+      color: #666;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+  </style>
 </head>
+
 <body>
-    <!-- 顶部导航栏 -->
-    <div class="top-bar">
-        <div class="top-bar-left">
-            <span>亲，请登录</span>
-            <span>免费注册</span>
-            <span>手机逛淘宝</span>
-        </div>
-        <div class="top-bar-right">
-            <span>我的淘宝</span>
-            <span>购物车</span>
-            <span>收藏夹</span>
-            <span>联系客服</span>
-            <span>网站导航</span>
-        </div>
-    </div>
-    
-    <!-- 主导航栏 -->
-    <div class="main-nav">
-        <div class="logo">淘宝网</div>
-        <div class="search-container">
-            <input type="text" class="search-input" placeholder="搜索商品">
-            <button class="search-button">搜索</button>
-        </div>
-        <div class="cart-container">
-            <div class="cart-icon">12</div>
-            <span>购物车</span>
-        </div>
-    </div>
-    
-    <!-- Banner区域 -->
-    <div class="banner">
-        <div class="banner-content">
-            <div class="banner-title">淘宝618大促</div>
-            <div class="banner-subtitle">全场低至5折，限时抢购！</div>
-            <a href="#" class="banner-button">立即抢购</a>
-        </div>
-    </div>
-    
-    <!-- 分类导航 -->
-    <div class="category-nav">
-        <a href="#" class="category-item">手机</a>
-        <a href="#" class="category-item">家电</a>
-        <a href="#" class="category-item">女装</a>
-        <a href="#" class="category-item">男装</a>
-        <a href="#" class="category-item">美妆</a>
-        <a href="#" class="category-item">母婴</a>
-        <a href="#" class="category-item">运动</a>
-        <a href="#" class="category-item">更多</a>
-    </div>
-    
-    <!-- 商品推荐区 -->
-    <div class="product-section">
-        <h2 class="section-title">热销推荐</h2>
-        <div class="products-grid">
-            <div class="product-card">
-                <div class="product-image">商品图片</div>
-                <div class="product-info">
-                    <div class="product-title">夏季新款连衣裙时尚显瘦</div>
-                    <div class="product-price">¥129.00</div>
-                </div>
-            </div>
-            <div class="product-card">
-                <div class="product-image">商品图片</div>
-                <div class="product-info">
-                    <div class="product-title">华为P50 Pro 5G手机</div>
-                    <div class="product-price">¥5999.00</div>
-                </div>
-            </div>
-            <div class="product-card">
-                <div class="product-image">商品图片</div>
-                <div class="product-info">
-                    <div class="product-title">小米扫地机器人</div>
-                    <div class="product-price">¥1999.00</div>
-                </div>
-            </div>
-            <div class="product-card">
-                <div class="product-image">商品图片</div>
-                <div class="product-info">
-                    <div class="product-title">耐克运动鞋男款</div>
-                    <div class="product-price">¥699.00</div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- 页脚 -->
-    <div class="footer">
-        <div class="footer-content">
-            <div class="footer-links">
-                <a href="#" class="footer-link">关于淘宝</a>
-                <a href="#" class="footer-link">合作伙伴</a>
-                <a href="#" class="footer-link">营销中心</a>
-                <a href="#" class="footer-link">廉正举报</a>
-                <a href="#" class="footer-link">开放平台</a>
-                <a href="#" class="footer-link">诚征英才</a>
-                <a href="#" class="footer-link">联系我们</a>
-            </div>
-            <div class="copyright">© 2003-2023 Taobao.com 版权所有</div>
-        </div>
-    </div>
+    <div id="container">
+        <h1>CanvasKit 可缩放画布演示</h1>
+
+        <div class="controls">
+            <button onclick="zoomIn()">放大 (+)</button>
+            <button onclick="zoomOut()">缩小 (-)</button>
+            <button onclick="resetView()">重置视图</button>
+            <button onclick="addRandomShape()">添加随机图形</button>
+            <span class="info">缩放: <span id="zoom-level">100%</span></span>
+            <span class="info">元素数量: <span id="element-count">0</span></span>
+          </div>
+
+        <div id="canvas-container">
+            <div class="loading" id="loading">正在加载 CanvasKit 和字体...</div>
+            <canvas id="canvas" width="1200" height="800" style="display:none;"></canvas>
+          </div>
+      </div>
+
+   
+  <script src="https://unpkg.com/canvaskit-wasm@0.39.1/bin/canvaskit.js"></script>
+   
+  <script>
+    let CanvasKit;
+    let surface;
+    let canvas;
+    let paint;
+    let textPaint;
+    let typeface; // 现在由异步加载函数初始化
+
+    // 视图控制
+    let scale = 1.0;
+    let offsetX = 0;
+    let offsetY = 0;
+    let isDragging = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    // 设备像素比
+    const dpr = window.devicePixelRatio || 1;
+
+    // 存储所有元素
+    let elements = [];
+
+    // 随机文字库
+    const randomTexts = [
+      '你好世界', '创意无限', '科技改变生活', '梦想起航', '未来可期',
+      '努力奋斗', '永不放弃', '追求卓越', '创新思维', '智慧人生',
+      'Hello World', 'Creative', 'Innovation', 'Future', 'Dream',
+      'Success', 'Power', 'Energy', 'Magic', 'Wonder',
+      '设计之美', '艺术创作', '数字时代', '极致体验', '匠心独运'
+    ];
+
+    // 中文字体文件 URL (思源黑体/Noto Sans SC Regular)
+    // 这是一个开源字体，包含中文字符集
+    const CHINESE_FONT_URL = 'https://fonts.gstatic.com/ea/notosanssc/v1/NotoSansSC-Regular.otf';
+
+    /**
+     * 异步加载字体文件数据
+     * @param {string} url 字体文件的 URL
+     * @returns {Promise<Uint8Array | null>} 字体数据的 Uint8Array 或 null
+     */
+    async function loadFontData(url) {
+      try {
+        const response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(`Failed to fetch font: ${response.statusText}`);
+        }
+        const fontData = await response.arrayBuffer();
+        console.log(`字体文件加载成功: ${url}, 大小: ${fontData.byteLength} 字节`);
+        return new Uint8Array(fontData);
+      } catch (e) {
+        console.error('加载中文字体文件失败，将尝试使用默认字体:', e);
+        return null;
+      }
+    }
+
+    // 初始化 CanvasKit
+    CanvasKitInit({
+      locateFile: (file) => 'https://unpkg.com/canvaskit-wasm@0.39.1/bin/' + file,
+    }).then(async (ck) => { // 加上 async 关键字
+      CanvasKit = ck;
+
+      // 1. 异步加载中文字体数据
+      const fontData = await loadFontData(CHINESE_FONT_URL);
+
+      // 2. 创建 Typeface
+      if (fontData) {
+        typeface = CanvasKit.Typeface.MakeFreeTypeFaceFromData(fontData);
+        console.log('✅ CanvasKit 中文字体 Typeface 创建成功');
+      } else {
+        // 回退：使用默认字体，中文可能仍然不显示或显示为方块
+        typeface = CanvasKit.Typeface.MakeFreeTypeFaceFromData(null);
+        console.warn('⚠️ 字体回退：CanvasKit 中文字体可能无法正常显示');
+      }
+
+      // 3. 初始化画布
+      initCanvas();
+    });
+
+    function initCanvas() {
+      const canvasElement = document.getElementById('canvas');
+      const loading = document.getElementById('loading');
+
+      // 设置高DPI支持
+      const width = 1200;
+      const height = 800;
+      canvasElement.width = width * dpr;
+      canvasElement.height = height * dpr;
+      canvasElement.style.width = width + 'px';
+      canvasElement.style.height = height + 'px';
+
+      surface = CanvasKit.MakeCanvasSurface('canvas');
+      if (!surface) {
+        console.error('无法创建 CanvasKit surface');
+        return;
+      }
+
+      canvas = surface.getCanvas();
+      // 缩放画布以适应设备像素比
+      canvas.scale(dpr, dpr);
+
+      // 创建画笔，启用高质量抗锯齿
+      paint = new CanvasKit.Paint();
+      paint.setAntiAlias(true);
+
+      textPaint = new CanvasKit.Paint();
+      textPaint.setAntiAlias(true);
+      textPaint.setStyle(CanvasKit.PaintStyle.Fill);
+
+      console.log('CanvasKit 初始化完成');
+
+      // 隐藏加载提示，显示画布
+      loading.style.display = 'none';
+      canvasElement.style.display = 'block';
+
+      // 添加初始元素
+      createInitialElements();
+
+      // 设置事件监听
+      setupEventListeners();
+
+      // 开始渲染循环
+      requestAnimationFrame(drawFrame);
+    }
+
+    function createInitialElements() {
+      // 添加一个简单的黑色大标题用于测试
+      elements.push({
+        type: 'text',
+        x: 50,
+        y: 50,
+        text: '测试文字 TEST',
+        size: 60,
+        color: CanvasKit.Color(0, 0, 0, 1.0) // 纯黑色
+      });
+
+      // 添加标题文字
+      elements.push({
+        type: 'text',
+        x: 100,
+        y: 100,
+        text: 'CanvasKit 高清演示画布',
+        size: 48,
+        color: CanvasKit.Color(33, 150, 243, 1.0)
+      });
+
+      // 添加说明文字
+      elements.push({
+        type: 'text',
+        x: 100,
+        y: 150,
+        text: '使用鼠标滚轮缩放，拖拽移动画布 - 高DPI支持',
+        size: 20,
+        color: CanvasKit.Color(100, 100, 100, 1.0)
+      });
+
+      // 添加随机文字标签
+      for (let i = 0; i < 8; i++) {
+        elements.push({
+          type: 'text',
+          x: 100 + (i % 4) * 250,
+          y: 200 + Math.floor(i / 4) * 30,
+          text: randomTexts[Math.floor(Math.random() * randomTexts.length)],
+          size: 16 + Math.random() * 8,
+          color: CanvasKit.Color(
+            Math.random() * 150 + 50,
+            Math.random() * 150 + 50,
+            Math.random() * 150 + 50,
+            1.0
+          )
+        });
+      }
+
+      // 添加各种矩形
+      for (let i = 0; i < 5; i++) {
+        elements.push({
+          type: 'rectangle',
+          x: 100 + i * 150,
+          y: 280,
+          width: 120,
+          height: 80,
+          color: CanvasKit.Color(
+            Math.random() * 255,
+            Math.random() * 255,
+            Math.random() * 255,
+            0.8
+          ),
+          filled: true
+        });
+
+        // 在每个矩形上添加文字标签
+        elements.push({
+          type: 'text',
+          x: 110 + i * 150,
+          y: 330,
+          text: randomTexts[Math.floor(Math.random() * randomTexts.length)],
+          size: 14,
+          color: CanvasKit.Color(255, 255, 255, 1.0)
+        });
+      }
+
+      // 添加带边框的矩形
+      for (let i = 0; i < 5; i++) {
+        elements.push({
+          type: 'rectangle',
+          x: 100 + i * 150,
+          y: 410,
+          width: 120,
+          height: 80,
+          color: CanvasKit.Color(
+            Math.random() * 255,
+            Math.random() * 255,
+            Math.random() * 255,
+            1.0
+          ),
+          filled: false,
+          strokeWidth: 2
+        });
+
+        // 在每个矩形旁边添加文字
+        elements.push({
+          type: 'text',
+          x: 110 + i * 150,
+          y: 460,
+          text: randomTexts[Math.floor(Math.random() * randomTexts.length)],
+          size: 12,
+          color: CanvasKit.Color(50, 50, 50, 1.0)
+        });
+      }
+
+      // 添加三角形
+      for (let i = 0; i < 5; i++) {
+        elements.push({
+          type: 'triangle',
+          x: 150 + i * 150,
+          y: 560,
+          size: 60,
+          color: CanvasKit.Color(
+            Math.random() * 255,
+            Math.random() * 255,
+            Math.random() * 255,
+            0.8
+          ),
+          filled: true
+        });
+
+        // 三角形下方添加文字
+        elements.push({
+          type: 'text',
+          x: 130 + i * 150,
+          y: 610,
+          text: randomTexts[Math.floor(Math.random() * randomTexts.length)],
+          size: 13,
+          color: CanvasKit.Color(80, 80, 80, 1.0)
+        });
+      }
+
+      // 添加圆形
+      for (let i = 0; i < 5; i++) {
+        elements.push({
+          type: 'circle',
+          x: 160 + i * 150,
+          y: 680,
+          radius: 40,
+          color: CanvasKit.Color(
+            Math.random() * 255,
+            Math.random() * 255,
+            Math.random() * 255,
+            0.7
+          ),
+          filled: true
+        });
+
+        // 圆形下方添加文字
+        elements.push({
+          type: 'text',
+          x: 140 + i * 150,
+          y: 740,
+          text: randomTexts[Math.floor(Math.random() * randomTexts.length)],
+          size: 14,
+          color: CanvasKit.Color(60, 60, 60, 1.0)
+        });
+      }
+
+      // 添加线条
+      for (let i = 0; i < 4; i++) {
+        elements.push({
+          type: 'line',
+          x1: 100 + i * 200,
+          y1: 200,
+          x2: 250 + i * 200,
+          y2: 200,
+          color: CanvasKit.Color(
+            Math.random() * 255,
+            Math.random() * 255,
+            Math.random() * 255,
+            1.0
+          ),
+          strokeWidth: 2
+        });
+      }
+
+      updateElementCount();
+      console.log('初始元素创建完成，总数:', elements.length);
+      console.log('文字元素数量:', elements.filter(e => e.type === 'text').length);
+    }
+
+    function drawFrame() {
+      if (!canvas || !paint) return;
+
+      // 清空画布
+      canvas.clear(CanvasKit.WHITE);
+
+      // 保存当前状态
+      canvas.save();
+
+      // 应用变换（缩放和平移）
+      canvas.translate(offsetX, offsetY);
+      canvas.scale(scale, scale);
+
+      // 绘制所有元素
+      elements.forEach(element => {
+        drawElement(element);
+      });
+
+      // 恢复状态
+      canvas.restore();
+
+      // 刷新画布
+      surface.flush();
+
+      requestAnimationFrame(drawFrame);
+    }
+
+    function drawElement(element) {
+      // 检查 typeface 是否已加载
+      if (!typeface) {
+        if (element.type === 'text' && !window.fontWarningLogged) {
+          console.warn('Typeface 尚未完全加载，跳过文字渲染.');
+          window.fontWarningLogged = true;
+        }
+        return;
+      }
+
+
+      const p = paint.copy();
+      p.setColor(element.color);
+      p.setAntiAlias(true);
+
+      switch (element.type) {
+        case 'rectangle':
+          if (element.filled) {
+            p.setStyle(CanvasKit.PaintStyle.Fill);
+          } else {
+            p.setStyle(CanvasKit.PaintStyle.Stroke);
+            p.setStrokeWidth(element.strokeWidth || 2);
+          }
+          const rect = CanvasKit.LTRBRect(
+            element.x,
+            element.y,
+            element.x + element.width,
+            element.y + element.height
+          );
+          canvas.drawRect(rect, p);
+          break;
+
+        case 'circle':
+          if (element.filled) {
+            p.setStyle(CanvasKit.PaintStyle.Fill);
+          } else {
+            p.setStyle(CanvasKit.PaintStyle.Stroke);
+            p.setStrokeWidth(element.strokeWidth || 2);
+          }
+          canvas.drawCircle(element.x, element.y, element.radius, p);
+          break;
+
+        case 'triangle':
+          const path = new CanvasKit.Path();
+          const size = element.size;
+          path.moveTo(element.x, element.y - size / 2);
+          path.lineTo(element.x - size / 2, element.y + size / 2);
+          path.lineTo(element.x + size / 2, element.y + size / 2);
+          path.close();
+
+          if (element.filled) {
+            p.setStyle(CanvasKit.PaintStyle.Fill);
+          } else {
+            p.setStyle(CanvasKit.PaintStyle.Stroke);
+            p.setStrokeWidth(element.strokeWidth || 2);
+          }
+          canvas.drawPath(path, p);
+          path.delete();
+          break;
+
+        case 'line':
+          p.setStyle(CanvasKit.PaintStyle.Stroke);
+          p.setStrokeWidth(element.strokeWidth || 2);
+          p.setStrokeCap(CanvasKit.StrokeCap.Round);
+          canvas.drawLine(element.x1, element.y1, element.x2, element.y2, p);
+          break;
+
+        case 'text':
+          try {
+            const textP = textPaint.copy();
+            textP.setColor(element.color);
+            textP.setAntiAlias(true);
+            textP.setStyle(CanvasKit.PaintStyle.Fill);
+
+            // 创建字体
+            const fontSize = element.size || 16;
+            // 使用已加载的 typeface
+            const textFont = new CanvasKit.Font(typeface, fontSize);
+
+            // 使用 MakeFromText 创建 TextBlob
+            const textBlob = CanvasKit.TextBlob.MakeFromText(element.text, textFont);
+
+            canvas.drawTextBlob(textBlob, element.x, element.y, textP);
+
+            // 释放资源
+            textBlob.delete();
+            textFont.delete();
+            textP.delete();
+          } catch (e) {
+            console.error('文字渲染错误:', e, element);
+          }
+          break;
+      }
+
+      p.delete();
+    }
+
+    function setupEventListeners() {
+      const canvasElement = document.getElementById('canvas');
+
+      // 鼠标滚轮缩放
+      canvasElement.addEventListener('wheel', (e) => {
+        e.preventDefault();
+
+        const rect = canvasElement.getBoundingClientRect();
+        const mouseX = e.clientX - rect.left;
+        const mouseY = e.clientY - rect.top;
+
+        const delta = e.deltaY > 0 ? 0.9 : 1.1;
+        const newScale = Math.max(0.1, Math.min(100, scale * delta));
+
+        // 以鼠标位置为中心缩放
+        offsetX = mouseX - (mouseX - offsetX) * (newScale / scale);
+        offsetY = mouseY - (mouseY - offsetY) * (newScale / scale);
+
+        scale = newScale;
+        updateZoomDisplay();
+      });
+
+      // 鼠标拖拽
+      canvasElement.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        lastX = e.clientX;
+        lastY = e.clientY;
+      });
+
+      canvasElement.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+          const dx = e.clientX - lastX;
+          const dy = e.clientY - lastY;
+          offsetX += dx;
+          offsetY += dy;
+          lastX = e.clientX;
+          lastY = e.clientY;
+        }
+      });
+
+      canvasElement.addEventListener('mouseup', () => {
+        isDragging = false;
+      });
+
+      canvasElement.addEventListener('mouseleave', () => {
+        isDragging = false;
+      });
+
+      // 键盘快捷键
+      document.addEventListener('keydown', (e) => {
+        if (e.key === '+' || e.key === '=') {
+          zoomIn();
+        } else if (e.key === '-') {
+          zoomOut();
+        } else if (e.key === '0') {
+          resetView();
+        }
+      });
+    }
+
+    function zoomIn() {
+      scale = Math.min(5, scale * 1.2);
+      updateZoomDisplay();
+    }
+
+    function zoomOut() {
+      scale = Math.max(0.1, scale / 1.2);
+      updateZoomDisplay();
+    }
+
+    function resetView() {
+      scale = 1.0;
+      offsetX = 0;
+      offsetY = 0;
+      updateZoomDisplay();
+    }
+
+    function updateZoomDisplay() {
+      document.getElementById('zoom-level').textContent = Math.round(scale * 100) + '%';
+    }
+
+    function updateElementCount() {
+      document.getElementById('element-count').textContent = elements.length;
+    }
+
+    function addRandomShape() {
+      const types = ['rectangle', 'circle', 'triangle', 'text'];
+      const type = types[Math.floor(Math.random() * types.length)];
+
+      const x = Math.random() * 800 + 100;
+      const y = Math.random() * 600 + 100;
+      const color = CanvasKit.Color(
+        Math.random() * 255,
+        Math.random() * 255,
+        Math.random() * 255,
+        0.8
+      );
+
+      let element;
+      switch (type) {
+        case 'rectangle':
+          element = {
+            type: 'rectangle',
+            x: x,
+            y: y,
+            width: Math.random() * 100 + 50,
+            height: Math.random() * 80 + 40,
+            color: color,
+            filled: Math.random() > 0.5,
+            strokeWidth: Math.random() > 0.5 ? 2 : 3
+          };
+          // 添加矩形标签
+          elements.push(element);
+          elements.push({
+            type: 'text',
+            x: x + 5,
+            y: y + 25,
+            text: randomTexts[Math.floor(Math.random() * randomTexts.length)],
+            size: 12 + Math.random() * 6,
+            color: CanvasKit.Color(255, 255, 255, 0.9)
+          });
+          updateElementCount();
+          return;
+
+        case 'circle':
+          element = {
+            type: 'circle',
+            x: x,
+            y: y,
+            radius: Math.random() * 40 + 20,
+            color: color,
+            filled: true
+          };
+          // 添加圆形标签
+          elements.push(element);
+          elements.push({
+            type: 'text',
+            x: x - 30,
+            y: y + 50,
+            text: randomTexts[Math.floor(Math.random() * randomTexts.length)],
+            size: 11 + Math.random() * 5,
+            color: CanvasKit.Color(50, 50, 50, 1.0)
+          });
+          updateElementCount();
+          return;
+
+        case 'triangle':
+          element = {
+            type: 'triangle',
+            x: x,
+            y: y,
+            size: Math.random() * 60 + 30,
+            color: color,
+            filled: true
+          };
+          // 添加三角形标签
+          elements.push(element);
+          elements.push({
+            type: 'text',
+            x: x - 25,
+            y: y + 45,
+            text: randomTexts[Math.floor(Math.random() * randomTexts.length)],
+            size: 11 + Math.random() * 5,
+            color: CanvasKit.Color(70, 70, 70, 1.0)
+          });
+          updateElementCount();
+          return;
+
+        case 'text':
+          element = {
+            type: 'text',
+            x: x,
+            y: y,
+            text: randomTexts[Math.floor(Math.random() * randomTexts.length)],
+            size: Math.random() * 30 + 16,
+            color: CanvasKit.Color(
+              Math.random() * 200 + 55,
+              Math.random() * 200 + 55,
+              Math.random() * 200 + 55,
+              0.9
+            )
+          };
+          break;
+      }
+
+      elements.push(element);
+      updateElementCount();
+    }
+  </script>
 </body>
+
 </html>

@@ -9,7 +9,7 @@ export class EngineHelp {
    * @returns 最佳分辨率
    */
   getOptimalResolution(
-    minClarityThreshold: number = 1.5,
+    minClarityThreshold: number = 1,
     highResWidthThreshold: number = 1920
   ): number {
     // 1. 获取浏览器报告的原始 DPR 值
