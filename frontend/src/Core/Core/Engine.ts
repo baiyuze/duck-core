@@ -8,10 +8,14 @@ import { Camera } from "./Camera";
 import type { Core } from "./Core";
 import type { EngineContext } from "./EngineContext";
 import { Application, Container, Graphics, Sprite } from "pixi.js";
+import { Scheduler } from "./Scheduler";
 const engineHelp = new EngineHelp();
 
 export class Engine implements EngineContext {
+  app: Application = new Application();
   camera = new Camera();
+  entityManager = new Entity();
+  scheduler = new Scheduler();
   isFirstInit: boolean = true;
   dirtyRender = false;
   dirtyOverlay = false;
@@ -19,12 +23,15 @@ export class Engine implements EngineContext {
   dsls: DSL[] = [];
   SystemMap: Map<string, System> = new Map();
   system: System[] = [];
-  entityManager = new Entity();
-  app: Application = new Application();
   needsFrame: boolean = false;
   ctx: CanvasRenderingContext2D | null = null;
   fpsText: string = "";
   showFPS: boolean = false;
+  resolution: number = engineHelp.getOptimalResolution();
+  /**
+   * 舞台对象
+   */
+  stage: Container[] = [];
 
   constructor(public core: Core, { showFPS = false } = {}) {
     this.core = core;
@@ -37,7 +44,8 @@ export class Engine implements EngineContext {
 
   async createRenderEngine(defaultConfig: DefaultConfig) {
     this.defaultConfig = defaultConfig;
-    const resolution = engineHelp.getOptimalResolution();
+    const resolution = this.resolution;
+
     await this.app.init({
       width: defaultConfig.width,
       height: defaultConfig.height,
@@ -78,18 +86,12 @@ export class Engine implements EngineContext {
    * @param graphics
    */
   addChild(graphics: Container) {
-    // 检查 graphics 的父级是否是 this.app.stage
     if (graphics.parent === this.app.stage) {
       return;
     }
-    // 仅当父级不是 stage 时才添加
-    this.app.stage.addChild(graphics);
+    this.stage.push(graphics);
   }
 
-  addSystem(system: System) {
-    this.system.push(system);
-    this.SystemMap.set(system.constructor.name, system);
-  }
   /**
    * 获取系统
    * @param name 系统名称
@@ -105,30 +107,34 @@ export class Engine implements EngineContext {
     this.app.stage.removeChildren();
   }
 
-  requestFrame() {
-    if (!this.needsFrame) {
-      this.needsFrame = true;
-      requestAnimationFrame(() => this.ticker());
-    }
-  }
-
-  ticker() {
-    // if (!this.app.renderer) return;
+  render() {
     this.isFirstInit = true;
-    this.needsFrame = false;
-    // this.app.ticker.add((ticker) => {
-    //   this.update();
-    // });
     this.update();
+    this.createStage();
     this.app.renderer.render(this.app.stage);
-    this.dirtyRender = false;
+  }
+  requestFrame() {
+    this.isFirstInit = false;
+    this.update();
+    this.ticker();
+  }
+  ticker() {
+    this.app.renderer.render(this.app.stage);
   }
 
-  tick() {
-    this.isFirstInit = false;
-    this.needsFrame = false;
-    this.update();
-    this.dirtyRender = false;
+  createStage() {
+    this.stage.forEach((graphics) => {
+      this.scheduler.createChildStatic(graphics);
+    });
+    // 完成静态块的构建
+    this.scheduler.finishStaticChunks();
+    const stage = this.scheduler.createBox();
+    this.app.stage.addChild(stage);
+  }
+
+  addSystem(system: System) {
+    this.system.push(system);
+    this.SystemMap.set(system.constructor.name, system);
   }
 
   systemUpdate(systemName: string) {
@@ -154,9 +160,7 @@ export class Engine implements EngineContext {
       sys.update(this.stateStore);
     });
   }
-  /**
-   * 统一销毁
-   */
+
   destroyed(): void {
     this.system.forEach((sys) => {
       sys.destroyed();
@@ -174,19 +178,5 @@ export class Engine implements EngineContext {
         context: true,
       }
     );
-
-    // 如果 Canvas DOM 没被移除
-    // if (this.app.view.parentNode) {
-    //   this.app.view.parentNode.removeChild(this.app.view);
-    // }
   }
-
-  // initDSL(dsls: DSL[]) {
-  //   dsls.forEach((dsl) => {
-  //     const id = this.entityManager.createEntity();
-  //     dsl.id = id;
-
-  //     this.dsls.push(new DSL(dsl));
-  //   });
-  // }
 }
