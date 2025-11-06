@@ -8,6 +8,7 @@ import type { DefaultConfig, StateStore } from "../types";
 import { Camera } from "./Camera";
 import type { Core } from "./Core";
 import type { EngineContext } from "./EngineContext";
+import CanvasKitInit, { type Canvas } from "canvaskit-wasm";
 
 export class Engine implements EngineContext {
   camera = new Camera();
@@ -52,8 +53,41 @@ export class Engine implements EngineContext {
   }
 
   initCanvas(defaultConfig: DefaultConfig) {
+    this.initCanvasKit(defaultConfig);
     const ctx = this.createCanvas(defaultConfig);
     return ctx;
+  }
+
+  async initCanvasKit(defaultConfig: DefaultConfig) {
+    const CanvasKit = await CanvasKitInit({
+      locateFile(file) {
+        console.log(file, "--");
+        return "/node_modules/canvaskit-wasm/bin/" + file;
+      },
+    });
+    const canvas = document.createElement("canvas");
+    const dpr = window.devicePixelRatio || 1;
+    canvas.style.width = defaultConfig.width + "px";
+    canvas.style.height = defaultConfig.height + "px";
+    canvas.width = defaultConfig.width * dpr;
+    canvas.height = defaultConfig.height * dpr;
+    canvas.id = "canvasKitCanvas";
+    defaultConfig.container.appendChild(canvas);
+
+    const surface = CanvasKit.MakeCanvasSurface("canvasKitCanvas");
+
+    const paint = new CanvasKit.Paint();
+    paint.setColor(CanvasKit.Color4f(0.9, 0, 0, 1.0));
+    paint.setStyle(CanvasKit.PaintStyle.Stroke);
+    paint.setAntiAlias(true);
+    const rr = CanvasKit.RRectXY(CanvasKit.LTRBRect(10, 60, 210, 260), 25, 15);
+
+    function draw(canvas: Canvas) {
+      canvas.clear(CanvasKit.WHITE);
+      canvas.drawRRect(rr, paint);
+    }
+    surface!.drawOnce(draw);
+    console.log(CanvasKit, "--->");
   }
 
   /**

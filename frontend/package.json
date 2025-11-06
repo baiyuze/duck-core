@@ -16,6 +16,7 @@
     "@types/svg-path-bounds": "^1.0.2",
     "antd": "^5.27.4",
     "antd-style": "^3.7.1",
+    "canvaskit-wasm": "^0.40.0",
     "dayjs": "^1.11.18",
     "highlight.js": "^11.11.1",
     "lodash": "^4.17.21",
@@ -38,6 +39,7 @@
     "globals": "^16.3.0",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.39.1",
-    "vite": "^7.1.2"
+    "vite": "^7.1.2",
+    "vite-plugin-compression": "^0.5.1"
   }
 }
