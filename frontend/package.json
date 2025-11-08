@@ -26,6 +26,7 @@
     "react-router-dom": "^7.9.4",
     "rehype-highlight": "^7.0.2",
     "sass-embedded": "^1.93.2",
+    "stable-hash-x": "^0.2.0",
     "svg-path-bounds": "^1.0.2"
   },
   "devDependencies": {

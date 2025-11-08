@@ -8,7 +8,11 @@ import type { DefaultConfig, StateStore } from "../types";
 import { Camera } from "./Camera";
 import type { Core } from "./Core";
 import type { EngineContext } from "./EngineContext";
-import CanvasKitInit, { type Canvas } from "canvaskit-wasm";
+import CanvasKitInit, {
+  type Canvas,
+  type CanvasKit,
+  type Surface,
+} from "canvaskit-wasm";
 
 export class Engine implements EngineContext {
   camera = new Camera();
@@ -25,6 +29,10 @@ export class Engine implements EngineContext {
   entityManager = new Entity();
   ctx: CanvasRenderingContext2D | null = null;
   needsFrame: boolean = false;
+  ck!: CanvasKit;
+  canvas!: Canvas;
+  surface!: Surface;
+  canvasDom: HTMLCanvasElement | null = null;
 
   // ctx: CanvasRenderingContext2D | null;
   constructor(public core: Core) {
@@ -52,9 +60,9 @@ export class Engine implements EngineContext {
     return ctx;
   }
 
-  initCanvas(defaultConfig: DefaultConfig) {
-    this.initCanvasKit(defaultConfig);
+  async initCanvas(defaultConfig: DefaultConfig) {
     const ctx = this.createCanvas(defaultConfig);
+    await this.initCanvasKit(defaultConfig);
     return ctx;
   }
 
@@ -73,21 +81,25 @@ export class Engine implements EngineContext {
     canvas.height = defaultConfig.height * dpr;
     canvas.id = "canvasKitCanvas";
     defaultConfig.container.appendChild(canvas);
-
+    this.canvasDom = canvas;
     const surface = CanvasKit.MakeCanvasSurface("canvasKitCanvas");
-
-    const paint = new CanvasKit.Paint();
-    paint.setColor(CanvasKit.Color4f(0.9, 0, 0, 1.0));
-    paint.setStyle(CanvasKit.PaintStyle.Stroke);
-    paint.setAntiAlias(true);
-    const rr = CanvasKit.RRectXY(CanvasKit.LTRBRect(10, 60, 210, 260), 25, 15);
-
-    function draw(canvas: Canvas) {
-      canvas.clear(CanvasKit.WHITE);
-      canvas.drawRRect(rr, paint);
-    }
-    surface!.drawOnce(draw);
-    console.log(CanvasKit, "--->");
+    this.surface = surface!;
+    this.canvas = surface!.getCanvas();
+    this.canvas.scale(dpr, dpr);
+    this.canvas.clear(CanvasKit.WHITE);
+    // const paint = new CanvasKit.Paint();
+    // paint.setColor(CanvasKit.Color4f(0.9, 0, 0, 1.0));
+    // paint.setStyle(CanvasKit.PaintStyle.Stroke);
+    // paint.setAntiAlias(true);
+    // const rr = CanvasKit.RRectXY(CanvasKit.LTRBRect(10, 60, 210, 260), 25, 15);
+    // console.log(Object.keys(CanvasKit).sort(), "===");
+    // function draw(canvas: Canvas) {
+    //   canvas.clear(CanvasKit.WHITE);
+    //   canvas.drawRRect(rr, paint);
+    // }
+    // surface!.drawOnce(draw);
+    this.ck = CanvasKit;
+    console.log(CanvasKit, this.canvas, "--->");
   }
 
   /**
@@ -122,6 +134,8 @@ export class Engine implements EngineContext {
     this.isFirstInit = false;
     this.needsFrame = false;
     this.update();
+    console.log("frame rendered");
+    this.surface.flush();
     this.dirtyRender = false;
   }
 
@@ -160,6 +174,8 @@ export class Engine implements EngineContext {
     this.system = [];
     this.SystemMap.clear();
     this.core.resetState();
+    this.surface?.dispose();
+    this.canvasDom?.remove();
   }
 
   // initDSL(dsls: DSL[]) {

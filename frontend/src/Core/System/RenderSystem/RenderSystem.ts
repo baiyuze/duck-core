@@ -39,98 +39,60 @@ export class RenderSystem extends System {
     const type = stateStore.type.get(entityId);
     if (!type) return;
     this.renderMap.get(type)?.draw(entityId);
+    this.renderMap.get(type)?.draw1?.(entityId);
   }
 
-  /**
-   * 计算 FPS
-   */
-  private calculateFPS() {
-    this.frameCount++;
-    const currentTime = performance.now();
-    const deltaTime = currentTime - this.lastTime;
-
-    // 每秒更新一次 FPS
-    if (deltaTime >= 1000) {
-      this.fps = Math.round((this.frameCount * 1000) / deltaTime);
-      this.frameCount = 0;
-      this.lastTime = currentTime;
-    }
-  }
-
-  /**
-   * 绘制 FPS 显示
-   */
-  private drawFPS(ctx: CanvasRenderingContext2D) {
-    if (!this.showFPS) return;
-
-    ctx.save();
-    ctx.resetTransform(); // 重置变换矩阵，确保 FPS 显示在固定位置
-
-    // 设置文本样式
-    ctx.font = "16px Arial";
-    ctx.fillStyle = "#237d23ff";
-    ctx.strokeStyle = "#000000";
-    ctx.lineWidth = 1;
-
-    const text = `FPS: ${this.fps}`;
-    const x = 10;
-    const y = 25;
-
-    // 绘制文本描边
-    ctx.strokeText(text, x, y);
-    // 绘制文本填充
-    ctx.fillText(text, x, y);
-
-    ctx.restore();
-  }
-
-  render(stateStore: StateStore, ctx: CanvasRenderingContext2D) {
+  renderer(stateStore: StateStore, ctx: CanvasRenderingContext2D) {
     // 每帧先清空画布
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    // 清空 CanvasKit 画布
+    this.engine.canvas.clear(this.engine.ck.WHITE);
+    console.log(
+      `RenderSystem: 开始渲染，共有 ${stateStore.position.size} 个实体`
+    );
+
     ctx.save();
     ctx.translate(this.engine.camera.translateX, this.engine.camera.translateY);
     ctx.scale(this.engine.camera.zoom, this.engine.camera.zoom);
 
+    this.engine.canvas.save();
+    this.engine.canvas.translate(
+      this.engine.camera.translateX,
+      this.engine.camera.translateY
+    );
+    this.engine.canvas.scale(this.engine.camera.zoom, this.engine.camera.zoom);
+    this.render(stateStore, ctx);
+    // CanvasKit 也需要应用相机变换
     // 遍历所有 position 组件的实体
-    stateStore.position.forEach((pos, entityId) => {
-      ctx.save();
-      const { x, y } = pos as Position;
-      ctx.translate(x, y);
-      // 中心原点应该是图形的中心点
-      this.drawShape(stateStore, entityId);
-      ctx.restore();
-    });
+
+    this.engine.canvas.restore();
     ctx.restore();
+    console.log(`RenderSystem: 渲染完成`);
   }
 
-  /**
-   * 渲染
-   * ToDo 需要优化当在选中区时，也要停止更新update
-   * @param stateStore
-   */
-  private scheduleRender = (stateStore: StateStore) => {
-    if (this.pendingRender) return;
+  render(stateStore: StateStore, ctx: CanvasRenderingContext2D) {
+    let entityCount = 0;
 
-    this.pendingRender = true;
-    this.animationId = requestAnimationFrame(() => {
-      // 计算 FPS
-      this.calculateFPS();
-      this.render(stateStore, this.ctx);
-      // 绘制 FPS 显示
-      this.drawFPS(this.ctx);
-      this.pendingRender = false;
+    stateStore.position.forEach((pos, entityId) => {
+      ctx.save();
+      this.engine.canvas.save();
+      const { x, y } = pos as Position;
+      const type = stateStore.type.get(entityId);
+      console.log(
+        `  绘制实体 ${entityCount++}: ${entityId}, 类型: ${type}, 位置: (${x}, ${y})`
+      );
+      ctx.translate(x, y);
+      this.engine.canvas.translate(x, y);
+
+      // 中心原点应该是图形的中心点
+      this.drawShape(stateStore, entityId);
+      this.engine.canvas.restore();
+      ctx.restore();
     });
-  };
-
-  /**
-   * 切换 FPS 显示
-   */
-  toggleFPS(show?: boolean) {
-    this.showFPS = show !== undefined ? show : !this.showFPS;
   }
 
   update(stateStore: StateStore) {
-    this.scheduleRender(stateStore);
+    this.renderer(stateStore, this.ctx);
   }
 
   destroy() {

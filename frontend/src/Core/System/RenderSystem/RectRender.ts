@@ -240,6 +240,7 @@ export class RectRender extends System {
     } = state.color;
     const lineWidth = state.lineWidth;
     const radius = state.radius;
+
     // 绘制填充
     if (fillColor && fillColor !== "transparent") {
       this.fillRoundRect(width, height, radius, fillColor);
@@ -302,5 +303,34 @@ export class RectRender extends System {
         strokeObj
       );
     }
+  }
+  draw1(entityId: string) {
+    const ck = this.engine.ck;
+    this.stateStore = this.engine.stateStore;
+    const state = this.getComponentsByEntityId(this.stateStore, entityId);
+
+    // const { width, height } = state.size;
+    const {
+      fillColor,
+      // strokeColor,
+      // strokeBColor,
+      // strokeLColor,
+      // strokeRColor,
+      // strokeTColor,
+    } = state.color;
+    // const lineWidth = state.lineWidth;
+    const radius = state.radius;
+    const radiusObj = this.normalizeRadius(radius);
+    const { lt, rt, rb, lb } = radiusObj;
+    const paint = new ck.Paint();
+    paint.setAntiAlias(true);
+    paint.setStyle(ck.PaintStyle.Fill);
+    if (fillColor) paint.setColor(ck.parseColorString(fillColor)); // 任意颜色
+    const radii = [lt, lt, rt, rt, rb, rb, lb, lb];
+    const { left, top, right, bottom } = this.toLTRBRect(state);
+    const rrect = Float32Array.of(left, top, right, bottom, ...radii);
+    this.engine.canvas.drawRRect(rrect, paint);
+    paint.delete();
+    console.log("draw1 done");
   }
 }
