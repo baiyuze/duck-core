@@ -14,13 +14,6 @@ export class RenderSystem extends System {
   entityManager: Entity = new Entity();
   renderMap = new Map<string, System>();
   private animationId: number | null = null;
-  private pendingRender = false;
-
-  // FPS 相关属性
-  private fps = 0;
-  private frameCount = 0;
-  private lastTime = performance.now();
-  private showFPS = true; // 控制是否显示 FPS
 
   constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
     super();
@@ -79,7 +72,7 @@ export class RenderSystem extends System {
       const { x, y } = pos as Position;
       const type = stateStore.type.get(entityId);
       console.log(
-        `  绘制实体 ${entityCount++}: ${entityId}, 类型: ${type}, 位置: (${x}, ${y})`
+        `绘制实体 ${entityCount++}: ${entityId}, 类型: ${type}, 位置: (${x}, ${y})`
       );
       ctx.translate(x, y);
       this.engine.canvas.translate(x, y);
