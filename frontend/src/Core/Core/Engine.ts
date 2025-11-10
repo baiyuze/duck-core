@@ -70,7 +70,8 @@ export class Engine implements EngineContext {
     const CanvasKit = await CanvasKitInit({
       locateFile(file) {
         console.log(file, "--");
-        return "/node_modules/canvaskit-wasm/bin/" + file;
+        const url = process.env.NODE_ENV=== 'production' ? '/design/canvaskit/': '/node_modules/canvaskit-wasm/bin/'
+        return url + file;
       },
     });
     const canvas = document.createElement("canvas");
