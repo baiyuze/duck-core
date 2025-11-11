@@ -331,6 +331,5 @@ export class RectRender extends System {
     const rrect = Float32Array.of(left, top, right, bottom, ...radii);
     this.engine.canvas.drawRRect(rrect, paint);
     paint.delete();
-    console.log("draw1 done");
   }
 }

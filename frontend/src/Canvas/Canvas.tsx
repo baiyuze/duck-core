@@ -1,17 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { CanvasProps } from "./Canvas.d";
 import { Engine } from "../Core/Core/Engine";
-import { RenderSystem } from "../Core/System/RenderSystem/RenderSystem";
-import { SelectionSystem } from "../Core/System/SelectionSystem";
-import { PickingSystem } from "../Core/System/PickingSystem";
 import styles from "./Canvas.module.scss";
-import { EventSystem } from "../Core/System/EventSystem";
-import { InputSystem } from "../Core/System/InputSytem";
 import CopilotDemo from "../Components/AiChat/AiChat";
-import { HoverSystem } from "../Core/System/HoverSystem";
-import { ClickSystem } from "../Core/System/ClickSystem";
-import { DragSystem } from "../Core/System/DragSystem";
-import { Core } from "../Core";
 import { createEngine } from "../Core/engineFactory";
 
 function Canvas(props: CanvasProps) {
@@ -683,14 +674,14 @@ function Canvas(props: CanvasProps) {
       height: 800,
       container,
     });
-    engineRef.current.update();
-    // }
+
+    engineRef.current?.render();
   };
   const handlerApplyCode = (data: any[]) => {
     engineRef.current?.core.initComponents(data);
     if (engineRef.current) {
       engineRef.current.dirtyRender = true;
-      engineRef.current?.requestFrame();
+      engineRef.current?.render();
     }
   };
   useEffect(() => {

@@ -28,21 +28,18 @@ export class RenderSystem extends System {
     });
   }
 
-  drawShape(stateStore: StateStore, entityId: string) {
+  async drawShape(stateStore: StateStore, entityId: string) {
     const type = stateStore.type.get(entityId);
     if (!type) return;
-    this.renderMap.get(type)?.draw(entityId);
-    this.renderMap.get(type)?.draw1?.(entityId);
+    await this.renderMap.get(type)?.draw(entityId);
+    await this.renderMap.get(type)?.draw1?.(entityId);
   }
 
-  renderer(stateStore: StateStore, ctx: CanvasRenderingContext2D) {
+  async renderer(stateStore: StateStore, ctx: CanvasRenderingContext2D) {
     // 每帧先清空画布
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     // 清空 CanvasKit 画布
     this.engine.canvas.clear(this.engine.ck.WHITE);
-    console.log(
-      `RenderSystem: 开始渲染，共有 ${stateStore.position.size} 个实体`
-    );
 
     ctx.save();
     ctx.translate(this.engine.camera.translateX, this.engine.camera.translateY);
@@ -54,19 +51,17 @@ export class RenderSystem extends System {
       this.engine.camera.translateY
     );
     this.engine.canvas.scale(this.engine.camera.zoom, this.engine.camera.zoom);
-    this.render(stateStore, ctx);
+    await this.render(stateStore, ctx);
     // CanvasKit 也需要应用相机变换
     // 遍历所有 position 组件的实体
 
     this.engine.canvas.restore();
     ctx.restore();
-    console.log(`RenderSystem: 渲染完成`);
   }
 
-  render(stateStore: StateStore, ctx: CanvasRenderingContext2D) {
+  async render(stateStore: StateStore, ctx: CanvasRenderingContext2D) {
     let entityCount = 0;
-
-    stateStore.position.forEach((pos, entityId) => {
+    for (const [entityId, pos] of stateStore.position) {
       ctx.save();
       this.engine.canvas.save();
       const { x, y } = pos as Position;
@@ -78,14 +73,16 @@ export class RenderSystem extends System {
       this.engine.canvas.translate(x, y);
 
       // 中心原点应该是图形的中心点
-      this.drawShape(stateStore, entityId);
+      await this.drawShape(stateStore, entityId);
       this.engine.canvas.restore();
       ctx.restore();
-    });
+    }
   }
 
-  update(stateStore: StateStore) {
-    this.renderer(stateStore, this.ctx);
+  async update(stateStore: StateStore) {
+    console.log("RenderSystem: 开始更新渲染");
+    await this.renderer(stateStore, this.ctx);
+    console.log("RenderSystem: 更新渲染完成");
   }
 
   destroy() {

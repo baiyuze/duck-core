@@ -1,8 +1,10 @@
+import type { Canvas } from "canvaskit-wasm";
 import type { Engine } from "../../Core/Engine";
 import type { DSL } from "../../DSL/DSL";
 import type { StateStore } from "../../types";
 import { System } from "../System";
 import svgPathBounds from "svg-path-bounds";
+import { parseSVG } from "svg-path-parser";
 
 export class ImgRender extends System {
   engine: Engine;
@@ -63,7 +65,7 @@ export class ImgRender extends System {
     }
   }
 
-  draw(entityId: string) {
+  async draw(entityId: string) {
     this.stateStore = this.engine.stateStore;
     if (!this.stateStore) return;
     const state = this.getComponentsByEntityId(this.stateStore, entityId);
@@ -75,18 +77,81 @@ export class ImgRender extends System {
       return this.drawSvg(state as DSL);
     }
     if (!imgComponent || !imgComponent.src) return;
-    if (this.imgCache.has(imgComponent.src)) {
-      const cachedImg = this.imgCache.get(imgComponent.src);
-      if (cachedImg) {
-        this.ctx.drawImage(cachedImg, 0, 0, width, height);
-      }
-      return;
-    }
-    const img = new Image();
-    img.src = imgComponent.src;
-    img.onload = () => {
+    try {
+      const img = await this.getImage(imgComponent.src, width, height);
       this.ctx.drawImage(img, 0, 0, width, height);
-      this.imgCache.set(img.src, img);
-    };
+    } catch (error) {
+      console.error("Error loading image:", error);
+    }
+  }
+  makeImage(img: HTMLImageElement) {
+    const data = this.engine.ck.MakeImageFromCanvasImageSource(img);
+    return data;
+  }
+  /**
+   * 获取图片
+   * @param url
+   * @param width
+   * @param height
+   * @returns
+   */
+  async getImage(
+    url: string,
+    width: number,
+    height: number
+  ): Promise<HTMLImageElement> {
+    return new Promise<HTMLImageElement>((resolve, reject) => {
+      if (this.imgCache.has(url)) {
+        const img = this.imgCache.get(url);
+        return img && resolve(img);
+      }
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = url;
+      img.width = width;
+      img.height = height;
+      img.onload = () => {
+        this.imgCache.set(url, img);
+        resolve(img);
+      };
+      img.onerror = () => {
+        reject(img);
+      };
+    });
+  }
+  draw1(entityId: string) {
+    return new Promise<void>(async (resolve, reject) => {
+      const canvas = this.engine.canvas as Canvas;
+      this.stateStore = this.engine.stateStore;
+      if (!this.stateStore) return;
+      const state = this.getComponentsByEntityId(this.stateStore, entityId);
+
+      if (!state) return;
+      const { width, height } = state.size;
+      const imgComponent = state.img;
+      if (imgComponent.svg && imgComponent.path) {
+        const ck = this.engine.ck;
+        const path = new ck.Path();
+        const parsed = parseSVG(imgComponent.path);
+        const svgPath = ck.Path.MakeFromSVGString(imgComponent.path);
+        console.log(svgPath, "svgPath");
+        if (svgPath) {
+          path.addPath(svgPath);
+          const paint = new ck.Paint();
+          paint.setColor(ck.Color(0, 0, 255, 1.0));
+          canvas.drawPath(path, paint);
+        }
+
+        resolve();
+      }
+      if (!imgComponent || !imgComponent.src) return;
+      try {
+        const img = await this.getImage(imgComponent.src, width, height);
+        canvas.drawImage(this.makeImage(img), 0, 0);
+        resolve();
+      } catch (error) {
+        reject(error);
+      }
+    });
   }
 }

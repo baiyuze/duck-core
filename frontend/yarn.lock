@@ -3261,6 +3261,11 @@ svg-path-bounds@^1.0.2:
     normalize-svg-path "^1.0.0"
     parse-svg-path "^0.1.2"
 
+svg-path-parser@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/svg-path-parser/-/svg-path-parser-1.1.0.tgz#e16b4b39df0d2b0d39e8347db79fdda1453a6046"
+  integrity sha512-jGCUqcQyXpfe38R7RFfhrMyfXcBmpMNJI/B+4CE9/Unkh98UporAc461GTthv+TVDuZXsBx7/WiwJb1Oh4tt4A==
+
 sync-child-process@^1.0.2:
   version "1.0.2"
   resolved "https://registry.npmjs.org/sync-child-process/-/sync-child-process-1.0.2.tgz"

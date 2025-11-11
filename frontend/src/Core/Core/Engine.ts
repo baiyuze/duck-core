@@ -69,8 +69,10 @@ export class Engine implements EngineContext {
   async initCanvasKit(defaultConfig: DefaultConfig) {
     const CanvasKit = await CanvasKitInit({
       locateFile(file) {
-        console.log(file, "--");
-        const url = process.env.NODE_ENV=== 'production' ? '/design/canvaskit/': '/node_modules/canvaskit-wasm/bin/'
+        const url =
+          import.meta.env?.MODE === "production"
+            ? "/design/canvaskit/"
+            : "/node_modules/canvaskit-wasm/bin/";
         return url + file;
       },
     });
@@ -87,20 +89,7 @@ export class Engine implements EngineContext {
     this.surface = surface!;
     this.canvas = surface!.getCanvas();
     this.canvas.scale(dpr, dpr);
-    this.canvas.clear(CanvasKit.WHITE);
-    // const paint = new CanvasKit.Paint();
-    // paint.setColor(CanvasKit.Color4f(0.9, 0, 0, 1.0));
-    // paint.setStyle(CanvasKit.PaintStyle.Stroke);
-    // paint.setAntiAlias(true);
-    // const rr = CanvasKit.RRectXY(CanvasKit.LTRBRect(10, 60, 210, 260), 25, 15);
-    // console.log(Object.keys(CanvasKit).sort(), "===");
-    // function draw(canvas: Canvas) {
-    //   canvas.clear(CanvasKit.WHITE);
-    //   canvas.drawRRect(rr, paint);
-    // }
-    // surface!.drawOnce(draw);
     this.ck = CanvasKit;
-    console.log(CanvasKit, this.canvas, "--->");
   }
 
   /**
@@ -127,24 +116,29 @@ export class Engine implements EngineContext {
   requestFrame() {
     if (!this.needsFrame) {
       this.needsFrame = true;
-      requestAnimationFrame(() => this.tick());
+      this.surface.requestAnimationFrame(() => this._tick());
     }
   }
 
-  tick() {
+  async render() {
+    if (!this.isFirstInit) return;
+    await this.update();
+    this.surface.flush();
     this.isFirstInit = false;
+  }
+
+  async _tick() {
     this.needsFrame = false;
-    this.update();
-    console.log("frame rendered");
+    await this.update();
     this.surface.flush();
     this.dirtyRender = false;
   }
 
   systemUpdate(systemName: string) {
-    const update = (system: System) => {
+    const update = async (system: System) => {
       // 只有有脏数据时，才进行处理
       if (this.dirtyRender || this.isFirstInit) {
-        system.update(this.stateStore);
+        await system.update(this.stateStore);
       }
     };
     const systemMap: { [key: string]: (system: System) => void } = {
@@ -153,16 +147,16 @@ export class Engine implements EngineContext {
     return systemMap[systemName];
   }
 
-  update() {
-    this.system.forEach((sys) => {
+  async update() {
+    for (const sys of this.system) {
       const fn = this.systemUpdate(sys.constructor.name);
       if (fn) {
-        fn(sys);
-        return;
+        await fn(sys);
+        continue;
       }
 
-      sys.update(this.stateStore);
-    });
+      await sys.update(this.stateStore);
+    }
   }
   /**
    * 统一销毁
