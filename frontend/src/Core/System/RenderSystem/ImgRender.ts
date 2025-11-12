@@ -1,4 +1,4 @@
-import type { Canvas } from "canvaskit-wasm";
+import type { Canvas, Image } from "canvaskit-wasm";
 import type { Engine } from "../../Core/Engine";
 import type { DSL } from "../../DSL/DSL";
 import type { StateStore } from "../../types";
@@ -10,7 +10,8 @@ export class ImgRender extends System {
   engine: Engine;
   ctx: CanvasRenderingContext2D;
   stateStore: StateStore | null = null;
-  imgCache: Map<string, HTMLImageElement> = new Map();
+  imgCache: Map<string, HTMLImageElement | Image> = new Map();
+  imgDataCache: Map<string, Image> = new Map();
   constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
     super();
     this.engine = engine;
@@ -78,7 +79,11 @@ export class ImgRender extends System {
     }
     if (!imgComponent || !imgComponent.src) return;
     try {
-      const img = await this.getImage(imgComponent.src, width, height);
+      const img = (await this.getImage(
+        imgComponent.src,
+        width,
+        height
+      )) as HTMLImageElement;
       this.ctx.drawImage(img, 0, 0, width, height);
     } catch (error) {
       console.error("Error loading image:", error);
@@ -86,6 +91,7 @@ export class ImgRender extends System {
   }
   makeImage(img: HTMLImageElement) {
     const data = this.engine.ck.MakeImageFromCanvasImageSource(img);
+
     return data;
   }
   /**
@@ -98,25 +104,70 @@ export class ImgRender extends System {
   async getImage(
     url: string,
     width: number,
-    height: number
-  ): Promise<HTMLImageElement> {
-    return new Promise<HTMLImageElement>((resolve, reject) => {
+    height: number,
+    isOriginal: boolean = false
+  ): Promise<HTMLImageElement | Image> {
+    return new Promise<HTMLImageElement | Image>(async (resolve, reject) => {
+      if (isOriginal && this.imgDataCache.has(url)) {
+        const img = this.imgDataCache.get(url);
+        return img && resolve(img);
+      }
       if (this.imgCache.has(url)) {
         const img = this.imgCache.get(url);
         return img && resolve(img);
       }
+
+      if (isOriginal) {
+        const imgData = await fetch(url).then((r) => r.arrayBuffer());
+        console.log("imgData", imgData);
+        const img = this.engine.ck.MakeImageFromEncoded(imgData);
+        if (img) {
+          this.imgDataCache.set(url, img);
+          return resolve(img);
+        }
+        return reject(null);
+      }
       const img = new Image();
       img.crossOrigin = "anonymous";
       img.src = url;
-      img.width = width;
-      img.height = height;
+      // img.width = width;
+      // img.height = height;
       img.onload = () => {
         this.imgCache.set(url, img);
         resolve(img);
       };
+      console.log(img.width, img.height, "---");
       img.onerror = () => {
         reject(img);
       };
+    });
+  }
+  /**
+   * 获取图片
+   * @param url
+   * @param width
+   * @param height
+   * @returns
+   */
+  async getImageData(
+    url: string,
+    width: number,
+    height: number
+  ): Promise<Image> {
+    return new Promise<Image>(async (resolve, reject) => {
+      if (this.imgDataCache.has(url)) {
+        const img = this.imgDataCache.get(url);
+        return img && resolve(img);
+      }
+
+      const imgData = await fetch(url).then((r) => r.arrayBuffer());
+      console.log("imgData", imgData);
+      const img = this.engine.ck.MakeImageFromEncoded(imgData);
+      if (img) {
+        this.imgDataCache.set(url, img);
+        return resolve(img);
+      }
+      return reject(null);
     });
   }
   draw1(entityId: string) {
@@ -129,8 +180,8 @@ export class ImgRender extends System {
       if (!state) return;
       const { width, height } = state.size;
       const imgComponent = state.img;
+      const ck = this.engine.ck;
       if (imgComponent.svg && imgComponent.path) {
-        const ck = this.engine.ck;
         const path = new ck.Path();
         const svgPath = ck.Path.MakeFromSVGString(imgComponent.path);
 
@@ -159,8 +210,17 @@ export class ImgRender extends System {
       }
       if (!imgComponent || !imgComponent.src) return;
       try {
-        const img = await this.getImage(imgComponent.src, width, height);
-        canvas.drawImage(this.makeImage(img), 0, 0);
+        const paint = new ck.Paint();
+        const img = (await this.getImageData(
+          imgComponent.src,
+          width,
+          height
+        )) as Image;
+        if (img) {
+          const src = ck.XYWHRect(0, 0, img.width(), img.height());
+          const dst = ck.XYWHRect(0, 0, width, height);
+          canvas.drawImageRect(img, src, dst, paint);
+        }
         resolve();
       } catch (error) {
         reject(error);
