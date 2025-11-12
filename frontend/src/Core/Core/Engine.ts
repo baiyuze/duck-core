@@ -1,6 +1,7 @@
 import type { Size } from "../Components";
 import { Selected } from "../Components/Selected";
 import { DSL } from "../DSL/DSL";
+import { createCanvasKit } from "../engineFactory";
 import { Entity } from "../Entity/Entity";
 import type { EventSystem } from "../System/EventSystem";
 import { System } from "../System/System";
@@ -67,15 +68,7 @@ export class Engine implements EngineContext {
   }
 
   async initCanvasKit(defaultConfig: DefaultConfig) {
-    const CanvasKit = await CanvasKitInit({
-      locateFile(file) {
-        const url =
-          import.meta.env?.MODE === "production"
-            ? "/design/canvaskit/"
-            : "/node_modules/canvaskit-wasm/bin/";
-        return url + file;
-      },
-    });
+    const CanvasKit = await createCanvasKit();
     const canvas = document.createElement("canvas");
     const dpr = window.devicePixelRatio || 1;
     canvas.style.width = defaultConfig.width + "px";
@@ -85,7 +78,7 @@ export class Engine implements EngineContext {
     canvas.id = "canvasKitCanvas";
     defaultConfig.container.appendChild(canvas);
     this.canvasDom = canvas;
-    const surface = CanvasKit.MakeCanvasSurface("canvasKitCanvas");
+    const surface = CanvasKit.MakeWebGLCanvasSurface("canvasKitCanvas");
     this.surface = surface!;
     this.canvas = surface!.getCanvas();
     this.canvas.scale(dpr, dpr);

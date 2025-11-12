@@ -4,7 +4,7 @@ import type { DSL } from "../../DSL/DSL";
 import type { StateStore } from "../../types";
 import { System } from "../System";
 import svgPathBounds from "svg-path-bounds";
-import { parseSVG } from "svg-path-parser";
+// import { parseSVG } from "svg-path-parser";
 
 export class ImgRender extends System {
   engine: Engine;
@@ -132,17 +132,30 @@ export class ImgRender extends System {
       if (imgComponent.svg && imgComponent.path) {
         const ck = this.engine.ck;
         const path = new ck.Path();
-        const parsed = parseSVG(imgComponent.path);
         const svgPath = ck.Path.MakeFromSVGString(imgComponent.path);
-        console.log(svgPath, "svgPath");
+
         if (svgPath) {
           path.addPath(svgPath);
-          const paint = new ck.Paint();
-          paint.setColor(ck.Color(0, 0, 255, 1.0));
-          canvas.drawPath(path, paint);
+          const fillColor = state.color.fillColor;
+          const strokeColor = state.color.strokeColor;
+
+          if (fillColor) {
+            const paint = new ck.Paint();
+            paint.setColor(ck.parseColorString(fillColor));
+            paint.setAntiAlias(true);
+            canvas.drawPath(path, paint);
+          }
+          if (strokeColor && strokeColor !== "transparent") {
+            const strokePaint = new ck.Paint();
+            strokePaint.setColor(ck.parseColorString(strokeColor));
+            strokePaint.setStyle(ck.PaintStyle.Stroke);
+            strokePaint.setAntiAlias(true);
+            canvas.drawPath(path, strokePaint);
+          }
         }
 
         resolve();
+        return;
       }
       if (!imgComponent || !imgComponent.src) return;
       try {
