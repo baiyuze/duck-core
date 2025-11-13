@@ -101,7 +101,11 @@ export class TextRender extends System {
     const paragraph = builder.build();
     paragraph.layout(maxWidth);
 
-    canvas.drawParagraph(paragraph, x, y);
+    canvas.drawParagraph(paragraph, x, textY);
+
+    // 释放 CanvasKit 对象内存
+    paragraph.delete();
+    builder.delete();
   }
   draw1(entityId: string): void {
     // Skia 渲染逻辑待实现

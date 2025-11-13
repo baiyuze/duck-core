@@ -54,9 +54,6 @@ export class RenderSystem extends System {
       this.engine.canvas.save();
       const { x, y } = pos as Position;
       const type = stateStore.type.get(entityId);
-      console.log(
-        `绘制实体 ${entityCount++}: ${entityId}, 类型: ${type}, 位置: (${x}, ${y})`
-      );
       this.engine.canvas.translate(x, y);
 
       // 中心原点应该是图形的中心点
@@ -66,9 +63,7 @@ export class RenderSystem extends System {
   }
 
   async update(stateStore: StateStore) {
-    console.log("RenderSystem: 开始更新渲染");
     await this.renderer(stateStore);
-    console.log("RenderSystem: 更新渲染完成");
   }
 
   destroy() {

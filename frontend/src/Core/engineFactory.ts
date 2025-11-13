@@ -14,6 +14,7 @@ import { ZoomSystem } from "./System/ZoomSystem";
 import { ScrollSystem } from "./System/ScrollSystem";
 import type { DefaultConfig } from "./types";
 import CanvasKitInit from "canvaskit-wasm";
+import { FpsSystem } from "./System/FpsSystem";
 
 export async function createEngine(dsls: any[], defaultConfig: DefaultConfig) {
   const core = new Core(dsls);
@@ -32,6 +33,7 @@ export async function createEngine(dsls: any[], defaultConfig: DefaultConfig) {
   engine.addSystem(new ScrollSystem(engine));
   engine.addSystem(new RenderSystem(engine));
   engine.addSystem(new SelectionSystem(engine));
+  engine.addSystem(new FpsSystem(engine));
 
   return engine;
 }

@@ -124,9 +124,13 @@ export class Engine implements EngineContext {
 
   async _tick() {
     this.needsFrame = false;
-    await this.update();
-    this.surface.flush();
-    this.dirtyRender = false;
+    try {
+      await this.update();
+      this.surface.flush();
+      this.dirtyRender = false;
+    } catch (error) {
+      console.error("Engine tick error:", error);
+    }
   }
 
   systemUpdate(systemName: string) {

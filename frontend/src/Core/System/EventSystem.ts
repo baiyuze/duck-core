@@ -15,8 +15,8 @@ export class EventSystem extends System {
     super();
     this.engine = engine;
     this.dispose();
-    this.throttledMouseMove = throttle(this.onMouseMove.bind(this), 16);
-    this.throttledWheel = throttle(this.onWheel.bind(this), 3);
+    this.throttledMouseMove = throttle(this.onMouseMove.bind(this), 10);
+    this.throttledWheel = throttle(this.onWheel.bind(this), 10);
     document.addEventListener("mouseup", this.onMouseUp.bind(this));
     this.engine.canvasDom!.addEventListener(
       "mousedown",

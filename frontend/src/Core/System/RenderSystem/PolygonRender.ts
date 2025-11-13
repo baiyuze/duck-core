@@ -11,11 +11,12 @@ export class PolygonRender extends System {
     this.engine = engine;
   }
 
-  setPaintStyle(ck: CanvasKit, color: string, type: EmbindEnumEntity): void {
+  setPaintStyle(ck: CanvasKit, color: string, type: EmbindEnumEntity) {
     const paint = new ck.Paint();
     paint.setStyle(type);
     paint.setColor(ck.parseColorString(color));
     paint.setAntiAlias(true);
+    return paint;
   }
 
   draw1(entityId: string): void {
@@ -75,15 +76,18 @@ export class PolygonRender extends System {
       // 需要将fill和stroke分开和scale和rotation分开，分别渲染。
       if (fillColor && fillColor !== "transparent") {
         console.log(fillColor, "fillColor");
-        const paint = new ck.Paint();
-        this.setPaintStyle(ck, fillColor, ck.PaintStyle.Fill);
+        const paint = this.setPaintStyle(ck, fillColor, ck.PaintStyle.Fill);
         canvas.drawPath(path, paint);
+        paint.delete();
       }
       if (strokeColor && strokeColor !== "transparent") {
-        const paint = new ck.Paint();
-        this.setPaintStyle(ck, strokeColor, ck.PaintStyle.Stroke);
+        const paint = this.setPaintStyle(ck, strokeColor, ck.PaintStyle.Stroke);
         canvas.drawPath(path, paint);
+        paint.delete();
       }
+
+      // 释放 Path 对象内存
+      path.delete();
     }
   }
 }

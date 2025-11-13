@@ -18,20 +18,26 @@ export class EllipseRender extends System {
     const canvas = this.engine.canvas;
     const ck = this.engine.ck;
     const rect = ck.XYWHRect(0, 0, state.size.width, state.size.height);
-    const paint = new ck.Paint();
-    paint.setStyle(ck.PaintStyle.Fill);
+
+    // 绘制填充
     if (state.color.fillColor && state.color.fillColor !== "transparent") {
+      const paint = new ck.Paint();
+      paint.setStyle(ck.PaintStyle.Fill);
       paint.setColor(ck.parseColorString(state.color.fillColor));
       paint.setAntiAlias(true);
+      canvas.drawOval(rect, paint);
+      paint.delete();
     }
-    canvas.drawOval(rect, paint);
+
+    // 绘制描边
     if (state.color.strokeColor && state.color.strokeColor !== "transparent") {
-      const paint = new ck.Paint();
-      paint.setAntiAlias(true);
-      paint.setStyle(ck.PaintStyle.Stroke);
-      paint.setStrokeWidth(state.lineWidth.value);
-      paint.setColor(ck.parseColorString(state.color.strokeColor));
+      const strokePaint = new ck.Paint();
+      strokePaint.setAntiAlias(true);
+      strokePaint.setStyle(ck.PaintStyle.Stroke);
+      strokePaint.setStrokeWidth(state.lineWidth.value);
+      strokePaint.setColor(ck.parseColorString(state.color.strokeColor));
+      canvas.drawOval(rect, strokePaint);
+      strokePaint.delete();
     }
-    canvas.drawOval(rect, paint);
   }
 }

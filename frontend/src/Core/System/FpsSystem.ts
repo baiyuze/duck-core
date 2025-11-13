@@ -12,6 +12,9 @@ export class FpsSystem extends System implements System {
   private canvas: HTMLCanvasElement | null = null;
   private ctx: CanvasRenderingContext2D | null = null;
   stateStore: StateStore | null = null;
+  private lastFrameTime: number = performance.now();
+  private updateTimeout: number = 1000; // 超过1秒没有更新则认为停止
+
   constructor(private engine: Engine) {
     super();
     this.createFPSText();
@@ -19,7 +22,27 @@ export class FpsSystem extends System implements System {
 
   update(stateStore: StateStore) {
     this.stateStore = stateStore;
-    // this.updateFPSText(this.engine.app.ticker.FPS);
+    this.calculateFPS();
+  }
+
+  private calculateFPS() {
+    const currentTime = performance.now();
+    const deltaTime = currentTime - this.lastFrameTime;
+
+    // 如果超过超时时间没有更新，设置FPS为1
+    if (deltaTime > this.updateTimeout) {
+      this.updateFPSText(1);
+      this.lastFrameTime = currentTime;
+      return;
+    }
+
+    // 计算当前帧的FPS
+    if (deltaTime > 0) {
+      const fps = 1000 / deltaTime;
+      this.updateFPSText(fps);
+    }
+
+    this.lastFrameTime = currentTime;
   }
 
   createFPSText() {

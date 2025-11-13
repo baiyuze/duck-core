@@ -45,54 +45,7 @@ export class ImgRender extends System {
 
     return data;
   }
-  /**
-   * 获取图片
-   * @param url
-   * @param width
-   * @param height
-   * @returns
-   */
-  async getImage(
-    url: string,
-    width: number,
-    height: number,
-    isOriginal: boolean = false
-  ): Promise<HTMLImageElement | Image> {
-    return new Promise<HTMLImageElement | Image>(async (resolve, reject) => {
-      if (isOriginal && this.imgDataCache.has(url)) {
-        const img = this.imgDataCache.get(url);
-        return img && resolve(img);
-      }
-      if (this.imgCache.has(url)) {
-        const img = this.imgCache.get(url);
-        return img && resolve(img);
-      }
 
-      if (isOriginal) {
-        const imgData = await fetch(url).then((r) => r.arrayBuffer());
-        console.log("imgData", imgData);
-        const img = this.engine.ck.MakeImageFromEncoded(imgData);
-        if (img) {
-          this.imgDataCache.set(url, img);
-          return resolve(img);
-        }
-        return reject(null);
-      }
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.src = url;
-      // img.width = width;
-      // img.height = height;
-      img.onload = () => {
-        this.imgCache.set(url, img);
-        resolve(img);
-      };
-      console.log(img.width, img.height, "---");
-      img.onerror = () => {
-        reject(img);
-      };
-    });
-  }
   /**
    * 获取图片
    * @param url
@@ -146,6 +99,7 @@ export class ImgRender extends System {
             paint.setColor(ck.parseColorString(fillColor));
             paint.setAntiAlias(true);
             canvas.drawPath(path, paint);
+            paint.delete();
           }
           if (strokeColor && strokeColor !== "transparent") {
             const strokePaint = new ck.Paint();
@@ -153,7 +107,12 @@ export class ImgRender extends System {
             strokePaint.setStyle(ck.PaintStyle.Stroke);
             strokePaint.setAntiAlias(true);
             canvas.drawPath(path, strokePaint);
+            strokePaint.delete();
           }
+
+          // 释放 Path 对象内存
+          svgPath.delete();
+          path.delete();
         }
 
         resolve();
@@ -171,6 +130,7 @@ export class ImgRender extends System {
           const src = ck.XYWHRect(0, 0, img.width(), img.height());
           const dst = ck.XYWHRect(0, 0, width, height);
           canvas.drawImageRect(img, src, dst, paint);
+          paint.delete();
         }
         resolve();
       } catch (error) {
