@@ -1,4 +1,10 @@
-import type { Canvas, Image } from "canvaskit-wasm";
+import type {
+  Canvas,
+  EmbindEnumEntity,
+  Image,
+  Paint,
+  Path,
+} from "canvaskit-wasm";
 import type { Engine } from "../../Core/Engine";
 import type { DSL } from "../../DSL/DSL";
 import type { StateStore } from "../../types";
@@ -9,11 +15,14 @@ import svgPathBounds from "svg-path-bounds";
 export class ImgRender extends System {
   engine: Engine;
   stateStore: StateStore | null = null;
-  imgCache: Map<string, HTMLImageElement | Image> = new Map();
   imgDataCache: Map<string, Image> = new Map();
+  paint: Paint;
+  path: Path;
   constructor(engine: Engine) {
     super();
     this.engine = engine;
+    this.paint = new this.engine.ck.Paint();
+    this.path = new this.engine.ck.Path();
   }
 
   getSvgSize(path: string): { width: number; height: number } | null {
@@ -53,11 +62,7 @@ export class ImgRender extends System {
    * @param height
    * @returns
    */
-  async getImageData(
-    url: string,
-    width: number,
-    height: number
-  ): Promise<Image> {
+  async getImageData(url: string): Promise<Image> {
     return new Promise<Image>(async (resolve, reject) => {
       if (this.imgDataCache.has(url)) {
         const img = this.imgDataCache.get(url);
@@ -65,7 +70,6 @@ export class ImgRender extends System {
       }
 
       const imgData = await fetch(url).then((r) => r.arrayBuffer());
-      console.log("imgData", imgData);
       const img = this.engine.ck.MakeImageFromEncoded(imgData);
       if (img) {
         this.imgDataCache.set(url, img);
@@ -73,6 +77,14 @@ export class ImgRender extends System {
       }
       return reject(null);
     });
+  }
+  setPaintStyle(colorType: EmbindEnumEntity, color: string) {
+    const ck = this.engine.ck;
+    const paint = this.paint;
+    paint.setStyle(colorType);
+    paint.setColor(ck.parseColorString(color));
+    paint.setAntiAlias(true);
+    return paint;
   }
   draw1(entityId: string) {
     return new Promise<void>(async (resolve, reject) => {
@@ -86,33 +98,23 @@ export class ImgRender extends System {
       const imgComponent = state.img;
       const ck = this.engine.ck;
       if (imgComponent.svg && imgComponent.path) {
-        const path = new ck.Path();
+        this.path.reset();
+        const path = this.path;
         const svgPath = ck.Path.MakeFromSVGString(imgComponent.path);
 
         if (svgPath) {
           path.addPath(svgPath);
           const fillColor = state.color.fillColor;
           const strokeColor = state.color.strokeColor;
-
           if (fillColor && fillColor !== "transparent") {
-            const paint = new ck.Paint();
-            paint.setColor(ck.parseColorString(fillColor));
-            paint.setAntiAlias(true);
+            const paint = this.setPaintStyle(ck.PaintStyle.Fill, fillColor);
             canvas.drawPath(path, paint);
-            paint.delete();
           }
           if (strokeColor && strokeColor !== "transparent") {
-            const strokePaint = new ck.Paint();
-            strokePaint.setColor(ck.parseColorString(strokeColor));
-            strokePaint.setStyle(ck.PaintStyle.Stroke);
-            strokePaint.setAntiAlias(true);
-            canvas.drawPath(path, strokePaint);
-            strokePaint.delete();
+            const paint = this.setPaintStyle(ck.PaintStyle.Stroke, strokeColor);
+            canvas.drawPath(path, paint);
           }
-
-          // 释放 Path 对象内存
           svgPath.delete();
-          path.delete();
         }
 
         resolve();
@@ -120,22 +122,25 @@ export class ImgRender extends System {
       }
       if (!imgComponent || !imgComponent.src) return;
       try {
-        const paint = new ck.Paint();
-        const img = (await this.getImageData(
-          imgComponent.src,
-          width,
-          height
-        )) as Image;
+        const paint = this.paint;
+        const img = (await this.getImageData(imgComponent.src)) as Image;
         if (img) {
           const src = ck.XYWHRect(0, 0, img.width(), img.height());
           const dst = ck.XYWHRect(0, 0, width, height);
           canvas.drawImageRect(img, src, dst, paint);
-          paint.delete();
         }
         resolve();
       } catch (error) {
         reject(error);
       }
     });
+  }
+  destroyed(): void {
+    this.paint.delete();
+    this.path.delete();
+    this.imgDataCache.forEach((img) => {
+      img.delete();
+    });
+    this.imgDataCache.clear();
   }
 }

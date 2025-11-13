@@ -1,57 +1,38 @@
-import type { Canvas, CanvasKit } from "canvaskit-wasm";
+import type {
+  Canvas,
+  CanvasKit,
+  Paragraph,
+  ParagraphStyle,
+} from "canvaskit-wasm";
 import type { Engine } from "../../Core/Engine";
 import type { StateStore } from "../../types";
 import { System } from "../System";
+import type { DSL } from "../../DSL/DSL";
 
 export class TextRender extends System {
   engine: Engine;
   stateStore: StateStore | null = null;
+  fontCache: Map<string, any> = new Map();
+
   constructor(engine: Engine) {
     super();
     this.engine = engine;
   }
 
-  drawSystemText(
-    canvas: Canvas,
-    text: string,
-    x: number,
-    y: number,
-    options: {
-      fontSize?: number;
-      fontFamilies?: string[];
-      color?: string;
-      maxWidth?: number;
-      align?: "left" | "center" | "right";
-      textBaseline?: "top" | "middle" | "bottom";
-      fontWeight?: string;
-    } = {}
-  ) {
+  parseColor(colorStr: string) {
     const CanvasKit = this.engine.ck;
-    if (
-      !CanvasKit
-      // !DefaultFont
-    ) {
-      console.warn("CanvasKit 或默认字体未初始化");
-      return;
-    }
+    const color = CanvasKit.parseColorString(colorStr);
+    return color;
+  }
 
-    const parseColor = (colorStr: string) => {
-      const color = CanvasKit.parseColorString(colorStr);
-      return color;
-    };
-
-    const {
-      fontSize = 16,
-      fontFamilies,
-      color = "#000000",
-      maxWidth = 9999,
-      align = "left",
-      textBaseline,
-      fontWeight = 400,
-    } = options;
-
-    // 解析字体粗细
+  getFontStyle(state: DSL, text: string) {
+    const CanvasKit = this.engine.ck;
+    const fontWeight = state.font.weight || "400";
     let fontWeightValue = CanvasKit.FontWeight.Normal;
+    const align = state.font.textAlign;
+    const color = state.font.fillColor || "#000000";
+    const fontSize = state.font.size || 16;
+    const fontFamilies = ["Noto Sans SC"];
     if (fontWeight) {
       const weightMap: { [key: string]: any } = {
         "100": CanvasKit.FontWeight.Thin,
@@ -66,7 +47,7 @@ export class TextRender extends System {
       };
       fontWeightValue = weightMap[fontWeight] || CanvasKit.FontWeight.Normal;
     }
-    const paraStyle = new CanvasKit.ParagraphStyle({
+    const paraStyle = {
       textAlign:
         align === "center"
           ? CanvasKit.TextAlign.Center
@@ -74,7 +55,7 @@ export class TextRender extends System {
           ? CanvasKit.TextAlign.Right
           : CanvasKit.TextAlign.Left,
       textStyle: {
-        color: parseColor(color),
+        color: this.parseColor(color),
         fontFamilies,
         fontSize,
         fontStyle: {
@@ -84,7 +65,48 @@ export class TextRender extends System {
           { axis: "wght", value: Number(fontWeight) }, // 例如 700
         ],
       },
-    });
+    };
+    return paraStyle;
+  }
+
+  getParagraphStyle(state: DSL, text: string): Paragraph {
+    const fontStyle = this.getFontStyle(state, text);
+    const key = JSON.stringify(fontStyle);
+    if (this.fontCache.has(key)) {
+      return this.fontCache.get(key);
+    }
+    const paraStyle = new this.engine.ck.ParagraphStyle(fontStyle);
+    const builder = this.engine.ck.ParagraphBuilder.Make(
+      paraStyle,
+      this.engine.fontMgr
+    );
+    builder.addText(text);
+    const paragraph = builder.build();
+    builder.delete();
+    paragraph.layout(state.size.width);
+    this.fontCache.set(key, paragraph);
+    return paragraph;
+  }
+
+  drawSystemText(
+    canvas: Canvas,
+    text: string,
+    x: number,
+    y: number,
+    state: DSL
+  ) {
+    const CanvasKit = this.engine.ck;
+    if (
+      !CanvasKit
+      // !DefaultFont
+    ) {
+      console.warn("CanvasKit 或默认字体未初始化");
+      return;
+    }
+    // 解析字体粗细
+    const textBaseline = state.font.textBaseline || "top";
+    const fontSize = state.font.size || 16;
+    const paragraph = this.getParagraphStyle(state, text);
 
     let textY = y;
     if (textBaseline === "middle") {
@@ -93,42 +115,24 @@ export class TextRender extends System {
       textY = y - fontSize;
     }
 
-    const builder = CanvasKit.ParagraphBuilder.Make(
-      paraStyle,
-      this.engine.fontMgr
-    );
-    builder.addText(text);
-    const paragraph = builder.build();
-    paragraph.layout(maxWidth);
-
     canvas.drawParagraph(paragraph, x, textY);
-
-    // 释放 CanvasKit 对象内存
-    paragraph.delete();
-    builder.delete();
   }
   draw1(entityId: string): void {
-    // Skia 渲染逻辑待实现
     this.stateStore = this.engine.stateStore;
     const state = this.getComponentsByEntityId(this.stateStore, entityId);
     if (!state) return;
 
     const font = state.font;
-    const size = state.size;
-    const textAlign = font.textAlign || "start";
-    const textBaseline = font.textBaseline || "top";
     const canvas = this.engine.canvas;
 
-    this.drawSystemText(canvas, font.text, 0, 0, {
-      fontSize: font.size,
-      color: font.fillColor || "#000",
-      align: textAlign as "left" | "center" | "right",
-      maxWidth: size.width,
-      fontFamilies:
-        // 需要设置字体,目前没有可用字体
-        ["Noto Sans SC"],
-      textBaseline: textBaseline as "top" | "middle" | "bottom",
-      fontWeight: String(font.weight || "normal"),
+    this.drawSystemText(canvas, font.text, 0, 0, state);
+  }
+
+  destroyed(): void {
+    // 清理字体缓存
+    this.fontCache.forEach((paragraph) => {
+      paragraph.delete();
     });
+    this.fontCache.clear();
   }
 }

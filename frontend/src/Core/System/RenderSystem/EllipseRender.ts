@@ -1,3 +1,4 @@
+import type { Paint } from "canvaskit-wasm";
 import type { Engine } from "../../Core/Engine";
 import type { DSL } from "../../DSL/DSL";
 import type { StateStore } from "../../types";
@@ -6,9 +7,11 @@ import { System } from "../System";
 export class EllipseRender extends System {
   engine: Engine;
   stateStore: StateStore | null = null;
+  paint: Paint;
   constructor(engine: Engine) {
     super();
     this.engine = engine;
+    this.paint = new this.engine.ck.Paint();
   }
 
   draw1(entityId: string): void {
@@ -21,23 +24,24 @@ export class EllipseRender extends System {
 
     // 绘制填充
     if (state.color.fillColor && state.color.fillColor !== "transparent") {
-      const paint = new ck.Paint();
+      const paint = this.paint;
       paint.setStyle(ck.PaintStyle.Fill);
       paint.setColor(ck.parseColorString(state.color.fillColor));
       paint.setAntiAlias(true);
       canvas.drawOval(rect, paint);
-      paint.delete();
     }
 
     // 绘制描边
     if (state.color.strokeColor && state.color.strokeColor !== "transparent") {
-      const strokePaint = new ck.Paint();
+      const strokePaint = this.paint;
       strokePaint.setAntiAlias(true);
       strokePaint.setStyle(ck.PaintStyle.Stroke);
       strokePaint.setStrokeWidth(state.lineWidth.value);
       strokePaint.setColor(ck.parseColorString(state.color.strokeColor));
       canvas.drawOval(rect, strokePaint);
-      strokePaint.delete();
     }
+  }
+  destroyed(): void {
+    this.paint.delete();
   }
 }

@@ -1,3 +1,4 @@
+import type { Paint } from "canvaskit-wasm";
 import type { Engine } from "../../Core/Engine";
 import type { StateStore } from "../../types";
 import { System } from "../System";
@@ -5,10 +6,12 @@ import { System } from "../System";
 export class RectRender extends System {
   engine: Engine;
   stateStore: StateStore | null = null;
+  paint: Paint;
 
   constructor(engine: Engine) {
     super();
     this.engine = engine;
+    this.paint = new this.engine.ck.Paint();
   }
 
   /** 标准化半径参数 */
@@ -44,7 +47,7 @@ export class RectRender extends System {
     const radius = state.radius;
     const radiusObj = this.normalizeRadius(radius);
     const { lt, rt, rb, lb } = radiusObj;
-    const paint = new ck.Paint();
+    const paint = this.paint;
     paint.setAntiAlias(true);
     paint.setStyle(ck.PaintStyle.Fill);
     if (fillColor) paint.setColor(ck.parseColorString(fillColor)); // 任意颜色
@@ -52,6 +55,8 @@ export class RectRender extends System {
     const { left, top, right, bottom } = this.toLTRBRect(state);
     const rrect = Float32Array.of(left, top, right, bottom, ...radii);
     this.engine.canvas.drawRRect(rrect, paint);
-    paint.delete();
+  }
+  destroyed(): void {
+    this.paint.delete();
   }
 }

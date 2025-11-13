@@ -1,4 +1,4 @@
-import type { CanvasKit, EmbindEnumEntity, Path } from "canvaskit-wasm";
+import type { CanvasKit, EmbindEnumEntity, Paint, Path } from "canvaskit-wasm";
 import type { Engine } from "../../Core/Engine";
 import type { StateStore } from "../../types";
 import { System } from "../System";
@@ -6,13 +6,17 @@ import { System } from "../System";
 export class PolygonRender extends System {
   engine: Engine;
   stateStore: StateStore | null = null;
+  path: Path;
+  paint: Paint;
   constructor(engine: Engine) {
     super();
     this.engine = engine;
+    this.path = new this.engine.ck.Path();
+    this.paint = new this.engine.ck.Paint();
   }
 
   setPaintStyle(ck: CanvasKit, color: string, type: EmbindEnumEntity) {
-    const paint = new ck.Paint();
+    const paint = this.paint;
     paint.setStyle(type);
     paint.setColor(ck.parseColorString(color));
     paint.setAntiAlias(true);
@@ -27,7 +31,8 @@ export class PolygonRender extends System {
     const ck = this.engine.ck;
     const { vertexs } = state.polygon;
     const { fillColor, strokeColor } = state.color;
-    const path = new ck.Path();
+    const path = this.path;
+    path.reset();
     if (vertexs.length > 0) {
       const movePoint =
         vertexs[0].type === "M"
@@ -75,19 +80,18 @@ export class PolygonRender extends System {
       }
       // 需要将fill和stroke分开和scale和rotation分开，分别渲染。
       if (fillColor && fillColor !== "transparent") {
-        console.log(fillColor, "fillColor");
         const paint = this.setPaintStyle(ck, fillColor, ck.PaintStyle.Fill);
         canvas.drawPath(path, paint);
-        paint.delete();
       }
       if (strokeColor && strokeColor !== "transparent") {
         const paint = this.setPaintStyle(ck, strokeColor, ck.PaintStyle.Stroke);
         canvas.drawPath(path, paint);
         paint.delete();
       }
-
-      // 释放 Path 对象内存
-      path.delete();
     }
+  }
+  destroyed(): void {
+    this.path.delete();
+    this.paint.delete();
   }
 }

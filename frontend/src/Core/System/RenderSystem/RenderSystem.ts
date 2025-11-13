@@ -49,14 +49,10 @@ export class RenderSystem extends System {
   }
 
   async render(stateStore: StateStore) {
-    let entityCount = 0;
     for (const [entityId, pos] of stateStore.position) {
       this.engine.canvas.save();
       const { x, y } = pos as Position;
-      const type = stateStore.type.get(entityId);
       this.engine.canvas.translate(x, y);
-
-      // 中心原点应该是图形的中心点
       await this.drawShape(stateStore, entityId);
       this.engine.canvas.restore();
     }
