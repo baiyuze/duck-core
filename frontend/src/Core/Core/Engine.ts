@@ -1,6 +1,7 @@
 import type { Size } from "../Components";
 import { Selected } from "../Components/Selected";
 import { DSL } from "../DSL/DSL";
+import { createCanvasKit } from "../engineFactory";
 import { Entity } from "../Entity/Entity";
 import type { EventSystem } from "../System/EventSystem";
 import { System } from "../System/System";
@@ -8,6 +9,11 @@ import type { DefaultConfig, StateStore } from "../types";
 import { Camera } from "./Camera";
 import type { Core } from "./Core";
 import type { EngineContext } from "./EngineContext";
+import CanvasKitInit, {
+  type Canvas,
+  type CanvasKit,
+  type Surface,
+} from "canvaskit-wasm";
 
 export class Engine implements EngineContext {
   camera = new Camera();
@@ -24,6 +30,11 @@ export class Engine implements EngineContext {
   entityManager = new Entity();
   ctx: CanvasRenderingContext2D | null = null;
   needsFrame: boolean = false;
+  ck!: CanvasKit;
+  canvas!: Canvas;
+  surface!: Surface;
+  canvasDom: HTMLCanvasElement | null = null;
+  fontMgr: any | null = null;
 
   // ctx: CanvasRenderingContext2D | null;
   constructor(public core: Core) {
@@ -51,9 +62,29 @@ export class Engine implements EngineContext {
     return ctx;
   }
 
-  initCanvas(defaultConfig: DefaultConfig) {
+  async initCanvas(defaultConfig: DefaultConfig) {
     const ctx = this.createCanvas(defaultConfig);
+    await this.initCanvasKit(defaultConfig);
     return ctx;
+  }
+
+  async initCanvasKit(defaultConfig: DefaultConfig) {
+    const { CanvasKit, fontMgr } = await createCanvasKit();
+    const canvas = document.createElement("canvas");
+    const dpr = window.devicePixelRatio || 1;
+    canvas.style.width = defaultConfig.width + "px";
+    canvas.style.height = defaultConfig.height + "px";
+    canvas.width = defaultConfig.width * dpr;
+    canvas.height = defaultConfig.height * dpr;
+    canvas.id = "canvasKitCanvas";
+    defaultConfig.container.appendChild(canvas);
+    this.canvasDom = canvas;
+    const surface = CanvasKit.MakeWebGLCanvasSurface("canvasKitCanvas");
+    this.surface = surface!;
+    this.canvas = surface!.getCanvas();
+    this.fontMgr = fontMgr;
+    this.canvas.scale(dpr, dpr);
+    this.ck = CanvasKit;
   }
 
   /**
@@ -80,22 +111,33 @@ export class Engine implements EngineContext {
   requestFrame() {
     if (!this.needsFrame) {
       this.needsFrame = true;
-      requestAnimationFrame(() => this.tick());
+      this.surface.requestAnimationFrame(() => this._tick());
     }
   }
 
-  tick() {
+  async render() {
+    if (!this.isFirstInit) return;
+    await this.update();
+    this.surface.flush();
     this.isFirstInit = false;
+  }
+
+  async _tick() {
     this.needsFrame = false;
-    this.update();
-    this.dirtyRender = false;
+    try {
+      await this.update();
+      this.surface.flush();
+      this.dirtyRender = false;
+    } catch (error) {
+      console.error("Engine tick error:", error);
+    }
   }
 
   systemUpdate(systemName: string) {
-    const update = (system: System) => {
+    const update = async (system: System) => {
       // 只有有脏数据时，才进行处理
       if (this.dirtyRender || this.isFirstInit) {
-        system.update(this.stateStore);
+        await system.update(this.stateStore);
       }
     };
     const systemMap: { [key: string]: (system: System) => void } = {
@@ -104,16 +146,16 @@ export class Engine implements EngineContext {
     return systemMap[systemName];
   }
 
-  update() {
-    this.system.forEach((sys) => {
+  async update() {
+    for (const sys of this.system) {
       const fn = this.systemUpdate(sys.constructor.name);
       if (fn) {
-        fn(sys);
-        return;
+        await fn(sys);
+        continue;
       }
 
-      sys.update(this.stateStore);
-    });
+      await sys.update(this.stateStore);
+    }
   }
   /**
    * 统一销毁
@@ -126,6 +168,8 @@ export class Engine implements EngineContext {
     this.system = [];
     this.SystemMap.clear();
     this.core.resetState();
+    this.surface?.dispose();
+    this.canvasDom?.remove();
   }
 
   // initDSL(dsls: DSL[]) {

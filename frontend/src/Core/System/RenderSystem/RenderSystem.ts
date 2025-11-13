@@ -9,128 +9,57 @@ import renderRegistry from "./renderRegistry";
 
 export class RenderSystem extends System {
   engine: Engine;
-  ctx: CanvasRenderingContext2D;
   offCtx: CanvasRenderingContext2D | null = null;
   entityManager: Entity = new Entity();
   renderMap = new Map<string, System>();
   private animationId: number | null = null;
-  private pendingRender = false;
 
-  // FPS 相关属性
-  private fps = 0;
-  private frameCount = 0;
-  private lastTime = performance.now();
-  private showFPS = true; // 控制是否显示 FPS
-
-  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
+  constructor(engine: Engine) {
     super();
     this.engine = engine;
-    this.ctx = ctx;
     this.initRenderMap();
   }
 
   initRenderMap() {
     Object.entries(renderRegistry).forEach(([key, SystemClass]) => {
-      this.renderMap.set(key, new SystemClass(this.ctx, this.engine));
+      this.renderMap.set(key, new SystemClass(this.engine));
     });
   }
 
-  drawShape(stateStore: StateStore, entityId: string) {
+  async drawShape(stateStore: StateStore, entityId: string) {
     const type = stateStore.type.get(entityId);
     if (!type) return;
-    this.renderMap.get(type)?.draw(entityId);
+    await this.renderMap.get(type)?.draw?.(entityId);
   }
 
-  /**
-   * 计算 FPS
-   */
-  private calculateFPS() {
-    this.frameCount++;
-    const currentTime = performance.now();
-    const deltaTime = currentTime - this.lastTime;
+  async renderer(stateStore: StateStore) {
+    // 清空 CanvasKit 画布
+    this.engine.canvas.clear(this.engine.ck.WHITE);
+    this.engine.canvas.save();
+    this.engine.canvas.translate(
+      this.engine.camera.translateX,
+      this.engine.camera.translateY
+    );
+    this.engine.canvas.scale(this.engine.camera.zoom, this.engine.camera.zoom);
+    await this.render(stateStore);
+    // CanvasKit 也需要应用相机变换
+    // 遍历所有 position 组件的实体
 
-    // 每秒更新一次 FPS
-    if (deltaTime >= 1000) {
-      this.fps = Math.round((this.frameCount * 1000) / deltaTime);
-      this.frameCount = 0;
-      this.lastTime = currentTime;
+    this.engine.canvas.restore();
+  }
+
+  async render(stateStore: StateStore) {
+    for (const [entityId, pos] of stateStore.position) {
+      this.engine.canvas.save();
+      const { x, y } = pos as Position;
+      this.engine.canvas.translate(x, y);
+      await this.drawShape(stateStore, entityId);
+      this.engine.canvas.restore();
     }
   }
 
-  /**
-   * 绘制 FPS 显示
-   */
-  private drawFPS(ctx: CanvasRenderingContext2D) {
-    if (!this.showFPS) return;
-
-    ctx.save();
-    ctx.resetTransform(); // 重置变换矩阵，确保 FPS 显示在固定位置
-
-    // 设置文本样式
-    ctx.font = "16px Arial";
-    ctx.fillStyle = "#237d23ff";
-    ctx.strokeStyle = "#000000";
-    ctx.lineWidth = 1;
-
-    const text = `FPS: ${this.fps}`;
-    const x = 10;
-    const y = 25;
-
-    // 绘制文本描边
-    ctx.strokeText(text, x, y);
-    // 绘制文本填充
-    ctx.fillText(text, x, y);
-
-    ctx.restore();
-  }
-
-  render(stateStore: StateStore, ctx: CanvasRenderingContext2D) {
-    // 每帧先清空画布
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-    ctx.save();
-    ctx.translate(this.engine.camera.translateX, this.engine.camera.translateY);
-    ctx.scale(this.engine.camera.zoom, this.engine.camera.zoom);
-
-    // 遍历所有 position 组件的实体
-    stateStore.position.forEach((pos, entityId) => {
-      ctx.save();
-      const { x, y } = pos as Position;
-      ctx.translate(x, y);
-      // 中心原点应该是图形的中心点
-      this.drawShape(stateStore, entityId);
-      ctx.restore();
-    });
-    ctx.restore();
-  }
-
-  /**
-   * 渲染
-   * ToDo 需要优化当在选中区时，也要停止更新update
-   * @param stateStore
-   */
-  private scheduleRender = (stateStore: StateStore) => {
-    if (this.pendingRender) return;
-
-    this.pendingRender = true;
-    this.animationId = requestAnimationFrame(() => {
-      // 计算 FPS
-      this.calculateFPS();
-      this.render(stateStore, this.ctx);
-      // 绘制 FPS 显示
-      this.drawFPS(this.ctx);
-      this.pendingRender = false;
-    });
-  };
-
-  /**
-   * 切换 FPS 显示
-   */
-  toggleFPS(show?: boolean) {
-    this.showFPS = show !== undefined ? show : !this.showFPS;
-  }
-
-  update(stateStore: StateStore) {
-    this.scheduleRender(stateStore);
+  async update(stateStore: StateStore) {
+    await this.renderer(stateStore);
   }
 
   destroy() {

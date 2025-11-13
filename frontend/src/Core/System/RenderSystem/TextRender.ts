@@ -1,58 +1,138 @@
+import type {
+  Canvas,
+  CanvasKit,
+  Paragraph,
+  ParagraphStyle,
+} from "canvaskit-wasm";
 import type { Engine } from "../../Core/Engine";
 import type { StateStore } from "../../types";
 import { System } from "../System";
+import type { DSL } from "../../DSL/DSL";
 
 export class TextRender extends System {
   engine: Engine;
-  ctx: CanvasRenderingContext2D;
   stateStore: StateStore | null = null;
-  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
+  fontCache: Map<string, any> = new Map();
+
+  constructor(engine: Engine) {
     super();
     this.engine = engine;
-    this.ctx = ctx;
   }
-  draw(entityId: string) {
+
+  parseColor(colorStr: string) {
+    const CanvasKit = this.engine.ck;
+    const color = CanvasKit.parseColorString(colorStr);
+    return color;
+  }
+
+  getFontStyle(state: DSL, text: string) {
+    const CanvasKit = this.engine.ck;
+    const fontWeight = state.font.weight || "400";
+    let fontWeightValue = CanvasKit.FontWeight.Normal;
+    const align = state.font.textAlign;
+    const color = state.font.fillColor || "#000000";
+    const fontSize = state.font.size || 16;
+    const fontFamilies = ["Noto Sans SC"];
+    if (fontWeight) {
+      const weightMap: { [key: string]: any } = {
+        "100": CanvasKit.FontWeight.Thin,
+        "200": CanvasKit.FontWeight.ExtraLight,
+        "300": CanvasKit.FontWeight.Light,
+        "400": CanvasKit.FontWeight.Normal,
+        "500": CanvasKit.FontWeight.Medium,
+        "600": CanvasKit.FontWeight.SemiBold,
+        "700": CanvasKit.FontWeight.Bold,
+        "800": CanvasKit.FontWeight.ExtraBold,
+        "900": CanvasKit.FontWeight.Black,
+      };
+      fontWeightValue = weightMap[fontWeight] || CanvasKit.FontWeight.Normal;
+    }
+    const paraStyle = {
+      textAlign:
+        align === "center"
+          ? CanvasKit.TextAlign.Center
+          : align === "right"
+          ? CanvasKit.TextAlign.Right
+          : CanvasKit.TextAlign.Left,
+      textStyle: {
+        color: this.parseColor(color),
+        fontFamilies,
+        fontSize,
+        fontStyle: {
+          weight: fontWeightValue,
+        },
+        fontVariations: [
+          { axis: "wght", value: Number(fontWeight) }, // 例如 700
+        ],
+      },
+    };
+    return paraStyle;
+  }
+
+  getParagraphStyle(state: DSL, text: string): Paragraph {
+    const fontStyle = this.getFontStyle(state, text);
+    const key = JSON.stringify(fontStyle);
+    if (this.fontCache.has(key)) {
+      return this.fontCache.get(key);
+    }
+    const paraStyle = new this.engine.ck.ParagraphStyle(fontStyle);
+    const builder = this.engine.ck.ParagraphBuilder.Make(
+      paraStyle,
+      this.engine.fontMgr
+    );
+    builder.addText(text);
+    const paragraph = builder.build();
+    builder.delete();
+    paragraph.layout(state.size.width);
+    this.fontCache.set(key, paragraph);
+    return paragraph;
+  }
+
+  drawSystemText(
+    canvas: Canvas,
+    text: string,
+    x: number,
+    y: number,
+    state: DSL
+  ) {
+    const CanvasKit = this.engine.ck;
+    if (
+      !CanvasKit
+      // !DefaultFont
+    ) {
+      console.warn("CanvasKit 或默认字体未初始化");
+      return;
+    }
+    // 解析字体粗细
+    const textBaseline = state.font.textBaseline || "top";
+    const fontSize = state.font.size || 16;
+    const paragraph = this.getParagraphStyle(state, text);
+
+    let textY = y;
+    if (textBaseline === "middle") {
+      textY = y - fontSize / 2;
+    } else if (textBaseline === "bottom") {
+      textY = y - fontSize;
+    }
+
+    canvas.drawParagraph(paragraph, x, textY);
+  }
+  draw(entityId: string): void {
     this.stateStore = this.engine.stateStore;
-    if (!this.stateStore) return;
     const state = this.getComponentsByEntityId(this.stateStore, entityId);
     if (!state) return;
 
     const font = state.font;
-    const size = state.size;
-    const textAlign = font.textAlign || "start";
-    const textBaseline = font.textBaseline || "top";
-    this.ctx.textAlign = textAlign;
-    this.ctx.textBaseline = textBaseline;
-    const parts = [
-      font.style || "",
-      font.variant || "",
-      font.weight || "",
-      `${font.size || 16}px`,
-      font.family || "Arial",
-    ];
-    this.ctx.font = parts.filter((v) => v).join(" ");
-    this.ctx.fillStyle = font.fillColor || "#000";
-    this.ctx.strokeStyle = font.strokeColor || "transparent";
+    const canvas = this.engine.canvas;
 
-    // 计算 y 偏移：当 textBaseline 为 middle 时，需要将文字向下偏移半个容器高度
-    // 因为 translate 已经移动到了元素的左上角，而 middle 会让文字中心对齐到 y=0
-    let offsetY = 0;
-    if (textBaseline === "middle" && size) {
-      offsetY = size.height / 2;
-    }
+    this.drawSystemText(canvas, font.text, 0, 0, state);
+  }
 
-    // 计算 x 偏移：当 textAlign 为 center 或 right 时，需要调整 x 轴位置
-    // 因为 translate 已经移动到了元素的左上角
-    let offsetX = 0;
-    if (size) {
-      if (textAlign === "center") {
-        offsetX = size.width / 2;
-      } else if (textAlign === "right" || textAlign === "end") {
-        offsetX = size.width;
-      }
-    }
-
-    if (font.strokeColor) this.ctx.strokeText(font.text, offsetX, offsetY);
-    this.ctx.fillText(font.text, offsetX, offsetY);
+  destroyed(): void {
+    // 清理字体缓存
+    this.fontCache.forEach((paragraph) => {
+      paragraph.delete();
+    });
+    this.fontCache.clear();
   }
 }

@@ -1,17 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import type { CanvasProps } from "./Canvas.d";
 import { Engine } from "../Core/Core/Engine";
-import { RenderSystem } from "../Core/System/RenderSystem/RenderSystem";
-import { SelectionSystem } from "../Core/System/SelectionSystem";
-import { PickingSystem } from "../Core/System/PickingSystem";
 import styles from "./Canvas.module.scss";
-import { EventSystem } from "../Core/System/EventSystem";
-import { InputSystem } from "../Core/System/InputSytem";
 import CopilotDemo from "../Components/AiChat/AiChat";
-import { HoverSystem } from "../Core/System/HoverSystem";
-import { ClickSystem } from "../Core/System/ClickSystem";
-import { DragSystem } from "../Core/System/DragSystem";
-import { Core } from "../Core";
 import { createEngine } from "../Core/engineFactory";
 
 function Canvas(props: CanvasProps) {
@@ -423,6 +414,23 @@ function Canvas(props: CanvasProps) {
   // ];
   const dsls: any[] = [
     {
+      position: { x: 112, y: 772 },
+      size: { width: 24, height: 24 },
+      color: { fillColor: "#333333", strokeColor: null },
+      lineWidth: { value: 1 },
+      id: "16",
+      selected: { value: false, hovered: false },
+      eventQueue: [],
+      type: "ellipse",
+      rotation: { value: 0 },
+      font: null,
+      name: "搜索图标",
+      img: null,
+      zIndex: { value: 101 },
+      scale: null,
+      polygon: null,
+    },
+    {
       position: { x: 0, y: 0 },
       size: { width: 175, height: 100 },
       color: { fillColor: "#f6f6f6", strokeColor: null },
@@ -673,24 +681,24 @@ function Canvas(props: CanvasProps) {
     // },
   ];
   const engineRef = useRef<Engine | null>(null);
-  const initCanvas = () => {
+  const initCanvas = async () => {
     const container = document.querySelector(
       `.${styles.canvas}`
     ) as HTMLDivElement;
     // if (canvasRef.current) {
-    engineRef.current = createEngine(dsls, {
+    engineRef.current = await createEngine(dsls, {
       width: 800,
       height: 800,
       container,
     });
-    engineRef.current.update();
-    // }
+
+    engineRef.current?.render();
   };
   const handlerApplyCode = (data: any[]) => {
     engineRef.current?.core.initComponents(data);
     if (engineRef.current) {
       engineRef.current.dirtyRender = true;
-      engineRef.current?.update();
+      engineRef.current?.render();
     }
   };
   useEffect(() => {

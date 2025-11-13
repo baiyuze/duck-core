@@ -6,23 +6,21 @@ import type { PickEntity, StateStore } from "../types";
 import { System } from "./System";
 export class PickingSystem extends System {
   engine: Engine;
-  ctx: CanvasRenderingContext2D;
   offCtx: CanvasRenderingContext2D;
   entityManager: Entity = new Entity();
   stateStore: StateStore | null = null;
   isClearHover: boolean = false;
   isRendered: boolean = false;
   offscreenCanvas: HTMLCanvasElement | null = null;
-  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
+  constructor(engine: Engine) {
     super();
-    this.ctx = ctx;
     this.engine = engine;
     this.offCtx = this.initOffscreenCanvas() as CanvasRenderingContext2D;
     // ctx.canvas.addEventListener("click", this.onClick.bind(this));
   }
 
   initOffscreenCanvas() {
-    const { width, height } = this.ctx.canvas;
+    const { width, height } = this.engine.canvasDom!;
     const offscreenCanvas = document.createElement("canvas");
     this.offscreenCanvas = offscreenCanvas;
     offscreenCanvas.width = width;
@@ -113,7 +111,7 @@ export class PickingSystem extends System {
     if (!event) return;
     if (type !== eventType) return;
     // 暂时一次只有一个事件
-    const rect = this.ctx.canvas.getBoundingClientRect();
+    const rect = this.engine.canvasDom!.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
     return { x, y };
@@ -183,7 +181,5 @@ export class PickingSystem extends System {
     this.stateStore = null;
     this.entityManager = null as any;
     this.engine = null as any;
-    this.ctx = null as any;
-    // this.dispose();
   }
 }

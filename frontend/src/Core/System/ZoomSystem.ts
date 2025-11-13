@@ -6,13 +6,11 @@ import { System } from "./System";
 
 export class ZoomSystem extends System {
   engine: Engine;
-  ctx: CanvasRenderingContext2D;
   offCtx: CanvasRenderingContext2D | null = null;
   entityManager: Entity = new Entity();
-  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
+  constructor(engine: Engine) {
     super();
     this.engine = engine;
-    this.ctx = ctx;
   }
 
   update(stateStore: StateStore) {
@@ -28,7 +26,7 @@ export class ZoomSystem extends System {
     // 判断是否是触摸板的双指缩放，获取的deltaY不是整数
     const isTouchPad = !Number.isInteger(Math.abs(event.deltaY));
     const camera = this.engine.camera;
-    const rect = this.ctx.canvas.getBoundingClientRect();
+    const rect = this.engine.canvasDom!.getBoundingClientRect();
     const { deltaY, x, y } = event; // x,y: 鼠标坐标
     const delta = deltaY ?? 0;
     const prevZoom = camera.zoom;
@@ -60,5 +58,12 @@ export class ZoomSystem extends System {
     // 标记需要渲染
     this.engine.camera.isZooming = true;
     this.engine.dirtyRender = true;
+    // this.engine.canvas.save();
+    // this.engine.canvas.translate(
+    //   this.engine.camera.translateX,
+    //   this.engine.camera.translateY
+    // );
+    // this.engine.canvas.scale(this.engine.camera.zoom, this.engine.camera.zoom);
+    // this.engine.canvas.restore();
   }
 }

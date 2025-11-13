@@ -21,7 +21,7 @@ export class Help {
   public init(html: string) {
     return new Promise<DSL[]>((resolve) => {
       const iframe = (this.iframe = document.createElement("iframe"));
-      // iframe.style.visibility = "hidden";
+      iframe.style.visibility = "hidden";
       iframe.style.width = "370px";
       iframe.style.height = "800px";
       iframe.style.position = "fixed";
@@ -60,6 +60,7 @@ export class Help {
       const childElement = this.transformElement(child);
       rootElement.children.push(childElement);
     }
+
     this.transformToDSL([rootElement]);
   }
 
@@ -70,6 +71,7 @@ export class Help {
    */
   transformElement(element: HTMLElement): Style {
     const style = this.getStyleConfig(element);
+
     const elementData = {
       ...style,
       children: [] as Style[],
@@ -106,11 +108,14 @@ export class Help {
    */
   getStyleConfig(dom: HTMLElement) {
     const styleConfig = window.getComputedStyle(dom);
-    // 只保留有value的样式属性
-    const filteredStyles = Object.entries(styleConfig).filter(([key]) => {
-      const isNumericKey = !isNaN(Number(key));
-      return !isNumericKey;
-    });
+    const filteredStyles: [string, string][] = [];
+
+    for (const key in styleConfig) {
+      if (isNaN(Number(key))) {
+        filteredStyles.push([key, styleConfig[key]]);
+      }
+    }
+
     const style = {} as Style;
     for (let i = 0; i < filteredStyles.length; i++) {
       const [key, value]: [string, string] = filteredStyles[i];
@@ -228,7 +233,7 @@ export class Help {
   getSvgData(
     dom: HTMLElement,
     style: Style
-  ): { path: string; fill: string; stroke: string } {
+  ): { path: string; svg: string; fill: string; stroke: string } {
     let path = "";
     let fillColor = "";
     let strokeColor = "";
@@ -247,7 +252,7 @@ export class Help {
       fillColor = style.fill || "transparent";
       strokeColor = this.getValidColor("", style.stroke);
     }
-    return { path, fill: fillColor, stroke: strokeColor };
+    return { path, svg: dom.outerHTML, fill: fillColor, stroke: strokeColor };
   }
   /**
    * 获取边框颜色，仅限于单一颜色边框，如果有多边，默认取上边框颜色
@@ -302,6 +307,7 @@ export class Help {
       let type = "rect";
       let src = "";
       let path = "";
+      let svg = "";
       let fillColor = style.backgroundColor;
       let strokeColor = "";
       switch (dom.nodeType) {
@@ -320,6 +326,7 @@ export class Help {
             fillColor = svgData.fill;
             strokeColor = svgData.stroke;
             path = svgData.path;
+            svg = svgData.svg;
           }
           break;
         }
@@ -375,7 +382,7 @@ export class Help {
         color,
         selected: { value: false, hovered: false },
         radius,
-        img: src || path ? { src, path } : null,
+        img: src || path || svg ? { src, path, svg } : null,
         id: this.id.toString(),
         rotation: { value: 0 },
         zIndex: 30,

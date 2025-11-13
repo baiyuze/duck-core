@@ -1,29 +1,38 @@
+import type { CanvasKit, EmbindEnumEntity, Paint, Path } from "canvaskit-wasm";
 import type { Engine } from "../../Core/Engine";
 import type { StateStore } from "../../types";
 import { System } from "../System";
 
 export class PolygonRender extends System {
   engine: Engine;
-  ctx: CanvasRenderingContext2D;
   stateStore: StateStore | null = null;
-  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
+  path: Path;
+  paint: Paint;
+  constructor(engine: Engine) {
     super();
     this.engine = engine;
-    this.ctx = ctx;
+    this.path = new this.engine.ck.Path();
+    this.paint = new this.engine.ck.Paint();
   }
-  draw(entityId: string) {
+
+  setPaintStyle(ck: CanvasKit, color: string, type: EmbindEnumEntity) {
+    const paint = this.paint;
+    paint.setStyle(type);
+    paint.setColor(ck.parseColorString(color));
+    paint.setAntiAlias(true);
+    return paint;
+  }
+
+  draw(entityId: string): void {
     this.stateStore = this.engine.stateStore;
-    if (!this.stateStore) return;
     const state = this.getComponentsByEntityId(this.stateStore, entityId);
-
-    // const { width, height } = state.size;
-    const { fillColor, strokeColor } = state.color;
+    if (!state) return;
+    const canvas = this.engine.canvas;
+    const ck = this.engine.ck;
     const { vertexs } = state.polygon;
-
-    const ctx = this.ctx;
-    // ctx.translate(state.position.x, state.position.y);
-    // 需要注意translate和rotate的顺序，先translate再rotate
-    ctx.beginPath();
+    const { fillColor, strokeColor } = state.color;
+    const path = this.path;
+    path.reset();
     if (vertexs.length > 0) {
       const movePoint =
         vertexs[0].type === "M"
@@ -32,7 +41,7 @@ export class PolygonRender extends System {
       if (!movePoint) return;
       if (!movePoint.point) return;
       const { point } = movePoint;
-      ctx.moveTo(point.x, point.y);
+      path.moveTo(point.x, point.y);
 
       // 需要按照点的顺序进行绘制，先判断类型，如果是L，直接lineTo，如果是Q，quadraticCurveTo，如果是C，bezierCurveTo
       for (let i = 1; i < vertexs.length; i++) {
@@ -40,12 +49,12 @@ export class PolygonRender extends System {
         switch (vertex.type) {
           case "L":
             if (vertex.point) {
-              ctx.lineTo(vertex.point?.x, vertex.point.y);
+              path.lineTo(vertex.point?.x, vertex.point.y);
             }
             break;
           case "Q":
             if (vertex.controlPoint && vertex.endPoint) {
-              ctx.quadraticCurveTo(
+              path.quadTo(
                 vertex.controlPoint.x,
                 vertex.controlPoint.y,
                 vertex.endPoint.x,
@@ -55,7 +64,7 @@ export class PolygonRender extends System {
             break;
           case "C":
             if (vertex.startPoint && vertex.endPoint && vertex.point) {
-              ctx.bezierCurveTo(
+              path.cubicTo(
                 vertex.startPoint.x,
                 vertex.startPoint.y,
                 vertex.endPoint.x,
@@ -69,19 +78,20 @@ export class PolygonRender extends System {
             break;
         }
       }
-      ctx.closePath();
       // 需要将fill和stroke分开和scale和rotation分开，分别渲染。
-      if (fillColor) {
-        ctx.fillStyle = fillColor;
-        ctx.fill();
+      if (fillColor && fillColor !== "transparent") {
+        const paint = this.setPaintStyle(ck, fillColor, ck.PaintStyle.Fill);
+        canvas.drawPath(path, paint);
       }
-      if (strokeColor) {
-        ctx.strokeStyle = strokeColor;
-        if (state.lineWidth.value) {
-          ctx.lineWidth = state.lineWidth.value;
-        }
-        ctx.stroke();
+      if (strokeColor && strokeColor !== "transparent") {
+        const paint = this.setPaintStyle(ck, strokeColor, ck.PaintStyle.Stroke);
+        canvas.drawPath(path, paint);
+        paint.delete();
       }
     }
+  }
+  destroyed(): void {
+    this.path.delete();
+    this.paint.delete();
   }
 }

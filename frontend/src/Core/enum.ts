@@ -1,3 +1,5 @@
+import { PickingSystem } from "./System/PickingSystem";
+
 export const EventType = {
   Click: "click",
   MouseMove: "mousemove",
@@ -36,3 +38,7 @@ export const ShapeType = {
 } as const;
 
 export type ShapeType = (typeof ShapeType)[keyof typeof ShapeType];
+
+export const systemEum = {
+  PickingSystem: PickingSystem.name,
+};

@@ -1,17 +1,15 @@
 import type { Engine } from "../Core/Engine";
 import { Entity } from "../Entity/Entity";
-import { EventType } from "../enum";
+import { EventType, systemEum } from "../enum";
 import type { PickEntity, StateStore } from "../types";
 import type { PickingSystem } from "./PickingSystem";
 import { System } from "./System";
 export class ClickSystem extends System {
   engine: Engine;
-  ctx: CanvasRenderingContext2D;
   entityManager: Entity = new Entity();
   stateStore: StateStore | null = null;
-  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
+  constructor(engine: Engine) {
     super();
-    this.ctx = ctx;
     this.engine = engine;
   }
 
@@ -57,8 +55,9 @@ export class ClickSystem extends System {
 
   onClick() {
     if (!this.stateStore) return;
-    const pickSystem =
-      this.engine.getSystemByName<PickingSystem>("PickingSystem");
+    const pickSystem = this.engine.getSystemByName<PickingSystem>(
+      systemEum.PickingSystem
+    );
     if (!pickSystem) return;
     if (pickSystem.checkEventTypeIsMatch(EventType.MouseDown) === false) return;
     const pickEntity = pickSystem.getEntityByEvent(EventType.MouseDown);

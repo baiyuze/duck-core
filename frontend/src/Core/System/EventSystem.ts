@@ -1,37 +1,29 @@
 import type { Engine } from "../Core/Engine";
 import { Entity } from "../Entity/Entity";
 import type { StateStore } from "../types";
-import type { ClickSystem } from "./ClickSystem";
-import type { DragSystem } from "./DragSystem";
-import type { HoverSystem } from "./HoverSystem";
-import type { SelectionSystem } from "./SelectionSystem";
 import { System } from "./System";
 import { throttle } from "lodash";
-import type { ZoomSystem } from "./ZoomSystem";
-
 export class EventSystem extends System {
   engine: Engine;
-  ctx: CanvasRenderingContext2D;
   offCtx: CanvasRenderingContext2D | null = null;
   entityManager: Entity = new Entity();
   stateStore: StateStore | null = null;
   throttledMouseMove: ReturnType<typeof throttle>;
   throttledWheel: ReturnType<typeof throttle> | null = null;
 
-  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
+  constructor(engine: Engine) {
     super();
-    this.ctx = ctx;
     this.engine = engine;
     this.dispose();
-    this.throttledMouseMove = throttle(this.onMouseMove.bind(this), 16);
-    this.throttledWheel = throttle(this.onWheel.bind(this), 3);
-    // this.throttledWheel = throttle(this.onWheel.bind(this), 16);
-    // ctx.canvas.addEventListener("click", this.onClick.bind(this));
+    this.throttledMouseMove = throttle(this.onMouseMove.bind(this), 10);
+    this.throttledWheel = throttle(this.onWheel.bind(this), 10);
     document.addEventListener("mouseup", this.onMouseUp.bind(this));
-    ctx.canvas.addEventListener("mousedown", this.onMouseDown.bind(this));
+    this.engine.canvasDom!.addEventListener(
+      "mousedown",
+      this.onMouseDown.bind(this)
+    );
     document.addEventListener("mousemove", this.throttledMouseMove);
-    // Listen for wheel events to support zooming. passive:false so we can preventDefault()
-    this.ctx.canvas.addEventListener("wheel", this.throttledWheel, {
+    this.engine.canvasDom!.addEventListener("wheel", this.throttledWheel, {
       passive: false,
     });
   }
@@ -40,11 +32,11 @@ export class EventSystem extends System {
     // this.ctx.canvas.removeEventListener("click", this.onClick.bind(this));
     document.removeEventListener("mousemove", this.throttledMouseMove);
     document.removeEventListener("mouseup", this.onMouseUp.bind(this));
-    this.ctx.canvas.removeEventListener(
+    this.engine.canvasDom!.removeEventListener(
       "mousedown",
       this.onMouseDown.bind(this)
     );
-    this.ctx.canvas.removeEventListener(
+    this.engine.canvasDom!.removeEventListener(
       "wheel",
       this.throttledWheel as EventListener
     );
@@ -135,6 +127,5 @@ export class EventSystem extends System {
     this.stateStore = null;
     this.entityManager = null as any;
     this.engine = null as any;
-    this.ctx = null as any;
   }
 }
