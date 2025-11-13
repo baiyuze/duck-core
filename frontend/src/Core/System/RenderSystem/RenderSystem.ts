@@ -29,7 +29,7 @@ export class RenderSystem extends System {
   async drawShape(stateStore: StateStore, entityId: string) {
     const type = stateStore.type.get(entityId);
     if (!type) return;
-    await this.renderMap.get(type)?.draw1?.(entityId);
+    await this.renderMap.get(type)?.draw?.(entityId);
   }
 
   async renderer(stateStore: StateStore) {

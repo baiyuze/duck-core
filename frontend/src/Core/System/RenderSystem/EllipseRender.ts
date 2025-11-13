@@ -14,7 +14,7 @@ export class EllipseRender extends System {
     this.paint = new this.engine.ck.Paint();
   }
 
-  draw1(entityId: string): void {
+  draw(entityId: string): void {
     this.stateStore = this.engine.stateStore;
     const state = this.getComponentsByEntityId(this.stateStore, entityId);
     if (!state) return;

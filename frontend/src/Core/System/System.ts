@@ -22,7 +22,7 @@ export class System {
   hashMap: Map<string, string | any> = new Map();
   update(components: StateStore) {}
   draw(entityId: string) {}
-  draw1(entityId: string) {}
+  draw(entityId: string) {}
   /**
    * 根据 entityId 获取组件信息
    * @param components

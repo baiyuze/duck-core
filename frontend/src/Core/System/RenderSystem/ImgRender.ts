@@ -86,7 +86,7 @@ export class ImgRender extends System {
     paint.setAntiAlias(true);
     return paint;
   }
-  draw1(entityId: string) {
+  draw(entityId: string) {
     return new Promise<void>(async (resolve, reject) => {
       const canvas = this.engine.canvas as Canvas;
       this.stateStore = this.engine.stateStore;

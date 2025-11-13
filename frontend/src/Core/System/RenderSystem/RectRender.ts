@@ -29,7 +29,7 @@ export class RectRender extends System {
     };
   }
 
-  draw1(entityId: string) {
+  draw(entityId: string) {
     const ck = this.engine.ck;
     this.stateStore = this.engine.stateStore;
     const state = this.getComponentsByEntityId(this.stateStore, entityId);
