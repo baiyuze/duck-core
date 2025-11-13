@@ -8,14 +8,12 @@ import svgPathBounds from "svg-path-bounds";
 
 export class ImgRender extends System {
   engine: Engine;
-  ctx: CanvasRenderingContext2D;
   stateStore: StateStore | null = null;
   imgCache: Map<string, HTMLImageElement | Image> = new Map();
   imgDataCache: Map<string, Image> = new Map();
-  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
+  constructor(engine: Engine) {
     super();
     this.engine = engine;
-    this.ctx = ctx;
   }
 
   getSvgSize(path: string): { width: number; height: number } | null {
@@ -42,53 +40,6 @@ export class ImgRender extends System {
     return { scaleX, scaleY, scale };
   }
 
-  async drawSvg(state: DSL) {
-    if (!state.img?.path) return;
-    const p2d = new Path2D(state.img.path);
-    const { width: nowWidth, height: nowHeight } = state.size;
-    if (state.color.fillColor) {
-      this.ctx.fillStyle = state.color.fillColor;
-    }
-    if (state.color.strokeColor) {
-      this.ctx.strokeStyle = state.color.strokeColor;
-    }
-    const size = this.getSvgSize(state.img.path);
-    if (size) {
-      const { scale } = this.getScale(
-        nowWidth,
-        nowHeight,
-        size.width,
-        size.height
-      );
-      this.ctx.scale(scale, scale);
-      this.ctx.fill(p2d);
-      this.ctx.stroke(p2d);
-    }
-  }
-
-  async draw(entityId: string) {
-    this.stateStore = this.engine.stateStore;
-    if (!this.stateStore) return;
-    const state = this.getComponentsByEntityId(this.stateStore, entityId);
-
-    if (!state) return;
-    const { width, height } = state.size;
-    const imgComponent = state.img;
-    if (imgComponent.path) {
-      return this.drawSvg(state as DSL);
-    }
-    if (!imgComponent || !imgComponent.src) return;
-    try {
-      const img = (await this.getImage(
-        imgComponent.src,
-        width,
-        height
-      )) as HTMLImageElement;
-      this.ctx.drawImage(img, 0, 0, width, height);
-    } catch (error) {
-      console.error("Error loading image:", error);
-    }
-  }
   makeImage(img: HTMLImageElement) {
     const data = this.engine.ck.MakeImageFromCanvasImageSource(img);
 
@@ -190,7 +141,7 @@ export class ImgRender extends System {
           const fillColor = state.color.fillColor;
           const strokeColor = state.color.strokeColor;
 
-          if (fillColor) {
+          if (fillColor && fillColor !== "transparent") {
             const paint = new ck.Paint();
             paint.setColor(ck.parseColorString(fillColor));
             paint.setAntiAlias(true);

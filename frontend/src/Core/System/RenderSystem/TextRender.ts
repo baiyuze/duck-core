@@ -1,19 +1,111 @@
+import type { Canvas, CanvasKit } from "canvaskit-wasm";
 import type { Engine } from "../../Core/Engine";
 import type { StateStore } from "../../types";
 import { System } from "../System";
 
 export class TextRender extends System {
   engine: Engine;
-  ctx: CanvasRenderingContext2D;
   stateStore: StateStore | null = null;
-  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
+  constructor(engine: Engine) {
     super();
     this.engine = engine;
-    this.ctx = ctx;
   }
-  draw(entityId: string) {
+
+  drawSystemText(
+    canvas: Canvas,
+    text: string,
+    x: number,
+    y: number,
+    options: {
+      fontSize?: number;
+      fontFamilies?: string[];
+      color?: string;
+      maxWidth?: number;
+      align?: "left" | "center" | "right";
+      textBaseline?: "top" | "middle" | "bottom";
+      fontWeight?: string;
+    } = {}
+  ) {
+    const CanvasKit = this.engine.ck;
+    if (
+      !CanvasKit
+      // !DefaultFont
+    ) {
+      console.warn("CanvasKit 或默认字体未初始化");
+      return;
+    }
+
+    const parseColor = (colorStr: string) => {
+      const color = CanvasKit.parseColorString(colorStr);
+      return color;
+    };
+
+    const {
+      fontSize = 16,
+      fontFamilies,
+      color = "#000000",
+      maxWidth = 9999,
+      align = "left",
+      textBaseline,
+      fontWeight = 400,
+    } = options;
+
+    // 解析字体粗细
+    let fontWeightValue = CanvasKit.FontWeight.Normal;
+    if (fontWeight) {
+      const weightMap: { [key: string]: any } = {
+        "100": CanvasKit.FontWeight.Thin,
+        "200": CanvasKit.FontWeight.ExtraLight,
+        "300": CanvasKit.FontWeight.Light,
+        "400": CanvasKit.FontWeight.Normal,
+        "500": CanvasKit.FontWeight.Medium,
+        "600": CanvasKit.FontWeight.SemiBold,
+        "700": CanvasKit.FontWeight.Bold,
+        "800": CanvasKit.FontWeight.ExtraBold,
+        "900": CanvasKit.FontWeight.Black,
+      };
+      fontWeightValue = weightMap[fontWeight] || CanvasKit.FontWeight.Normal;
+    }
+    const paraStyle = new CanvasKit.ParagraphStyle({
+      textAlign:
+        align === "center"
+          ? CanvasKit.TextAlign.Center
+          : align === "right"
+          ? CanvasKit.TextAlign.Right
+          : CanvasKit.TextAlign.Left,
+      textStyle: {
+        color: parseColor(color),
+        fontFamilies,
+        fontSize,
+        fontStyle: {
+          weight: fontWeightValue,
+        },
+        fontVariations: [
+          { axis: "wght", value: Number(fontWeight) }, // 例如 700
+        ],
+      },
+    });
+
+    let textY = y;
+    if (textBaseline === "middle") {
+      textY = y - fontSize / 2;
+    } else if (textBaseline === "bottom") {
+      textY = y - fontSize;
+    }
+
+    const builder = CanvasKit.ParagraphBuilder.Make(
+      paraStyle,
+      this.engine.fontMgr
+    );
+    builder.addText(text);
+    const paragraph = builder.build();
+    paragraph.layout(maxWidth);
+
+    canvas.drawParagraph(paragraph, x, y);
+  }
+  draw1(entityId: string): void {
+    // Skia 渲染逻辑待实现
     this.stateStore = this.engine.stateStore;
-    if (!this.stateStore) return;
     const state = this.getComponentsByEntityId(this.stateStore, entityId);
     if (!state) return;
 
@@ -21,38 +113,18 @@ export class TextRender extends System {
     const size = state.size;
     const textAlign = font.textAlign || "start";
     const textBaseline = font.textBaseline || "top";
-    this.ctx.textAlign = textAlign;
-    this.ctx.textBaseline = textBaseline;
-    const parts = [
-      font.style || "",
-      font.variant || "",
-      font.weight || "",
-      `${font.size || 16}px`,
-      font.family || "Arial",
-    ];
-    this.ctx.font = parts.filter((v) => v).join(" ");
-    this.ctx.fillStyle = font.fillColor || "#000";
-    this.ctx.strokeStyle = font.strokeColor || "transparent";
+    const canvas = this.engine.canvas;
 
-    // 计算 y 偏移：当 textBaseline 为 middle 时，需要将文字向下偏移半个容器高度
-    // 因为 translate 已经移动到了元素的左上角，而 middle 会让文字中心对齐到 y=0
-    let offsetY = 0;
-    if (textBaseline === "middle" && size) {
-      offsetY = size.height / 2;
-    }
-
-    // 计算 x 偏移：当 textAlign 为 center 或 right 时，需要调整 x 轴位置
-    // 因为 translate 已经移动到了元素的左上角
-    let offsetX = 0;
-    if (size) {
-      if (textAlign === "center") {
-        offsetX = size.width / 2;
-      } else if (textAlign === "right" || textAlign === "end") {
-        offsetX = size.width;
-      }
-    }
-
-    if (font.strokeColor) this.ctx.strokeText(font.text, offsetX, offsetY);
-    this.ctx.fillText(font.text, offsetX, offsetY);
+    this.drawSystemText(canvas, font.text, 0, 0, {
+      fontSize: font.size,
+      color: font.fillColor || "#000",
+      align: textAlign as "left" | "center" | "right",
+      maxWidth: size.width,
+      fontFamilies:
+        // 需要设置字体,目前没有可用字体
+        ["Noto Sans SC"],
+      textBaseline: textBaseline as "top" | "middle" | "bottom",
+      fontWeight: String(font.weight || "normal"),
+    });
   }
 }

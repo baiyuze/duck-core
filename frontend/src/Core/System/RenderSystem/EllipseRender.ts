@@ -5,38 +5,33 @@ import { System } from "../System";
 
 export class EllipseRender extends System {
   engine: Engine;
-  ctx: CanvasRenderingContext2D;
   stateStore: StateStore | null = null;
-  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
+  constructor(engine: Engine) {
     super();
     this.engine = engine;
-    this.ctx = ctx;
   }
-  draw(entityId: string) {
+
+  draw1(entityId: string): void {
     this.stateStore = this.engine.stateStore;
-    if (!this.stateStore) return;
-
     const state = this.getComponentsByEntityId(this.stateStore, entityId);
-
-    // const { x, y } = state.position;
-    // const { rx, ry } = state.ellipseRadius;
-    const { width, height } = state.size;
-    const { fillColor, strokeColor } = state.color;
-    this.ctx.beginPath();
-    this.ctx.ellipse(
-      width / 2,
-      height / 2,
-      width / 2, // 水平半径
-      height / 2, // 垂直半径
-      0, // 旋转角度
-      0,
-      2 * Math.PI
-    );
-    this.ctx.strokeStyle = strokeColor || "transparent"; // 可以是颜色字符串、渐变、模式等
-    this.ctx.stroke();
-    this.ctx.fillStyle = fillColor || "transparent";
-    this.ctx.fill();
-    this.ctx.lineWidth = 2;
-    this.ctx.closePath();
+    if (!state) return;
+    const canvas = this.engine.canvas;
+    const ck = this.engine.ck;
+    const rect = ck.XYWHRect(0, 0, state.size.width, state.size.height);
+    const paint = new ck.Paint();
+    paint.setStyle(ck.PaintStyle.Fill);
+    if (state.color.fillColor && state.color.fillColor !== "transparent") {
+      paint.setColor(ck.parseColorString(state.color.fillColor));
+      paint.setAntiAlias(true);
+    }
+    canvas.drawOval(rect, paint);
+    if (state.color.strokeColor && state.color.strokeColor !== "transparent") {
+      const paint = new ck.Paint();
+      paint.setAntiAlias(true);
+      paint.setStyle(ck.PaintStyle.Stroke);
+      paint.setStrokeWidth(state.lineWidth.value);
+      paint.setColor(ck.parseColorString(state.color.strokeColor));
+    }
+    canvas.drawOval(rect, paint);
   }
 }

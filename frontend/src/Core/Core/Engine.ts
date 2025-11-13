@@ -34,6 +34,7 @@ export class Engine implements EngineContext {
   canvas!: Canvas;
   surface!: Surface;
   canvasDom: HTMLCanvasElement | null = null;
+  fontMgr: any | null = null;
 
   // ctx: CanvasRenderingContext2D | null;
   constructor(public core: Core) {
@@ -68,7 +69,7 @@ export class Engine implements EngineContext {
   }
 
   async initCanvasKit(defaultConfig: DefaultConfig) {
-    const CanvasKit = await createCanvasKit();
+    const { CanvasKit, fontMgr } = await createCanvasKit();
     const canvas = document.createElement("canvas");
     const dpr = window.devicePixelRatio || 1;
     canvas.style.width = defaultConfig.width + "px";
@@ -81,6 +82,7 @@ export class Engine implements EngineContext {
     const surface = CanvasKit.MakeWebGLCanvasSurface("canvasKitCanvas");
     this.surface = surface!;
     this.canvas = surface!.getCanvas();
+    this.fontMgr = fontMgr;
     this.canvas.scale(dpr, dpr);
     this.ck = CanvasKit;
   }

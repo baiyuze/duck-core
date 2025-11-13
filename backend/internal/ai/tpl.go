@@ -42,7 +42,7 @@ func DslDesignTpl() *prompt.DefaultChatTemplate {
 )
 	- 字体与字号必须使用像素，例如：
    font-size: 16px;
-   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+	font-family: Noto Sans SC; 
 	### 6.	视觉与排版要求
 	-	所有边距、间距、宽度、高度都使用 px，不得使用 %、rem、em、vw、vh 等。
 	-	默认背景为白色（除非用户要求）。
@@ -57,8 +57,7 @@ func DslDesignTpl() *prompt.DefaultChatTemplate {
 	-	页面注释清晰，模块划分合理。
 	-	在文件开头用注释说明页面设计宽度、主色与风格说明。
 	-	所有单位严格为 px。
-   ### 9. 图标尽可能采用svg，
-   - 如果svg不满足，可以采用图片替代，如果图片不存在，可以使用矩形或者圆形代替.
+   ### 9. 图标必须采用svg，
 	 - svg内必须且只有一个path来描述图标形状，不能有其他元素，比如circle,rect等
 	 - svg的path必须有fill属性，不能没有fill属性
    ### 10. 不要使用伪类元素
@@ -81,6 +80,8 @@ func DslDesignTpl() *prompt.DefaultChatTemplate {
 	 - 输入框要通过div等元素模拟，不能使用<input>、<textarea>等原生表单元素
 	 ### 文字拆行（核心新增规则 —— 禁止自动换行，必须生成块级“行”）
 优化后的提示词如下，它更清晰地定义了约束、计算逻辑和输出格式，同时明确了\*\*“只有纯文本段落才应用此规则”\*\*的范围。
+	 ### 18. 字体宽度weight必须使用100-900的数值，不能使用英文，比如bold等。
+
 
 -----
 

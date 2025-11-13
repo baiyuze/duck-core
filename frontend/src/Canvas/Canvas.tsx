@@ -414,6 +414,23 @@ function Canvas(props: CanvasProps) {
   // ];
   const dsls: any[] = [
     {
+      position: { x: 112, y: 772 },
+      size: { width: 24, height: 24 },
+      color: { fillColor: "#333333", strokeColor: null },
+      lineWidth: { value: 1 },
+      id: "16",
+      selected: { value: false, hovered: false },
+      eventQueue: [],
+      type: "ellipse",
+      rotation: { value: 0 },
+      font: null,
+      name: "搜索图标",
+      img: null,
+      zIndex: { value: 101 },
+      scale: null,
+      polygon: null,
+    },
+    {
       position: { x: 0, y: 0 },
       size: { width: 175, height: 100 },
       color: { fillColor: "#f6f6f6", strokeColor: null },

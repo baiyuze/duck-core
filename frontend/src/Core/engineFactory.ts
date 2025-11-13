@@ -20,46 +20,59 @@ export async function createEngine(dsls: any[], defaultConfig: DefaultConfig) {
   const engine = new Engine(core);
 
   // 初始化 canvas
-  const ctx = await engine.initCanvas(defaultConfig);
+  await engine.initCanvasKit(defaultConfig);
 
-  engine.addSystem(new PickingSystem(ctx, engine));
-  engine.addSystem(new HoverSystem(ctx, engine));
-  engine.addSystem(new ClickSystem(ctx, engine));
-  engine.addSystem(new EventSystem(ctx, engine));
-  engine.addSystem(new InputSystem(ctx, engine));
-  engine.addSystem(new DragSystem(ctx, engine));
-  engine.addSystem(new ZoomSystem(ctx, engine));
-  engine.addSystem(new ScrollSystem(ctx, engine));
-  engine.addSystem(new RenderSystem(ctx, engine));
-  engine.addSystem(new SelectionSystem(ctx, engine));
+  engine.addSystem(new PickingSystem(engine));
+  engine.addSystem(new HoverSystem(engine));
+  engine.addSystem(new ClickSystem(engine));
+  engine.addSystem(new EventSystem(engine));
+  engine.addSystem(new InputSystem(engine));
+  engine.addSystem(new DragSystem(engine));
+  engine.addSystem(new ZoomSystem(engine));
+  engine.addSystem(new ScrollSystem(engine));
+  engine.addSystem(new RenderSystem(engine));
+  engine.addSystem(new SelectionSystem(engine));
 
   return engine;
 }
 
 export async function createCanvasKit() {
-  let CanvasKit;
-  const locateFile = (url: string, file: string) => {
-    return url + file;
-  };
+  const CanvasKit = await initCanvasKit();
+  const fontMgr = await loadFonts(CanvasKit);
+
+  return { CanvasKit, fontMgr };
+}
+
+async function initCanvasKit() {
+  const cdnUrl = "https://cdn.bootcdn.net/ajax/libs/canvaskit-wasm/0.40.0/";
+  const localUrl =
+    import.meta.env?.MODE === "production"
+      ? "/design/canvaskit/"
+      : "/node_modules/canvaskit-wasm/bin/";
 
   try {
-    CanvasKit = await CanvasKitInit({
-      locateFile: (file) =>
-        locateFile(
-          "https://cdn.bootcdn.net/ajax/libs/canvaskit-wasm/0.40.0/",
-          file
-        ),
+    return await CanvasKitInit({
+      locateFile: (file) => cdnUrl + file,
     });
   } catch (error) {
-    const url =
-      import.meta.env?.MODE === "production"
-        ? "/design/canvaskit/"
-        : "/node_modules/canvaskit-wasm/bin/";
-    CanvasKit = await CanvasKitInit({
-      locateFile: (file) => locateFile(url, file),
+    return await CanvasKitInit({
+      locateFile: (file) => localUrl + file,
     });
-    return CanvasKit;
   }
+}
 
-  return CanvasKit;
+async function loadFonts(CanvasKit: any) {
+  const fontsBase =
+    import.meta.env?.MODE === "production" ? "/design/fonts/" : "/fonts/";
+
+  const [robotoFont, notoSansFont] = await Promise.all([
+    fetch("https://cdn.skia.org/misc/Roboto-Regular.ttf").then((response) =>
+      response.arrayBuffer()
+    ),
+    fetch(`${fontsBase}NotoSansSC-VariableFont_wght_2.ttf`).then((response) =>
+      response.arrayBuffer()
+    ),
+  ]);
+
+  return CanvasKit.FontMgr.FromData(robotoFont, notoSansFont);
 }

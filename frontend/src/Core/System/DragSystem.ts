@@ -1,6 +1,6 @@
 import type { Engine } from "../Core/Engine";
 import { Entity } from "../Entity/Entity";
-import { EventType } from "../enum";
+import { EventType, systemEum } from "../enum";
 import type { StateStore } from "../types";
 import type { RenderSystem } from "./OffsetSystem";
 import type { PickingSystem } from "./PickingSystem";
@@ -8,7 +8,6 @@ import type { SelectionSystem } from "./SelectionSystem";
 import { System } from "./System";
 export class DragSystem extends System {
   engine: Engine;
-  ctx: CanvasRenderingContext2D;
   entityManager: Entity = new Entity();
   stateStore: StateStore | null = null;
   isMouseDown: boolean = false;
@@ -16,9 +15,8 @@ export class DragSystem extends System {
   isMouseUp: boolean = false;
   offset: { x: number; y: number } = { x: 0, y: 0 };
   dragStarted: boolean = false; // 标记是否已经开始拖拽
-  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
+  constructor(engine: Engine) {
     super();
-    this.ctx = ctx;
     this.engine = engine;
   }
 
@@ -28,9 +26,9 @@ export class DragSystem extends System {
   }
 
   onDrag() {
-    const pickSystem =
-      this.engine.getSystemByName<PickingSystem>("PickingSystem");
-
+    const pickSystem = this.engine.getSystemByName<PickingSystem>(
+      systemEum.PickingSystem
+    );
     if (!pickSystem) return;
     if (
       pickSystem.checkEventTypeIsMatch([
@@ -84,7 +82,7 @@ export class DragSystem extends System {
     const lastEvent = eventQueue[eventQueue.length - 1];
 
     // 获取画布坐标（不是屏幕坐标）
-    const rect = this.ctx.canvas.getBoundingClientRect();
+    const rect = this.engine.canvasDom!.getBoundingClientRect();
     const { zoom, translateX, translateY } = this.engine.camera;
     const canvasX = lastEvent.event.clientX - rect.left;
     const canvasY = lastEvent.event.clientY - rect.top;
@@ -107,7 +105,7 @@ export class DragSystem extends System {
     const lastEvent = eventQueue[eventQueue.length - 1];
 
     // 获取当前鼠标的画布坐标
-    const rect = this.ctx.canvas.getBoundingClientRect();
+    const rect = this.engine.canvasDom!.getBoundingClientRect();
 
     const { zoom, translateX, translateY } = this.engine.camera;
     const canvasX = lastEvent.event.clientX - rect.left;
@@ -125,8 +123,9 @@ export class DragSystem extends System {
   }
 
   onDragEnd() {
-    const pickSystem =
-      this.engine.getSystemByName<PickingSystem>("PickingSystem");
+    const pickSystem = this.engine.getSystemByName<PickingSystem>(
+      systemEum.PickingSystem
+    );
     if (!pickSystem) return;
 
     const selectedEntitys = pickSystem.getCurrentPickSelectedEntitys();
@@ -179,8 +178,8 @@ export class DragSystem extends System {
   ) {
     if (!this.stateStore) return;
 
-    const canvasWidth = this.ctx.canvas.width;
-    const canvasHeight = this.ctx.canvas.height;
+    const canvasWidth = this.engine.canvasDom!.width;
+    const canvasHeight = this.engine.canvasDom!.height;
 
     finalPositions.forEach(({ entityId, x, y }) => {
       const position = this.stateStore!.position.get(entityId);

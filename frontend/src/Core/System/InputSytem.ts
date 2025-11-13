@@ -6,16 +6,14 @@ import { System } from "./System";
  * 处理键盘输入的系统
  */
 export class InputSystem extends System {
-  ctx: CanvasRenderingContext2D;
   engine: Engine;
   entityManager: any;
   stateStore: StateStore | null = null;
   pressedKeys: Set<string> = new Set();
   isWindows: boolean = false;
 
-  constructor(ctx: CanvasRenderingContext2D, engine: Engine) {
+  constructor(engine: Engine) {
     super();
-    this.ctx = ctx;
     this.engine = engine;
 
     // 检测操作系统
