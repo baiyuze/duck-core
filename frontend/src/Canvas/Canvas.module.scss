@@ -25,8 +25,8 @@
 .canvas {
   border: 1px solid #ccc;
   position: relative;
-  width: 800px;
-  height: 800px;
+  width: fit-content;
+  height: fit-content;
 }
 .controls {
   position: absolute;

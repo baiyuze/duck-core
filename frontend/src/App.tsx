@@ -13,10 +13,10 @@ import TokenDebug from "./Components/TokenDebug";
 
 // 路由守卫：检查是否登录
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const token = localStorage.getItem("token");
-  if (!token) {
-    return <Navigate to="/login" replace />;
-  }
+  // const token = localStorage.getItem("token");
+  // if (!token) {
+  //   return <Navigate to="/login" replace />;
+  // }
   return <>{children}</>;
 };
 
