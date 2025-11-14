@@ -9,7 +9,7 @@ export class EventSystem extends System {
   entityManager: Entity = new Entity();
   stateStore: StateStore | null = null;
   throttledMouseMove: ReturnType<typeof throttle>;
-  throttledWheel: ReturnType<typeof throttle> | null = null;
+  throttledWheel: ReturnType<typeof throttle>;
   isMouseDown: boolean = false;
   isMouseMoving: boolean = false;
 
@@ -17,17 +17,30 @@ export class EventSystem extends System {
     super();
     this.engine = engine;
     this.dispose();
-    this.throttledMouseMove = throttle(this.onMouseMove.bind(this), 10);
-    this.throttledWheel = throttle(this.onWheel.bind(this), 10);
+    this.throttledMouseMove = throttle(this.onMouseMove.bind(this), 16);
+    this.throttledWheel = throttle(this.onWheel.bind(this), 16);
     document.addEventListener("mouseup", this.onMouseUp.bind(this));
     this.engine.canvasDom!.addEventListener(
       "mousedown",
       this.onMouseDown.bind(this)
     );
     document.addEventListener("mousemove", this.throttledMouseMove);
-    this.engine.canvasDom!.addEventListener("wheel", this.throttledWheel, {
-      passive: false,
-    });
+    this.engine.canvasDom!.addEventListener(
+      "wheel",
+      this.onThrottleWheel.bind(this),
+      {
+        passive: false,
+      }
+    );
+  }
+
+  onThrottleWheel(event: WheelEvent) {
+    try {
+      event.preventDefault();
+    } catch (e) {
+      console.error(e);
+    }
+    return this.throttledWheel(event);
   }
 
   dispose() {
@@ -40,7 +53,7 @@ export class EventSystem extends System {
     );
     this.engine.canvasDom!.removeEventListener(
       "wheel",
-      this.throttledWheel as EventListener
+      this.onThrottleWheel as EventListener
     );
     this.throttledMouseMove?.cancel();
     this.throttledWheel?.cancel();
@@ -128,11 +141,10 @@ export class EventSystem extends System {
    */
   onWheel(event: WheelEvent) {
     if (!this.stateStore) return;
-    try {
-      event.preventDefault();
-    } catch (e) {
-      console.error(e);
-    }
+
+    // 检查鼠标是否在画布内
+    const hasMouseInCanvas = this.checkMouseIsCanvas(event as any);
+    if (!hasMouseInCanvas) return;
 
     let eventType: string;
     const eventKey = window.navigator.userAgent.toLowerCase().includes("mac")
