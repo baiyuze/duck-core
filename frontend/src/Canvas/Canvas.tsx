@@ -682,7 +682,7 @@ function Canvas(props: CanvasProps) {
     // },
   ];
   const engineRef = useRef<Engine | null>(null);
-  const initCanvas = async () => {
+  const initCanvas = async (rendererName: string = "Canvaskit") => {
     const container = document.querySelector(
       `.${styles.canvas}`
     ) as HTMLDivElement;
@@ -691,7 +691,7 @@ function Canvas(props: CanvasProps) {
       width: 800,
       height: 800,
       container,
-      rendererName: "Canvas2D",
+      rendererName,
     });
 
     engineRef.current?.render();
@@ -716,7 +716,7 @@ function Canvas(props: CanvasProps) {
     if (engineRef.current) {
       engineRef.current.destroyed();
       engineRef.current = null;
-      initCanvas();
+      initCanvas(value);
     }
   };
 
