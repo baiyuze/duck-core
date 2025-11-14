@@ -5,6 +5,7 @@ import type Polygon from "../Components/Polygon";
 import type { Radius } from "../Components/Radius";
 import type Scale from "../Components/Scale";
 import type { Selected } from "../Components/Selected";
+import type { Engine } from "../Core/Engine";
 
 export type StateStore = {
   position: Map<string, Position>;
@@ -32,4 +33,22 @@ export type DefaultConfig = {
   width: number;
   height: number;
   container: HTMLDivElement;
+  rendererName?: string;
+};
+
+export type RendererPromise = {
+  default: RendererModule;
+};
+
+export type RendererModule = {
+  [key: string]: SystemConstructor;
+};
+
+export type SystemConstructor = new (engine: Engine) => System;
+
+export type CanvasInfo = {
+  canvasDom: HTMLCanvasElement;
+  canvas: any;
+  ctx?: CanvasRenderingContext2D;
+  [key: string]: any;
 };

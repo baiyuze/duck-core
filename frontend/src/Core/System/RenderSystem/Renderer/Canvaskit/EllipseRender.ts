@@ -1,8 +1,8 @@
 import type { Paint } from "canvaskit-wasm";
-import type { Engine } from "../../Core/Engine";
-import type { DSL } from "../../DSL/DSL";
-import type { StateStore } from "../../types";
-import { System } from "../System";
+import type { Engine } from "../../../../Core/Engine";
+import type { DSL } from "../../../../DSL/DSL";
+import type { StateStore } from "../../../../types";
+import { System } from "../../../System";
 
 export class EllipseRender extends System {
   engine: Engine;

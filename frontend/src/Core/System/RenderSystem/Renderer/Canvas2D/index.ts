@@ -2,7 +2,7 @@ import { TextRender } from "./TextRender";
 import { EllipseRender } from "./EllipseRender";
 import { RectRender } from "./RectRender";
 import { ImgRender } from "./ImgRender";
-import { ShapeType } from "../../enum";
+import { ShapeType } from "../../../../enum";
 import { PolygonRender } from "./PolygonRender";
 
 export default {

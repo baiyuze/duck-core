@@ -4,9 +4,10 @@ import { Engine } from "../Core/Core/Engine";
 import styles from "./Canvas.module.scss";
 import CopilotDemo from "../Components/AiChat/AiChat";
 import { createEngine } from "../Core/engineFactory";
+import { Select } from "antd";
 
 function Canvas(props: CanvasProps) {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [renderer, setRenderer] = useState<string>("Canvaskit");
   // const dsls: any[] = [
   //   {
   //     position: { x: 0, y: 0 },
@@ -690,6 +691,7 @@ function Canvas(props: CanvasProps) {
       width: 800,
       height: 800,
       container,
+      rendererName: "Canvas2D",
     });
 
     engineRef.current?.render();
@@ -702,19 +704,37 @@ function Canvas(props: CanvasProps) {
     }
   };
   useEffect(() => {
-    canvasRef.current = document.getElementById("canvas") as HTMLCanvasElement;
     initCanvas();
     return () => {
       engineRef.current?.destroyed();
       engineRef.current = null;
-      canvasRef.current = null;
     };
   }, []);
+
+  const onChangeRenderer = (value: string) => {
+    setRenderer(value);
+    if (engineRef.current) {
+      engineRef.current.destroyed();
+      engineRef.current = null;
+      initCanvas();
+    }
+  };
 
   return (
     <div className={styles.canvasContainer}>
       {/* <div className={styles.top}></div> */}
       <div className={styles.left}></div>
+      <div className={styles.rendererSwitcher}>
+        <label>渲染引擎</label>
+        <Select
+          value={renderer}
+          onChange={onChangeRenderer}
+          style={{ width: 180, marginLeft: 10 }}
+        >
+          <Select.Option value="Canvas2D">Canvas2D</Select.Option>
+          <Select.Option value="Canvaskit">Canvaskit(webGL)</Select.Option>
+        </Select>
+      </div>
       <div className={styles.canvas}>
         {/* <canvas id="canvas" width={800} height={800}></canvas> */}
       </div>

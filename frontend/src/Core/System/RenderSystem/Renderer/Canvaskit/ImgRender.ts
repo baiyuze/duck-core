@@ -5,10 +5,10 @@ import type {
   Paint,
   Path,
 } from "canvaskit-wasm";
-import type { Engine } from "../../Core/Engine";
-import type { DSL } from "../../DSL/DSL";
-import type { StateStore } from "../../types";
-import { System } from "../System";
+import type { Engine } from "../../../../Core/Engine";
+import type { DSL } from "../../../../DSL/DSL";
+import type { StateStore } from "../../../../types";
+import { System } from "../../../System";
 import svgPathBounds from "svg-path-bounds";
 // import { parseSVG } from "svg-path-parser";
 

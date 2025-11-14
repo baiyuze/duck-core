@@ -2,7 +2,7 @@ import type { Size } from "../Components";
 import type { DSL } from "../DSL/DSL";
 import type { Entity } from "../Entity/Entity";
 import type { System } from "../System/System";
-import type { DefaultConfig, StateStore } from "../types";
+import type { CanvasInfo, DefaultConfig, StateStore } from "../types";
 import type { Camera } from "./Camera";
 // import { Engine } from "./Engine";
 
@@ -21,7 +21,8 @@ export interface EngineContext {
   system: System[];
 
   entityManager: Entity;
-  createCanvas: (defaultConfig: DefaultConfig) => CanvasRenderingContext2D;
+  setEngine(canvasInfo: CanvasInfo): void;
+  // createCanvas: (defaultConfig: DefaultConfig) => CanvasRenderingContext2D;
   // initCanvas: (
   //   defaultConfig: DefaultConfig
   // ) => Promise<CanvasRenderingContext2D>;
@@ -29,4 +30,10 @@ export interface EngineContext {
   destroyed: () => void;
   addSystem: (system: any) => void;
   getSystemByName: (name: string) => any;
+  /**
+   * 清空画布，自定义renderer需要重写此方法
+   * @returns
+   */
+  clear: () => void;
+  flush: () => void;
 }

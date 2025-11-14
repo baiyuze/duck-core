@@ -19,6 +19,7 @@ import { hash } from "stable-hash-x";
 import equal from "fast-deep-equal";
 
 export class System {
+  constructor() {}
   hashMap: Map<string, string | any> = new Map();
   update(components: StateStore) {}
   draw(entityId: string) {}
@@ -40,26 +41,8 @@ export class System {
     const scale = components.scale.get(entityId) as Scale;
     const polygon = components.polygon.get(entityId) as Polygon;
     const id = entityId;
-    // const graphics = components.graphics.get(entityId) as Graphics;
-    // const ellipseRadius = components.ellipseRadius.get(
-    //   entityId
-    // ) as EllipseRadius;
     const radius = components.radius.get(entityId) as Radius;
 
-    // return {
-    //   size,
-    //   position,
-    //   color,
-    //   rotation,
-    //   type,
-    //   lineWidth,
-    //   font,
-    //   img,
-    //   scale,
-    //   polygon,
-    //   radius,
-    //   graphics,
-    // } as DSLParams;
     return new DSL({
       size,
       position,

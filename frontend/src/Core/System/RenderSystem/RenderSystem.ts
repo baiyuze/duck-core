@@ -1,11 +1,8 @@
 import type { Color, Position, Size } from "../../Components";
 import type { Engine } from "../../Core/Engine";
-import { DSL } from "../../DSL/DSL";
 import { Entity } from "../../Entity/Entity";
-import { ShapeType } from "../../enum";
 import type { StateStore } from "../../types";
 import { System } from "../System";
-import renderRegistry from "./renderRegistry";
 
 export class RenderSystem extends System {
   engine: Engine;
@@ -21,9 +18,11 @@ export class RenderSystem extends System {
   }
 
   initRenderMap() {
-    Object.entries(renderRegistry).forEach(([key, SystemClass]) => {
-      this.renderMap.set(key, new SystemClass(this.engine));
-    });
+    Object.entries(this.engine.rendererManager.renderer).forEach(
+      ([key, SystemClass]) => {
+        this.renderMap.set(key, new SystemClass(this.engine));
+      }
+    );
   }
 
   async drawShape(stateStore: StateStore, entityId: string) {
@@ -34,7 +33,7 @@ export class RenderSystem extends System {
 
   async renderer(stateStore: StateStore) {
     // 清空 CanvasKit 画布
-    this.engine.canvas.clear(this.engine.ck.WHITE);
+    this.engine.clear();
     this.engine.canvas.save();
     this.engine.canvas.translate(
       this.engine.camera.translateX,

@@ -54,16 +54,8 @@ export class ZoomSystem extends System {
       canvasY - (canvasY - camera.translateY) * (newZoom / prevZoom);
 
     camera.zoom = newZoom;
-
     // 标记需要渲染
     this.engine.camera.isZooming = true;
     this.engine.dirtyRender = true;
-    // this.engine.canvas.save();
-    // this.engine.canvas.translate(
-    //   this.engine.camera.translateX,
-    //   this.engine.camera.translateY
-    // );
-    // this.engine.canvas.scale(this.engine.camera.zoom, this.engine.camera.zoom);
-    // this.engine.canvas.restore();
   }
 }

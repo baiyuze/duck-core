@@ -10,6 +10,8 @@ export class EventSystem extends System {
   stateStore: StateStore | null = null;
   throttledMouseMove: ReturnType<typeof throttle>;
   throttledWheel: ReturnType<typeof throttle> | null = null;
+  isMouseDown: boolean = false;
+  isMouseMoving: boolean = false;
 
   constructor(engine: Engine) {
     super();
@@ -52,6 +54,8 @@ export class EventSystem extends System {
         event,
       },
     ];
+    this.isMouseDown = false;
+    this.isMouseMoving = false;
     this.engine.requestFrame();
   }
   onMouseDown(event: MouseEvent) {
@@ -62,6 +66,7 @@ export class EventSystem extends System {
         event,
       },
     ];
+    this.isMouseDown = true;
     this.engine.requestFrame();
   }
 
@@ -87,13 +92,34 @@ export class EventSystem extends System {
     ];
     this.engine.requestFrame();
   }
+  /**
+   * 设置鼠标是否在画布中
+   * @param event
+   */
+  checkMouseIsCanvas(event?: MouseEvent): boolean {
+    if (!this.engine.canvasDom) return false;
+
+    const rect = this.engine.canvasDom.getBoundingClientRect();
+
+    if (event) {
+      const x = event.clientX;
+      const y = event.clientY;
+      return (
+        x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom
+      );
+    }
+
+    return this.engine.canvasDom.matches(":hover");
+  }
   onMouseMove(event: MouseEvent) {
-    // 只有数据进行变化的时候，才需要调用renderSystem，其他只需要render其他系统即可
     if (!this.stateStore) return;
     this.stateStore.eventQueue = [{ type: "mousemove", event }];
     if (this.engine.core.isDragging) {
       this.engine.dirtyRender = true;
     }
+    const hasMouseInCanvas = this.checkMouseIsCanvas();
+    if (!hasMouseInCanvas) return;
+    this.isMouseMoving = true;
     this.engine.requestFrame();
   }
 

@@ -4,10 +4,10 @@ import type {
   Paragraph,
   ParagraphStyle,
 } from "canvaskit-wasm";
-import type { Engine } from "../../Core/Engine";
-import type { StateStore } from "../../types";
-import { System } from "../System";
-import type { DSL } from "../../DSL/DSL";
+import type { Engine } from "../../../../Core/Engine";
+import type { StateStore } from "../../../../types";
+import { System } from "../../../System";
+import type { DSL } from "../../../../DSL/DSL";
 
 export class TextRender extends System {
   engine: Engine;
@@ -78,7 +78,7 @@ export class TextRender extends System {
     const paraStyle = new this.engine.ck.ParagraphStyle(fontStyle);
     const builder = this.engine.ck.ParagraphBuilder.Make(
       paraStyle,
-      this.engine.fontMgr
+      this.engine.FontMgr
     );
     builder.addText(text);
     const paragraph = builder.build();
