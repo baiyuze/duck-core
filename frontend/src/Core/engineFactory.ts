@@ -48,6 +48,8 @@ export function createCanvasRenderer(engine: Engine) {
     defaultConfig.container.appendChild(canvasDom);
     const surface = CanvasKit.MakeWebGLCanvasSurface("canvasKitCanvas");
     const canvas = surface!.getCanvas();
+    canvas.scale(dpr, dpr);
+
     return {
       canvasDom,
       surface,
