@@ -53,6 +53,12 @@ export class Engine implements EngineContext {
   get stateStore() {
     return this.core.stateStore;
   }
+
+  setState(data: Record<string, any>) {
+    this.dirtyRender = true;
+    this.core.setState(data);
+    this._tick();
+  }
   /**
    * 清理画布
    * 自定义renderer需要重写此方法

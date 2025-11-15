@@ -9,6 +9,8 @@ import { Selected } from "../Components/Selected";
 import { DSL } from "../DSL/DSL";
 import { Entity } from "../Entity/Entity";
 import type { StateStore } from "../types";
+import type { DSLParams } from "../types/dsl";
+import { getComponentsByEntityId } from "../utils";
 
 export class Core {
   defaultSize: Size = { width: 800, height: 800 };
@@ -78,6 +80,26 @@ export class Core {
           }
         }
       }
+    });
+  }
+
+  setState(data: Record<string, any>) {
+    Object.entries(data).forEach(([id, dsl]: [string, DSLParams]) => {
+      const position = this.stateStore.position.get(id);
+      if (!position) return;
+
+      const entity = new DSL(dsl);
+      position.x = entity.position.x;
+      position.y = entity.position.y;
+      console.log(position.x, entity.position.x, "----");
+
+      // Object.assign(state, entity);
+      // console.log(
+      //   state.position.y,
+      //   state.position.x,
+      //   this.stateStore,
+      //   "---===>"
+      // );
     });
   }
 

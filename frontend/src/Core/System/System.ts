@@ -17,6 +17,7 @@ import type { StateStore } from "../types";
 import type { DSLParams } from "../types/dsl";
 import { hash } from "stable-hash-x";
 import equal from "fast-deep-equal";
+import { getComponentsByEntityId } from "../utils";
 
 export class System {
   constructor() {}
@@ -29,35 +30,7 @@ export class System {
    * @param entityId
    * @returns
    */
-  getComponentsByEntityId(components: StateStore, entityId: string) {
-    const size = components.size.get(entityId) as Size;
-    const position = components.position.get(entityId) as Position;
-    const color = components.color.get(entityId) as Color;
-    const rotation = components.rotation.get(entityId) as Rotation;
-    const type = components.type.get(entityId) as string;
-    const lineWidth = components.lineWidth.get(entityId) as LineWidth;
-    const font = components.font.get(entityId) as Font;
-    const img = components.img.get(entityId) as Img;
-    const scale = components.scale.get(entityId) as Scale;
-    const polygon = components.polygon.get(entityId) as Polygon;
-    const id = entityId;
-    const radius = components.radius.get(entityId) as Radius;
-
-    return new DSL({
-      size,
-      position,
-      color,
-      rotation,
-      type,
-      lineWidth,
-      font,
-      img,
-      scale,
-      polygon,
-      radius,
-      id,
-    } as DSLParams);
-  }
+  getComponentsByEntityId = getComponentsByEntityId;
   /**
    * 将 (x, y, width, height) 转换为左上右下格式的矩形
    * @param state DSL
