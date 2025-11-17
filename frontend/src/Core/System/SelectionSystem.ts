@@ -32,8 +32,8 @@ export class SelectionSystem extends System {
 
     const dpr = window.devicePixelRatio || 1;
 
-    const width = this.engine.defaultSize.width;
-    const height = this.engine.defaultSize.height;
+    const width = this.engine.defaultConfig.width;
+    const height = this.engine.defaultConfig.height;
     selectionCanvas.style.width = width + "px";
     selectionCanvas.style.height = height + "px";
 
@@ -141,7 +141,6 @@ export class SelectionSystem extends System {
   update(stateStore: StateStore) {
     if (!stateStore) return;
     if (!this.selectionCtx) return;
-
     this.clearCanvas();
     // 缩放过程中不进行selection渲染，避免卡顿
     if (this.engine.core.isDragging) return;

@@ -33,7 +33,7 @@ export type DefaultConfig = {
   width: number;
   height: number;
   container: HTMLDivElement;
-  rendererName?: string;
+  mode?: string;
 };
 
 export type RendererPromise = {

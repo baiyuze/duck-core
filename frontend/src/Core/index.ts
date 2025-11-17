@@ -7,4 +7,7 @@ export * from "./Entity/Entity";
 export * from "./System/System";
 export * from "./System/RenderSystem/RenderSystem";
 export * from "./System/SelectionSystem";
-// export * from "./System/TransformSystem";
+export * from "./engineFactory";
+export * from "./enum";
+export * from "./utils";
+export * from "./types/index.d";

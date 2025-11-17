@@ -2,7 +2,8 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import viteCompression from "vite-plugin-compression";
 import { copyFileSync, existsSync, mkdirSync } from "fs";
-import { join } from "path";
+import path, { join } from "path";
+import dts from "vite-plugin-dts";
 
 // https://vite.dev/config/
 
@@ -23,13 +24,13 @@ export default defineConfig({
       buildStart() {
         const sourceDir = "node_modules/canvaskit-wasm/bin";
         const targetDir = "public/canvaskit";
-        
+
         if (!existsSync(targetDir)) {
           mkdirSync(targetDir, { recursive: true });
         }
-        
+
         const files = ["canvaskit.wasm", "canvaskit.js"];
-        files.forEach(file => {
+        files.forEach((file) => {
           const source = join(sourceDir, file);
           const target = join(targetDir, file);
           if (existsSync(source)) {
@@ -37,9 +38,10 @@ export default defineConfig({
             console.log(`Copied ${file} to ${targetDir}`);
           }
         });
-      }
-    }
+      },
+    },
   ],
+
   base: process.env.NODE_ENV !== "development" ? "/design" : "/",
   server: {
     host: "0.0.0.0",

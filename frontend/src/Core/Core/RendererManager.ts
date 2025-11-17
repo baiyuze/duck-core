@@ -2,7 +2,7 @@ import { RendererRegistry } from "./RendererRegistry";
 import type { SystemConstructor } from "../types";
 
 export class RendererManager {
-  rendererName: string = "Canvaskit";
+  mode: string = "Canvaskit";
   rendererMgr: RendererRegistry = new RendererRegistry();
   renderer: {
     [key: string]: SystemConstructor;

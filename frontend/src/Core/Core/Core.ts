@@ -13,7 +13,7 @@ import type { DSLParams } from "../types/dsl";
 import { getComponentsByEntityId } from "../utils";
 
 export class Core {
-  defaultSize: Size = { width: 800, height: 800 };
+  defaultConfig: Size = { width: 800, height: 800 };
   multiple: boolean = false;
   isDragging: boolean = false;
   dsls: DSL[] = [];

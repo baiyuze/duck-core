@@ -18,19 +18,18 @@ import { FpsSystem } from "./System/FpsSystem";
 
 export function createCanvasRenderer(engine: Engine) {
   const createCanvas = (defaultConfig: DefaultConfig) => {
-    const canvas = document.createElement("canvas");
-    const dpr = window.devicePixelRatio || 1;
-    canvas.style.width = defaultConfig.width + "px";
-    canvas.style.height = defaultConfig.height + "px";
-    canvas.width = defaultConfig.width * dpr;
-    canvas.height = defaultConfig.height * dpr;
-    defaultConfig.container.appendChild(canvas);
-    const ctx = canvas.getContext("2d", {
+    const { canvasDom, dpr } = createCanvasDom(defaultConfig);
+    const ctx = canvasDom.getContext("2d", {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;
+    canvasDom.style.zIndex = "10";
+    canvasDom.style.position = "absolute";
+    canvasDom.style.top = "0";
+    canvasDom.style.left = "0";
+    defaultConfig.container.appendChild(canvasDom);
     ctx.scale(dpr, dpr);
     return {
-      canvasDom: canvas,
+      canvasDom,
       canvas: ctx,
       ctx,
     };
@@ -38,18 +37,22 @@ export function createCanvasRenderer(engine: Engine) {
 
   const initCanvasKit = async (defaultConfig: DefaultConfig) => {
     const { CanvasKit, FontMgr } = await createCanvasKit();
-    const canvasDom = document.createElement("canvas") as HTMLCanvasElement;
-    const dpr = window.devicePixelRatio || 1;
-    canvasDom.style.width = defaultConfig.width + "px";
-    canvasDom.style.height = defaultConfig.height + "px";
-    canvasDom.width = defaultConfig.width * dpr;
-    canvasDom.height = defaultConfig.height * dpr;
+    const { dpr, canvasDom } = createCanvasDom(defaultConfig);
     canvasDom.id = "canvasKitCanvas";
+    canvasDom.style.zIndex = "10";
+    canvasDom.style.position = "absolute";
+    canvasDom.style.top = "0";
+    canvasDom.style.left = "0";
     defaultConfig.container.appendChild(canvasDom);
-    const surface = CanvasKit.MakeWebGLCanvasSurface("canvasKitCanvas");
+    const surface = CanvasKit.MakeWebGLCanvasSurface(
+      "canvasKitCanvas",
+      CanvasKit.ColorSpace.SRGB,
+      {
+        alpha: 1, // 背景透明
+      }
+    );
     const canvas = surface!.getCanvas();
     canvas.scale(dpr, dpr);
-
     return {
       canvasDom,
       surface,
@@ -62,6 +65,17 @@ export function createCanvasRenderer(engine: Engine) {
     createCanvas2D: createCanvas,
     createCanvasKitSkia: initCanvasKit,
   };
+}
+
+export function createCanvasDom(defaultConfig: DefaultConfig) {
+  const canvasDom = document.createElement("canvas");
+  const dpr = window.devicePixelRatio || 1;
+  canvasDom.style.width = defaultConfig.width + "px";
+  canvasDom.style.height = defaultConfig.height + "px";
+  canvasDom.width = defaultConfig.width * dpr;
+  canvasDom.height = defaultConfig.height * dpr;
+
+  return { canvasDom, dpr };
 }
 
 export async function createCanvasKit() {
@@ -121,22 +135,22 @@ export const createSystem = (engine: Engine) => {
 
 export async function createEngine(dsls: any[], defaultConfig: DefaultConfig) {
   const core = new Core(dsls);
-  const rendererName = defaultConfig.rendererName || "Canvaskit";
-  const engine = new Engine(core, rendererName);
+  const mode = defaultConfig.mode || "Canvaskit";
+  const engine = new Engine(core, mode);
   const { createCanvas2D, createCanvasKitSkia } = createCanvasRenderer(engine);
   const map: {
     [key: string]: () => Promise<void>;
   } = {
     Canvaskit: async () => {
       const canvasInfo = await createCanvasKitSkia(defaultConfig);
-      engine.setEngine(canvasInfo);
+      engine.setEngine(canvasInfo, defaultConfig);
     },
     Canvas2D: async () => {
       const canvasInfo = createCanvas2D(defaultConfig);
-      engine.setEngine(canvasInfo);
+      engine.setEngine(canvasInfo, defaultConfig);
     },
   };
-  const render = map[rendererName];
+  const render = map[mode];
   await render?.();
   createSystem(engine);
 

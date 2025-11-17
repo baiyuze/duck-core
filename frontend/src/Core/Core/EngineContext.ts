@@ -12,7 +12,7 @@ export interface EngineContext {
   isFirstInit: boolean;
   dirtyRender: boolean;
   dirtyOverlay: boolean;
-  defaultSize: Size;
+  defaultConfig: Size;
 
   SystemMap: Map<string, System>;
 
@@ -21,7 +21,7 @@ export interface EngineContext {
   system: System[];
 
   entityManager: Entity;
-  setEngine(canvasInfo: CanvasInfo): void;
+  setEngine(canvasInfo: CanvasInfo, defaultConfig: DefaultConfig): void;
   // createCanvas: (defaultConfig: DefaultConfig) => CanvasRenderingContext2D;
   // initCanvas: (
   //   defaultConfig: DefaultConfig

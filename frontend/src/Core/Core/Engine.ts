@@ -31,7 +31,7 @@ export class Engine implements EngineContext {
   /**
    * 是否多选
    */
-  defaultSize: Size = { width: 800, height: 800 };
+  defaultConfig: Size = { width: 800, height: 800 };
   dsls: DSL[] = [];
   SystemMap: Map<string, System> = new Map();
   system: System[] = [];
@@ -45,9 +45,9 @@ export class Engine implements EngineContext {
   FontMgr: any | null = null;
   rendererManager: RendererManager = new RendererManager();
 
-  constructor(public core: Core, rendererName?: string) {
-    this.rendererManager.rendererName = rendererName || "Canvaskit";
-    this.rendererManager.setRenderer(this.rendererManager.rendererName);
+  constructor(public core: Core, mode?: string) {
+    this.rendererManager.mode = mode || "Canvaskit";
+    this.rendererManager.setRenderer(this.rendererManager.mode);
   }
 
   get stateStore() {
@@ -69,11 +69,11 @@ export class Engine implements EngineContext {
       (canvas as CanvasRenderingContext2D).clearRect(
         0,
         0,
-        this.defaultSize.width,
-        this.defaultSize.height
+        this.defaultConfig.width,
+        this.defaultConfig.height
       );
     } else {
-      this.canvas.clear(this.ck.WHITE);
+      this.canvas.clear(this.ck.Color4f(0, 0, 0, 0));
     }
   }
 
@@ -81,8 +81,9 @@ export class Engine implements EngineContext {
    * 设置引擎相关属性
    * @param canvasInfo
    */
-  setEngine(canvasInfo: CanvasInfo) {
+  setEngine(canvasInfo: CanvasInfo, defaultConfig: DefaultConfig) {
     this.canvasDom = canvasInfo.canvasDom;
+    this.defaultConfig = defaultConfig;
     Object.assign(this, canvasInfo);
   }
 
