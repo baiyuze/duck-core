@@ -26,7 +26,7 @@ export function createCanvasRenderer(engine: Engine) {
     canvasDom.style.position = "absolute";
     canvasDom.style.top = "0";
     canvasDom.style.left = "0";
-    defaultConfig.container.appendChild(canvasDom);
+    defaultConfig.container?.appendChild?.(canvasDom);
     ctx.scale(dpr, dpr);
     return {
       canvasDom,
@@ -43,7 +43,7 @@ export function createCanvasRenderer(engine: Engine) {
     canvasDom.style.position = "absolute";
     canvasDom.style.top = "0";
     canvasDom.style.left = "0";
-    defaultConfig.container.appendChild(canvasDom);
+    defaultConfig.container?.appendChild?.(canvasDom);
     const surface = CanvasKit.MakeWebGLCanvasSurface(
       "canvasKitCanvas",
       CanvasKit.ColorSpace.SRGB,

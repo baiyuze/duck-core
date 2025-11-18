@@ -44,8 +44,8 @@ export class Core {
 
   sortDSLByZIndex(dsls: any[] = this.dsls) {
     return dsls.sort((a, b) => {
-      const zIndexA = a.zIndex.value || 0;
-      const zIndexB = b.zIndex.value || 0;
+      const zIndexA = a?.zIndex?.value || 0;
+      const zIndexB = b?.zIndex?.value || 0;
       return zIndexA - zIndexB;
     });
   }

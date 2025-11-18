@@ -31,7 +31,13 @@ export class Engine implements EngineContext {
   /**
    * 是否多选
    */
-  defaultConfig: Size = { width: 800, height: 800 };
+  defaultConfig: DefaultConfig = {
+    width: 800,
+    height: 800,
+    drag: { enabled: true },
+    selected: { enabled: true },
+    hover: { enabled: true },
+  };
   dsls: DSL[] = [];
   SystemMap: Map<string, System> = new Map();
   system: System[] = [];
@@ -84,6 +90,13 @@ export class Engine implements EngineContext {
   setEngine(canvasInfo: CanvasInfo, defaultConfig: DefaultConfig) {
     this.canvasDom = canvasInfo.canvasDom;
     this.defaultConfig = defaultConfig;
+    if (defaultConfig.camera) {
+      this.camera.minX = defaultConfig.camera.minX;
+      this.camera.maxX = defaultConfig.camera.maxX;
+      this.camera.minY = defaultConfig.camera.minY;
+      this.camera.maxY = defaultConfig.camera.maxY;
+    }
+
     Object.assign(this, canvasInfo);
   }
 
@@ -182,6 +195,7 @@ export class Engine implements EngineContext {
       await sys.update(this.stateStore);
     }
   }
+
   /**
    * 统一销毁
    */

@@ -17,8 +17,10 @@ export class HoverSystem extends System {
   }
 
   update(stateStore: StateStore) {
-    this.stateStore = stateStore;
-    this.onHover();
+    if (this.engine.defaultConfig.hover?.enabled) {
+      this.stateStore = stateStore;
+      this.onHover();
+    }
   }
   /**
    * 清空hover状态

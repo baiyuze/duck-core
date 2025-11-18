@@ -32,8 +32,24 @@ export type PickEntity = {
 export type DefaultConfig = {
   width: number;
   height: number;
-  container: HTMLDivElement;
+  container?: HTMLDivElement;
   mode?: string;
+  camera?: {
+    minX: number;
+    maxX: number;
+    minY: number;
+    maxY: number;
+    scale?: boolean;
+  };
+  drag?: {
+    enabled: boolean;
+  };
+  selected?: {
+    enabled: boolean;
+  };
+  hover?: {
+    enabled: boolean;
+  };
 };
 
 export type RendererPromise = {

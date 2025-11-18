@@ -21,8 +21,10 @@ export class DragSystem extends System {
   }
 
   update(stateStore: StateStore) {
-    this.stateStore = stateStore;
-    this.onDrag();
+    if (this.engine.defaultConfig.drag?.enabled) {
+      this.stateStore = stateStore;
+      this.onDrag();
+    }
   }
 
   onDrag() {
@@ -144,52 +146,13 @@ export class DragSystem extends System {
       }
     });
 
-    // 重置偏移量和拖拽状态
     this.offset = { x: 0, y: 0 };
 
-    // 触发拖拽结束事件（可以用于历史记录、撤销重做等）
     this.onDragEndEvent(selectedEntitys, finalPositions);
   }
 
-  /**
-   * 拖拽结束事件处理
-   * 可以在这里添加自定义逻辑，比如保存历史记录、网格吸附等
-   */
   private onDragEndEvent(
     _selectedEntitys: any[],
     finalPositions: { entityId: string; x: number; y: number }[]
-  ) {
-    // 这里可以添加拖拽结束后的自定义逻辑
-    // 例如：
-    // 1. 保存到历史记录用于撤销/重做
-    // 2. 检查边界限制
-    // 3. 网格吸附
-    // 4. 碰撞检测
-    // 5. 触发自定义事件等
-    // 示例：边界检查（确保元素不会拖拽到画布外）
-    // this.checkBoundaries(finalPositions);
-  }
-
-  /**
-   * 检查边界限制，防止元素拖拽到画布外
-   */
-  private checkBoundaries(
-    finalPositions: { entityId: string; x: number; y: number }[]
-  ) {
-    if (!this.stateStore) return;
-
-    const canvasWidth = this.engine.canvasDom!.width;
-    const canvasHeight = this.engine.canvasDom!.height;
-
-    finalPositions.forEach(({ entityId, x, y }) => {
-      const position = this.stateStore!.position.get(entityId);
-      const size = this.stateStore!.size.get(entityId);
-
-      if (position && size) {
-        // 确保元素不会超出画布边界
-        position.x = Math.max(0, Math.min(x, canvasWidth - size.width));
-        position.y = Math.max(0, Math.min(y, canvasHeight - size.height));
-      }
-    });
-  }
+  ) {}
 }

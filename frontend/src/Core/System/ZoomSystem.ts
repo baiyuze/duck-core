@@ -14,6 +14,7 @@ export class ZoomSystem extends System {
   }
 
   update(stateStore: StateStore) {
+    if (!this.engine.camera?.scale) return;
     if (stateStore.eventQueue.length === 0) return;
     this.engine.camera.isZooming = false;
 
