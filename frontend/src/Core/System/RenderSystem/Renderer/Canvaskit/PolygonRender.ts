@@ -86,7 +86,6 @@ export class PolygonRender extends System {
       if (strokeColor && strokeColor !== "transparent") {
         const paint = this.setPaintStyle(ck, strokeColor, ck.PaintStyle.Stroke);
         canvas.drawPath(path, paint);
-        paint.delete();
       }
     }
   }
