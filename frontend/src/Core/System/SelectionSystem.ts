@@ -78,6 +78,12 @@ export class SelectionSystem extends System {
     ctx.restore();
   }
 
+  setCursor(cursor: string) {
+    if (this.engine.canvasDom!.style.cursor !== cursor) {
+      this.engine.canvasDom!.style.cursor = cursor;
+    }
+  }
+
   render(stateStore: StateStore, entityId: string, isHover = false) {
     if (!this.selectionCtx) return;
     const ctx = this.selectionCtx;
@@ -85,6 +91,7 @@ export class SelectionSystem extends System {
     const position = stateStore.position.get(entityId);
     const size = stateStore.size.get(entityId);
     if (position && size) {
+      this.setCursor("pointer");
       if (!selected?.value) {
         this.shapeRect({
           position,
@@ -151,6 +158,7 @@ export class SelectionSystem extends System {
     this.selectionCtx.save();
     this.selectionCtx.translate(camera.translateX, camera.translateY);
     this.selectionCtx.scale(camera.zoom, camera.zoom);
+    this.setCursor("default");
     stateStore.selected.forEach((selected, entityId) => {
       if (!selected.value) return;
       this.render(stateStore, entityId);

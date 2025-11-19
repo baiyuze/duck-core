@@ -1,3 +1,4 @@
+import type { Position, Size } from "../Components";
 import type { Selected } from "../Components/Selected";
 import type { Engine } from "../Core/Engine";
 import { Entity } from "../Entity/Entity";
@@ -16,7 +17,6 @@ export class PickingSystem extends System {
     super();
     this.engine = engine;
     this.offCtx = this.initOffscreenCanvas() as CanvasRenderingContext2D;
-    // ctx.canvas.addEventListener("click", this.onClick.bind(this));
   }
 
   initOffscreenCanvas() {
@@ -25,31 +25,75 @@ export class PickingSystem extends System {
     this.offscreenCanvas = offscreenCanvas;
     offscreenCanvas.width = width;
     offscreenCanvas.height = height;
-
+    // this.engine.canvasDom?.parentElement?.appendChild(offscreenCanvas);
     return offscreenCanvas.getContext("2d", {
       willReadFrequently: true,
     });
   }
 
+  /**
+   * 获取可视区域边界（世界坐标系）
+   */
+  getViewport() {
+    const { camera, defaultConfig } = this.engine;
+    const zoom = camera.zoom;
+
+    // 将画布坐标转换为世界坐标
+    const left = -camera.translateX / zoom;
+    const top = -camera.translateY / zoom;
+    const right = left + defaultConfig.width / zoom;
+    const bottom = top + defaultConfig.height / zoom;
+
+    return { left, top, right, bottom };
+  }
+
+  /**
+   * 判断实体是否在可视区域内
+   */
+  isInViewport(
+    position: Position,
+    size: Size | undefined,
+    viewport: ReturnType<typeof this.getViewport>
+  ): boolean {
+    const { x, y } = position;
+    const width = size?.width || 0;
+    const height = size?.height || 0;
+
+    // 实体的边界框
+    const entityLeft = x;
+    const entityTop = y;
+    const entityRight = x + width;
+    const entityBottom = y + height;
+
+    // 判断是否有交集（使用边界框碰撞检测）
+    return !(
+      entityRight < viewport.left ||
+      entityLeft > viewport.right ||
+      entityBottom < viewport.top ||
+      entityTop > viewport.bottom
+    );
+  }
+
   render(stateStore: StateStore) {
     if (!this.offCtx) return;
     const ctx = this.offCtx;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.save();
     ctx.translate(this.engine.camera.translateX, this.engine.camera.translateY);
     ctx.scale(this.engine.camera.zoom, this.engine.camera.zoom);
-    // 每帧先清空画布
-    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    const viewport = this.getViewport();
 
     // 遍历所有 position 组件的实体
     stateStore.position.forEach((pos, entityId) => {
-      ctx.save();
-      // const { x, y } = pos;
-      // ctx.translate(x, y);
-      // 获取实体的 size 组件
       const size = stateStore.size.get(entityId);
+      // 只渲染可视区域内的实体
+      if (!this.isInViewport(pos, size, viewport)) {
+        return;
+      }
+      ctx.save();
+      // 获取实体的 size 组件
       // 离屏渲染颜色
       const fillColor = this.entityManager.getColorById(entityId);
-
       ctx.fillStyle = fillColor;
       if (size) {
         ctx.fillRect(pos.x, pos.y, size.width, size.height);

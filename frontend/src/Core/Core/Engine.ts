@@ -22,9 +22,14 @@ import CanvasKitInit, {
   type Surface,
 } from "canvaskit-wasm";
 import { RendererManager } from "./RendererManager";
+import { Event } from "./Event";
+import { isNil } from "lodash";
 
 export class Engine implements EngineContext {
   camera = new Camera();
+  entityManager = new Entity();
+  rendererManager: RendererManager = new RendererManager();
+  event: Event = new Event();
   isFirstInit: boolean = true;
   dirtyRender = false;
   dirtyOverlay = false;
@@ -41,7 +46,6 @@ export class Engine implements EngineContext {
   dsls: DSL[] = [];
   SystemMap: Map<string, System> = new Map();
   system: System[] = [];
-  entityManager = new Entity();
   needsFrame: boolean = false;
   ctx!: CanvasRenderingContext2D;
   ck!: CanvasKit;
@@ -49,7 +53,6 @@ export class Engine implements EngineContext {
   surface!: Surface;
   canvasDom: HTMLCanvasElement | null = null;
   FontMgr: any | null = null;
-  rendererManager: RendererManager = new RendererManager();
 
   constructor(public core: Core, mode?: string) {
     this.rendererManager.mode = mode || "Canvaskit";
@@ -95,6 +98,9 @@ export class Engine implements EngineContext {
       this.camera.maxX = defaultConfig.camera.maxX;
       this.camera.minY = defaultConfig.camera.minY;
       this.camera.maxY = defaultConfig.camera.maxY;
+      if (!isNil(defaultConfig.camera.scale)) {
+        this.camera.scale = !!defaultConfig.camera.scale;
+      }
     }
 
     Object.assign(this, canvasInfo);
@@ -208,6 +214,7 @@ export class Engine implements EngineContext {
     this.core.resetState();
     this.surface?.dispose();
     this.canvasDom?.remove();
+    this.event.clear();
   }
   /**
    * 重置引擎

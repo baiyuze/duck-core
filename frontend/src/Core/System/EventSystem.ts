@@ -1,5 +1,6 @@
 import type { Engine } from "../Core/Engine";
 import { Entity } from "../Entity/Entity";
+import { EventType } from "../enum";
 import type { StateStore } from "../types";
 import { System } from "./System";
 import { throttle } from "lodash";
@@ -63,23 +64,25 @@ export class EventSystem extends System {
     if (!this.stateStore) return;
     this.stateStore.eventQueue = [
       {
-        type: "mouseup",
+        type: EventType.MouseUp,
         event,
       },
     ];
     this.isMouseDown = false;
     this.isMouseMoving = false;
     this.engine.requestFrame();
+    this.engine.event.emit(EventType.MouseUp, event);
   }
   onMouseDown(event: MouseEvent) {
     if (!this.stateStore) return;
     this.stateStore.eventQueue = [
       {
-        type: "mousedown",
+        type: EventType.MouseDown,
         event,
       },
     ];
     this.isMouseDown = true;
+    this.engine.event.emit(EventType.MouseUp, event);
     this.engine.requestFrame();
   }
 
@@ -126,7 +129,7 @@ export class EventSystem extends System {
   }
   onMouseMove(event: MouseEvent) {
     if (!this.stateStore) return;
-    this.stateStore.eventQueue = [{ type: "mousemove", event }];
+    this.stateStore.eventQueue = [{ type: EventType.MouseMove, event }];
     if (this.engine.core.isDragging) {
       this.engine.dirtyRender = true;
     }
@@ -134,6 +137,7 @@ export class EventSystem extends System {
     if (!hasMouseInCanvas) return;
     this.isMouseMoving = true;
     this.engine.requestFrame();
+    this.engine.event.emit(EventType.MouseMove, event);
   }
 
   /**
@@ -151,12 +155,13 @@ export class EventSystem extends System {
       ? "metaKey"
       : "ctrlKey";
     if (event[eventKey] || event.ctrlKey) {
-      eventType = "zoom";
+      eventType = EventType.Zoom;
     } else {
-      eventType = "scroll";
+      eventType = EventType.Scroll;
     }
     this.stateStore.eventQueue = [{ type: eventType, event: event as any }];
     this.engine.requestFrame();
+    this.engine.event.emit(eventType, event);
   }
 
   destroyed(): void {

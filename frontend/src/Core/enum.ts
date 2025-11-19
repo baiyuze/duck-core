@@ -8,6 +8,8 @@ export const EventType = {
   TouchStart: "touchstart",
   TouchMove: "touchmove",
   TouchEnd: "touchend",
+  Scroll: "scroll",
+  Zoom: "zoom",
 } as const;
 
 export type EventType = (typeof EventType)[keyof typeof EventType];
