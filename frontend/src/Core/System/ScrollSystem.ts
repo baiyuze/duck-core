@@ -32,7 +32,7 @@ export class ScrollSystem extends System {
   constructor(engine: Engine) {
     super();
     this.engine = engine;
-    this.initScrollBar();
+    engine.config.scroll?.bar?.enabled && this.initScrollBar();
   }
 
   /**
@@ -57,7 +57,7 @@ export class ScrollSystem extends System {
 
   initScrollBar() {
     const canvasDom = this.engine.canvasDom!;
-    const { width, height } = this.engine.defaultConfig;
+    const { width, height } = this.engine.config;
 
     // 创建横向滚动条
     this.horizontalScrollbar = document.createElement("div");
@@ -172,7 +172,7 @@ export class ScrollSystem extends System {
   private handleHorizontalDrag() {
     const {
       camera,
-      defaultConfig: { width },
+      config: { width },
     } = this.engine;
     const { minX, maxX, zoom } = camera;
 
@@ -199,6 +199,7 @@ export class ScrollSystem extends System {
       scrollRange > 0
         ? (-camera.translateX / scrollRange) * (width - thumbWidth)
         : 0;
+
     if (this.hThumb) {
       const clampedPosition = Math.max(
         0,
@@ -216,7 +217,7 @@ export class ScrollSystem extends System {
   private handleVerticalDrag() {
     const {
       camera,
-      defaultConfig: { height },
+      config: { height },
     } = this.engine;
     const { minY, maxY, zoom } = camera;
 
@@ -262,7 +263,7 @@ export class ScrollSystem extends System {
 
     const {
       camera,
-      defaultConfig: { width, height },
+      config: { width, height },
     } = this.engine;
     const { minX, maxX, minY, maxY, zoom, translateX, translateY } = camera;
 
@@ -356,6 +357,7 @@ export class ScrollSystem extends System {
   }
 
   update(stateStore: StateStore) {
+    if (!this.engine.config.scroll?.enabled) return;
     if (stateStore.eventQueue.length === 0) return;
 
     const { type, event } =
@@ -417,6 +419,6 @@ export class ScrollSystem extends System {
     }
 
     this.engine.dirtyRender = true;
-    this.updateScrollbars();
+    this.engine.config.scroll?.bar?.enabled && this.updateScrollbars();
   }
 }

@@ -50,6 +50,12 @@ export type DefaultConfig = {
   hover?: {
     enabled: boolean;
   };
+  scroll?: {
+    enabled: boolean;
+    bar?: {
+      enabled: boolean;
+    };
+  };
 };
 
 export type RendererPromise = {

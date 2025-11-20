@@ -32,8 +32,8 @@ export class SelectionSystem extends System {
 
     const dpr = window.devicePixelRatio || 1;
 
-    const width = this.engine.defaultConfig.width;
-    const height = this.engine.defaultConfig.height;
+    const width = this.engine.config.width;
+    const height = this.engine.config.height;
     selectionCanvas.style.width = width + "px";
     selectionCanvas.style.height = height + "px";
 

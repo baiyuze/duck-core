@@ -21,7 +21,7 @@ export class DragSystem extends System {
   }
 
   update(stateStore: StateStore) {
-    if (this.engine.defaultConfig.drag?.enabled) {
+    if (this.engine.config.drag?.enabled) {
       this.stateStore = stateStore;
       this.onDrag();
     }

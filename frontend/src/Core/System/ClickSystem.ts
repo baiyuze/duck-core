@@ -14,7 +14,7 @@ export class ClickSystem extends System {
   }
 
   update(stateStore: StateStore) {
-    if (!this.engine.defaultConfig.selected?.enabled) return;
+    if (!this.engine.config.selected?.enabled) return;
     this.stateStore = stateStore;
     this.onClick();
   }

@@ -51,14 +51,14 @@ export class RenderSystem extends System {
    * 获取可视区域边界（世界坐标系）
    */
   getViewport() {
-    const { camera, defaultConfig } = this.engine;
+    const { camera, config } = this.engine;
     const zoom = camera.zoom;
 
     // 将画布坐标转换为世界坐标
     const left = -camera.translateX / zoom;
     const top = -camera.translateY / zoom;
-    const right = left + defaultConfig.width / zoom;
-    const bottom = top + defaultConfig.height / zoom;
+    const right = left + config.width / zoom;
+    const bottom = top + config.height / zoom;
 
     return { left, top, right, bottom };
   }

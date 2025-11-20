@@ -17,8 +17,8 @@ import CanvasKitInit from "canvaskit-wasm";
 import { FpsSystem } from "./System/FpsSystem";
 
 export function createCanvasRenderer(engine: Engine) {
-  const createCanvas = (defaultConfig: DefaultConfig) => {
-    const { canvasDom, dpr } = createCanvasDom(defaultConfig);
+  const createCanvas = (config: DefaultConfig) => {
+    const { canvasDom, dpr } = createCanvasDom(config);
     const ctx = canvasDom.getContext("2d", {
       willReadFrequently: true,
     }) as CanvasRenderingContext2D;
@@ -26,7 +26,7 @@ export function createCanvasRenderer(engine: Engine) {
     canvasDom.style.position = "absolute";
     canvasDom.style.top = "0";
     canvasDom.style.left = "0";
-    defaultConfig.container?.appendChild?.(canvasDom);
+    config.container?.appendChild?.(canvasDom);
     ctx.scale(dpr, dpr);
     return {
       canvasDom,
@@ -35,15 +35,16 @@ export function createCanvasRenderer(engine: Engine) {
     };
   };
 
-  const initCanvasKit = async (defaultConfig: DefaultConfig) => {
+  const initCanvasKit = async (config: DefaultConfig) => {
     const { CanvasKit, FontMgr } = await createCanvasKit();
-    const { dpr, canvasDom } = createCanvasDom(defaultConfig);
+
+    const { dpr, canvasDom } = createCanvasDom(config);
     canvasDom.id = "canvasKitCanvas";
     canvasDom.style.zIndex = "10";
     canvasDom.style.position = "absolute";
     canvasDom.style.top = "0";
     canvasDom.style.left = "0";
-    defaultConfig.container?.appendChild?.(canvasDom);
+    config.container?.appendChild?.(canvasDom);
     const surface = CanvasKit.MakeWebGLCanvasSurface(
       "canvasKitCanvas",
       CanvasKit.ColorSpace.SRGB,
@@ -67,13 +68,13 @@ export function createCanvasRenderer(engine: Engine) {
   };
 }
 
-export function createCanvasDom(defaultConfig: DefaultConfig) {
+export function createCanvasDom(config: DefaultConfig) {
   const canvasDom = document.createElement("canvas");
   const dpr = window.devicePixelRatio || 1;
-  canvasDom.style.width = defaultConfig.width + "px";
-  canvasDom.style.height = defaultConfig.height + "px";
-  canvasDom.width = defaultConfig.width * dpr;
-  canvasDom.height = defaultConfig.height * dpr;
+  canvasDom.style.width = config.width + "px";
+  canvasDom.style.height = config.height + "px";
+  canvasDom.width = config.width * dpr;
+  canvasDom.height = config.height * dpr;
 
   return { canvasDom, dpr };
 }
@@ -133,21 +134,21 @@ export const createSystem = (engine: Engine) => {
   engine.addSystem(new FpsSystem(engine));
 };
 
-export async function createEngine(dsls: any[], defaultConfig: DefaultConfig) {
+export async function createEngine(dsls: any[], config: DefaultConfig) {
   const core = new Core(dsls);
-  const mode = defaultConfig.mode || "Canvaskit";
+  const mode = config.mode || "Canvaskit";
   const engine = new Engine(core, mode);
   const { createCanvas2D, createCanvasKitSkia } = createCanvasRenderer(engine);
   const map: {
     [key: string]: () => Promise<void>;
   } = {
     Canvaskit: async () => {
-      const canvasInfo = await createCanvasKitSkia(defaultConfig);
-      engine.setEngine(canvasInfo, defaultConfig);
+      const canvasInfo = await createCanvasKitSkia(config);
+      engine.setEngine(canvasInfo, config);
     },
     Canvas2D: async () => {
-      const canvasInfo = createCanvas2D(defaultConfig);
-      engine.setEngine(canvasInfo, defaultConfig);
+      const canvasInfo = createCanvas2D(config);
+      engine.setEngine(canvasInfo, config);
     },
   };
   const render = map[mode];

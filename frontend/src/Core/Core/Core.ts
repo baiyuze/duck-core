@@ -13,7 +13,7 @@ import type { DSLParams } from "../types/dsl";
 import { getComponentsByEntityId } from "../utils";
 
 export class Core {
-  defaultConfig: Size = { width: 800, height: 800 };
+  config: Size = { width: 800, height: 800 };
   multiple: boolean = false;
   isDragging: boolean = false;
   dsls: DSL[] = [];
@@ -91,15 +91,6 @@ export class Core {
       const entity = new DSL(dsl);
       position.x = entity.position.x;
       position.y = entity.position.y;
-      console.log(position.x, entity.position.x, "----");
-
-      // Object.assign(state, entity);
-      // console.log(
-      //   state.position.y,
-      //   state.position.x,
-      //   this.stateStore,
-      //   "---===>"
-      // );
     });
   }
 

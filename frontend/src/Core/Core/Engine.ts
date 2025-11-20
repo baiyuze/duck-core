@@ -24,8 +24,10 @@ import CanvasKitInit, {
 import { RendererManager } from "./RendererManager";
 import { Event } from "./Event";
 import { isNil } from "lodash";
+import { Config } from "./Config";
 
 export class Engine implements EngineContext {
+  config = Config;
   camera = new Camera();
   entityManager = new Entity();
   rendererManager: RendererManager = new RendererManager();
@@ -33,16 +35,6 @@ export class Engine implements EngineContext {
   isFirstInit: boolean = true;
   dirtyRender = false;
   dirtyOverlay = false;
-  /**
-   * 是否多选
-   */
-  defaultConfig: DefaultConfig = {
-    width: 800,
-    height: 800,
-    drag: { enabled: true },
-    selected: { enabled: true },
-    hover: { enabled: true },
-  };
   dsls: DSL[] = [];
   SystemMap: Map<string, System> = new Map();
   system: System[] = [];
@@ -78,8 +70,8 @@ export class Engine implements EngineContext {
       (canvas as CanvasRenderingContext2D).clearRect(
         0,
         0,
-        this.defaultConfig.width,
-        this.defaultConfig.height
+        this.config.width,
+        this.config.height
       );
     } else {
       this.canvas.clear(this.ck.Color4f(0, 0, 0, 0));
@@ -90,16 +82,16 @@ export class Engine implements EngineContext {
    * 设置引擎相关属性
    * @param canvasInfo
    */
-  setEngine(canvasInfo: CanvasInfo, defaultConfig: DefaultConfig) {
+  setEngine(canvasInfo: CanvasInfo, config: DefaultConfig) {
     this.canvasDom = canvasInfo.canvasDom;
-    this.defaultConfig = defaultConfig;
-    if (defaultConfig.camera) {
-      this.camera.minX = defaultConfig.camera.minX;
-      this.camera.maxX = defaultConfig.camera.maxX;
-      this.camera.minY = defaultConfig.camera.minY;
-      this.camera.maxY = defaultConfig.camera.maxY;
-      if (!isNil(defaultConfig.camera.scale)) {
-        this.camera.scale = !!defaultConfig.camera.scale;
+    this.config.merge(config);
+    if (config.camera) {
+      this.camera.minX = config.camera.minX;
+      this.camera.maxX = config.camera.maxX;
+      this.camera.minY = config.camera.minY;
+      this.camera.maxY = config.camera.maxY;
+      if (!isNil(config.camera.scale)) {
+        this.camera.scale = !!config.camera.scale;
       }
     }
 

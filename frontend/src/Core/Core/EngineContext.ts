@@ -1,18 +1,15 @@
-import type { Size } from "../Components";
-import type { DSL } from "../DSL/DSL";
 import type { Entity } from "../Entity/Entity";
 import type { System } from "../System/System";
 import type { CanvasInfo, DefaultConfig, StateStore } from "../types";
 import type { Camera } from "./Camera";
-// import { Engine } from "./Engine";
+import type { Config } from "./Config";
 
-// Engine Context 接口定义
 export interface EngineContext {
   camera: Camera;
   isFirstInit: boolean;
   dirtyRender: boolean;
   dirtyOverlay: boolean;
-  defaultConfig: DefaultConfig;
+  config: Config;
 
   SystemMap: Map<string, System>;
 
@@ -21,10 +18,10 @@ export interface EngineContext {
   system: System[];
 
   entityManager: Entity;
-  setEngine(canvasInfo: CanvasInfo, defaultConfig: DefaultConfig): void;
-  // createCanvas: (defaultConfig: DefaultConfig) => CanvasRenderingContext2D;
+  setEngine(canvasInfo: CanvasInfo, config: DefaultConfig): void;
+  // createCanvas: (config: DefaultConfig) => CanvasRenderingContext2D;
   // initCanvas: (
-  //   defaultConfig: DefaultConfig
+  //   config: DefaultConfig
   // ) => Promise<CanvasRenderingContext2D>;
   update: () => void;
   destroyed: () => void;

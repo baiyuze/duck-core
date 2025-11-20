@@ -17,7 +17,7 @@ export class HoverSystem extends System {
   }
 
   update(stateStore: StateStore) {
-    if (this.engine.defaultConfig.hover?.enabled) {
+    if (this.engine.config.hover?.enabled) {
       this.stateStore = stateStore;
       this.onHover();
     }
