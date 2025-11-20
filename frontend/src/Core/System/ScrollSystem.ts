@@ -275,9 +275,10 @@ export class ScrollSystem extends System {
         this.minThumbSize,
         (width / contentWidth) * width
       );
+
       const scrollPosition =
         scrollRange > 0
-          ? (-translateX / scrollRange) * (width - thumbWidth)
+          ? (-translateX / contentWidth) * (width - thumbWidth)
           : 0;
 
       if (this.hThumb) {
@@ -286,6 +287,7 @@ export class ScrollSystem extends System {
           0,
           Math.min(width - thumbWidth, scrollPosition)
         );
+
         this.hThumb.style.transform = `translateX(${clampedPosition}px)`;
       }
       this.horizontalScrollbar.style.display =
@@ -304,7 +306,7 @@ export class ScrollSystem extends System {
       );
       const scrollPosition =
         scrollRange > 0
-          ? (-translateY / scrollRange) * (height - thumbHeight)
+          ? (-translateY / contentHeight) * (height - thumbHeight)
           : 0;
 
       if (this.vThumb) {
