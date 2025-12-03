@@ -6,6 +6,7 @@ import CopilotDemo from "../Components/AiChat/AiChat";
 import { createEngine } from "../Core/engineFactory";
 import { Button, Select } from "antd";
 import { cloneDeep } from "lodash";
+import Mouse from "../Components/Mouse/Mouse";
 
 function Canvas(props: CanvasProps) {
   const [renderer, setRenderer] = useState<string>("Canvaskit");
@@ -5525,11 +5526,11 @@ function Canvas(props: CanvasProps) {
           height: 800,
         }}
       >
-        {/* <canvas id="canvas" width={800} height={800}></canvas> */}
+        <Mouse left={400} top={100} />
       </div>
       <Button onClick={onStart}>开始</Button>
       <div className={styles.controls}>
-        <CopilotDemo onApplyCode={handlerApplyCode} />
+        {/* <CopilotDemo onApplyCode={handlerApplyCode} /> */}
       </div>
     </div>
   );
