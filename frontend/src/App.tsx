@@ -1,5 +1,4 @@
 import {
-  BrowserRouter,
   Routes,
   Route,
   Navigate,
@@ -10,6 +9,7 @@ import Canvas from "./Canvas/Canvas";
 import Login from "./Pages/Login/Login";
 import TokenTest from "./Components/TokenTest";
 import TokenDebug from "./Components/TokenDebug";
+import MainLayout from "./Components/MainLayout";
 
 // 路由守卫：检查是否登录
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -30,6 +30,16 @@ function App() {
           element={
             <ProtectedRoute>
               <Canvas width={800} height={800} />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/editor"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <Canvas width={800} height={800} />
+              </MainLayout>
             </ProtectedRoute>
           }
         />

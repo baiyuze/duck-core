@@ -1,0 +1,266 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  width: 260px;
+  height: 100%;
+  background: #ffffff;
+  border-right: 1px solid #e8e8e8;
+  transition: width 0.2s ease;
+  overflow: hidden;
+
+  &.collapsed {
+    width: 64px;
+
+    .header {
+      justify-content: center;
+      padding: 12px 8px;
+    }
+
+    .sectionHeader {
+      justify-content: center;
+      padding: 8px;
+    }
+
+    .sectionTitle {
+      display: none;
+    }
+  }
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #e8e8e8;
+  min-height: 56px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #1a1a1a;
+  font-weight: 600;
+  font-size: 16px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.logoIcon {
+  font-size: 22px;
+  color: #1890ff;
+}
+
+.logoText {
+  color: #1a1a1a;
+}
+
+.collapseButton {
+  color: #8c8c8c;
+  flex-shrink: 0;
+
+  &:hover {
+    color: #1890ff;
+    background: rgba(24, 144, 255, 0.08);
+  }
+}
+
+.pageSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px 8px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  color: #8c8c8c;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 500;
+}
+
+.addButton {
+  color: #8c8c8c;
+
+  &:hover {
+    color: #1890ff;
+    background: rgba(24, 144, 255, 0.1);
+  }
+}
+
+.pageMenu {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: transparent;
+  border: none;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #d9d9d9;
+    border-radius: 3px;
+
+    &:hover {
+      background: #bfbfbf;
+    }
+  }
+
+  // Ant Design Menu 样式覆盖
+  :global {
+    .ant-menu {
+      background: transparent;
+      color: #595959;
+    }
+
+    .ant-menu-item,
+    .ant-menu-submenu-title {
+      margin: 2px 8px !important;
+      padding: 0 12px !important;
+      border-radius: 6px;
+      height: 36px;
+      line-height: 36px;
+      color: #595959;
+
+      &:hover {
+        background: #f5f5f5 !important;
+        color: #1a1a1a;
+      }
+
+      .ant-menu-title-content {
+        flex: 1;
+        overflow: hidden;
+      }
+    }
+
+    .ant-menu-item-selected {
+      background: rgba(24, 144, 255, 0.1) !important;
+      color: #1890ff !important;
+
+      &::after {
+        display: none;
+      }
+    }
+
+    .ant-menu-submenu {
+      .ant-menu-submenu-title {
+        &:hover {
+          background: #f5f5f5 !important;
+        }
+      }
+
+      .ant-menu-sub {
+        background: transparent !important;
+
+        .ant-menu-item {
+          padding-left: 40px !important;
+        }
+      }
+    }
+
+    .ant-menu-submenu-arrow {
+      color: #8c8c8c;
+    }
+
+    .ant-menu-inline-collapsed {
+      width: 48px;
+
+      .ant-menu-item,
+      .ant-menu-submenu-title {
+        padding: 0 !important;
+        justify-content: center;
+      }
+    }
+  }
+}
+
+.menuItemContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 8px;
+}
+
+.menuItemLabel {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.moreButton {
+  opacity: 0;
+  color: #8c8c8c;
+  padding: 2px 4px;
+  height: auto;
+  min-width: auto;
+  flex-shrink: 0;
+
+  &:hover {
+    color: #1890ff;
+    background: rgba(24, 144, 255, 0.1);
+  }
+
+  .menuItemContent:hover & {
+    opacity: 1;
+  }
+}
+
+.bottomSection {
+  border-top: 1px solid #e8e8e8;
+  padding: 8px 0;
+}
+
+.bottomMenu {
+  background: transparent;
+  border: none;
+
+  :global {
+    .ant-menu {
+      background: transparent;
+    }
+
+    .ant-menu-item {
+      margin: 2px 8px !important;
+      padding: 0 12px !important;
+      border-radius: 6px;
+      height: 36px;
+      line-height: 36px;
+      color: #595959;
+
+      &:hover {
+        background: #f5f5f5 !important;
+        color: #1a1a1a;
+      }
+
+      &::after {
+        display: none;
+      }
+    }
+
+    .ant-menu-inline-collapsed {
+      width: 48px;
+
+      .ant-menu-item {
+        padding: 0 !important;
+        justify-content: center;
+      }
+    }
+  }
+}
