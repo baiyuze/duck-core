@@ -14,7 +14,7 @@ import cloneDeep from 'lodash/cloneDeep.js'
 import ora from 'ora'
 
 const assetsUrl =
-  'https://lmes:gldt-ocw4NMSiDHD461ZoDvyK@gitlab.syc-cms.com:8443/lmes-plugin/web/assets.git'
+  'https://test:@example/lmes-plugin/web/assets.git'
 const baseDir = './node_modules/.cache/wwwroot'
 const baseBuildFile = './node_modules/.cache/widgets.json'
 const hostPath = slash(path.resolve(process.cwd(), baseDir))
