@@ -1,5 +1,3 @@
-// engineFactory.ts
-
 import { HoverSystem } from "./System/HoverSystem";
 import { ClickSystem } from "./System/ClickSystem";
 import { SelectionSystem } from "./System/SelectionSystem";
@@ -13,8 +11,10 @@ import { DragSystem } from "./System/DragSystem";
 import { ZoomSystem } from "./System/ZoomSystem";
 import { ScrollSystem } from "./System/ScrollSystem";
 import type { DefaultConfig } from "./types";
-import CanvasKitInit from "canvaskit-wasm";
+import CanvasKitInit, { type CanvasKit } from "canvaskit-wasm";
 import { FpsSystem } from "./System/FpsSystem";
+
+let canvasKitPromise: Promise<CanvasKit> | null = null;
 
 export function createCanvasRenderer(engine: Engine) {
   const createCanvas = (config: DefaultConfig) => {
@@ -49,7 +49,7 @@ export function createCanvasRenderer(engine: Engine) {
       "canvasKitCanvas",
       CanvasKit.ColorSpace.SRGB,
       {
-        alpha: 1, // 背景透明
+        alpha: 1,
       }
     );
     const canvas = surface!.getCanvas();
@@ -57,11 +57,12 @@ export function createCanvasRenderer(engine: Engine) {
     return {
       canvasDom,
       surface,
-      canvas: canvas,
-      FontMgr: FontMgr,
+      canvas,
+      FontMgr,
       ck: CanvasKit,
     };
   };
+
   return {
     createCanvas2D: createCanvas,
     createCanvasKitSkia: initCanvasKit,
@@ -86,25 +87,55 @@ export async function createCanvasKit() {
   return { CanvasKit, FontMgr };
 }
 
-async function initCanvasKit() {
-  const cdnUrl = "https://cdn.bootcdn.net/ajax/libs/canvaskit-wasm/0.40.0/";
+function initCanvasKit(): Promise<CanvasKit> {
+  if (canvasKitPromise) {
+    return canvasKitPromise;
+  }
+
+  const cdnUrl =
+    "https://cdn.bootcdn.net/ajax/libs/canvaskit-wasm/0.40.0/";
   const localUrl =
     import.meta.env?.MODE === "production"
       ? "/design/canvaskit/"
       : "/node_modules/canvaskit-wasm/bin/";
 
-  try {
-    return await CanvasKitInit({
-      locateFile: (file) => cdnUrl + file,
-    });
-  } catch (error) {
-    return await CanvasKitInit({
-      locateFile: (file) => localUrl + file,
-    });
-  }
+  const load = async (prefix: string): Promise<CanvasKit> => {
+    const wasmUrl = `${prefix}canvaskit.wasm`;
+    const response = await fetch(wasmUrl);
+
+    if (!response.ok) {
+      throw new Error(
+        `CanvasKit WASM 加载失败：${response.status} ${response.statusText}`
+      );
+    }
+
+    // 公共 CDN 的 MIME 类型可能不是 application/wasm。
+    // 先读取二进制再交给 CanvasKit，避免流式编译失败后重复请求。
+    const wasmBinary = await response.arrayBuffer();
+
+    return CanvasKitInit({
+      wasmBinary,
+      locateFile: (file: string) => `${prefix}${file}`,
+    } as any);
+  };
+
+  canvasKitPromise = load(cdnUrl).catch((cdnError) => {
+    console.warn(
+      "CanvasKit CDN 加载失败，正在切换到本地资源：",
+      cdnError
+    );
+    return load(localUrl);
+  });
+
+  // CDN 和本地都失败时允许后续调用重新尝试。
+  canvasKitPromise.catch(() => {
+    canvasKitPromise = null;
+  });
+
+  return canvasKitPromise;
 }
 
-async function loadFonts(CanvasKit: any) {
+async function loadFonts(CanvasKit: CanvasKit) {
   const fontsBase =
     import.meta.env?.MODE === "production" ? "/design/fonts/" : "/fonts/";
 
